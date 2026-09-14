@@ -33,6 +33,19 @@ from app.dto.vectorupdateapi.vectorupdateapi_dto import VectorupdateapiDto
 from app.dto.monthlyinitapi.monthlyinitapi_dto import MonthlyinitapiDto
 from app.dto.monthlyfiscalyearapi.monthlyfiscalyearapi_dto import MonthlyfiscalyearapiDto
 from app.dto.monthlyexportapi.monthlyexportapi_dto import MonthlyexportapiDto
+from app.service.aiformatapi.aiformatapi_service import AiformatapiService
+from app.service.draftsaveapi.draftsaveapi_service import DraftsaveapiService
+from app.service.voiceextendapi.voiceextendapi_service import VoiceextendapiService
+from app.service.voiceinsertcontentapi.voiceinsertcontentapi_service import VoiceinsertcontentapiService
+from app.service.voicerecordapi.voicerecordapi_service import VoicerecordapiService
+from app.service.voiceuploadapi.voiceuploadapi_service import VoiceuploadapiService
+from app.dto.aiformatapi.aiformatapi_dto import AiformatapiDto
+from app.dto.aiinputinitapi.aiinputinitapi_dto import AiinputinitapiDto
+from app.dto.draftsaveapi.draftsaveapi_dto import DraftsaveapiDto
+from app.dto.voiceextendapi.voiceextendapi_dto import VoiceextendapiDto
+from app.dto.voiceinsertcontentapi.voiceinsertcontentapi_dto import VoiceinsertcontentapiDto
+from app.dto.voicerecordapi.voicerecordapi_dto import VoicerecordapiDto
+from app.dto.voiceuploadapi.voiceuploadapi_dto import VoiceuploadapiDto
 
 commonfunction_route = Blueprint('commonfunction_route', __name__)
 
@@ -640,6 +653,238 @@ def monthlyinitapi() :
 	monthlyinitapiVar_service = MonthlyinitapiService()
 
 	monthlyinitapiVar_service.monthlyinitapi(monthlyinitapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# aiformatapi - 傾聴内容変換AI文字起こし AI整形 - サーバー関数
+# @param aiformatapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/aiformatapi.do", methods=['POST'])
+
+def aiformatapi() :
+	"""aiformatapi - 傾聴内容変換AI文字起こし AI整形 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	aiformatapi_dto = AiformatapiDto.dict_to_json(data)
+	aiformatapiVar_service = AiformatapiService()
+
+	aiformatapiVar_service.aiformatapi(aiformatapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# aiinputinitapi - 傾聴内容変換AI画面初期表示 - サーバー関数
+# @param aiinputinitapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/aiinputinitapi.do", methods=['POST'])
+
+def aiinputinitapi() :
+	"""aiinputinitapi - 傾聴内容変換AI画面初期表示 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	aiinputinitapi_dto = AiinputinitapiDto.dict_to_json(data)
+	aiinputinitapiVar_service = AiinputinitapiService()
+
+	aiinputinitapiVar_service.aiinputinitapi(aiinputinitapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# draftsaveapi - 傾聴内容変換AI下書き保存 - サーバー関数
+# @param draftsaveapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/draftsaveapi.do", methods=['POST'])
+
+def draftsaveapi() :
+	"""draftsaveapi - 傾聴内容変換AI下書き保存 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	draftsaveapi_dto = DraftsaveapiDto.dict_to_json(data)
+	draftsaveapiVar_service = DraftsaveapiService()
+
+	draftsaveapiVar_service.draftsaveapi(draftsaveapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# formexportapi - 傾聴内容変換AI帳票出力 - サーバー関数
+# @param formexportapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/formexportapi.do", methods=['POST'])
+
+def formexportapi() :
+	"""formexportapi - 傾聴内容変換AI帳票出力 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	formexportapi_dto = FormexportapiDto.dict_to_json(data)
+	formexportapiVar_service = FormexportapiService()
+
+	formexportapiVar_service.formexportapi(formexportapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# voiceextendapi - 傾聴内容変換AI録音時間 ＋30分延長 - サーバー関数
+# @param voiceextendapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/voiceextendapi.do", methods=['POST'])
+
+def voiceextendapi() :
+	"""voiceextendapi - 傾聴内容変換AI録音時間 ＋30分延長 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	voiceextendapi_dto = VoiceextendapiDto.dict_to_json(data)
+	voiceextendapiVar_service = VoiceextendapiService()
+
+	voiceextendapiVar_service.voiceextendapi(voiceextendapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# voiceinsertcontentapi - 傾聴内容変換AI文字起こしを内容欄に反映 - サーバー関数
+# @param voiceinsertcontentapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/voiceinsertcontentapi.do", methods=['POST'])
+
+def voiceinsertcontentapi() :
+	"""voiceinsertcontentapi - 傾聴内容変換AI文字起こしを内容欄に反映 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	voiceinsertcontentapi_dto = VoiceinsertcontentapiDto.dict_to_json(data)
+	voiceinsertcontentapiVar_service = VoiceinsertcontentapiService()
+
+	voiceinsertcontentapiVar_service.voiceinsertcontentapi(voiceinsertcontentapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# voicerecordapi - 傾聴内容変換AI音声録音 開始／停止 - サーバー関数
+# @param voicerecordapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/voicerecordapi.do", methods=['POST'])
+
+def voicerecordapi() :
+	"""voicerecordapi - 傾聴内容変換AI音声録音 開始／停止 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	voicerecordapi_dto = VoicerecordapiDto.dict_to_json(data)
+	voicerecordapiVar_service = VoicerecordapiService()
+
+	voicerecordapiVar_service.voicerecordapi(voicerecordapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# voiceuploadapi - 傾聴内容変換AI音声ファイル アップロード - サーバー関数
+# @param voiceuploadapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/voiceuploadapi.do", methods=['POST'])
+
+def voiceuploadapi() :
+	"""voiceuploadapi - 傾聴内容変換AI音声ファイル アップロード - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	voiceuploadapi_dto = VoiceuploadapiDto.dict_to_json(data)
+	voiceuploadapiVar_service = VoiceuploadapiService()
+
+	voiceuploadapiVar_service.voiceuploadapi(voiceuploadapi_dto, jsonObj)
 
 	return jsonObj.toJsonString()
 
