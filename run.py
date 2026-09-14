@@ -42,6 +42,7 @@ from utils import log_exception
 from utils import csrf_protect
 csrf_protect.init_csrf(app)
 from app.controller import logincontroller
+from app.controller import commonfunctioncontroller
 import utils.config
 import utils.mysqldb_utils
 from utils.jsonwfc_object import JSONWFCObject
@@ -107,6 +108,7 @@ else:
     utils.config.global_log.info("Database connection check OK")
 app.register_blueprint(m001_controller.m001_route)
 app.register_blueprint(logincontroller.login_route)
+app.register_blueprint(commonfunctioncontroller.commonfunction_route)
 db.init_app(app)  # Initialize the database
 mail.init_app(app)  # Initialize the mail extension
 migrate.init_app(app, db)

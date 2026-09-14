@@ -11,6 +11,7 @@ import resources.messages
 
 
 from app.service.entryupdateapi.entryupdateapi_service import EntryupdateapiService
+from app.service.dashboardinitapi.dashboardinitapi_service import DashboardinitapiService
 
 commonfunction_route = Blueprint('commonfunction_route', __name__)
 
@@ -183,7 +184,36 @@ def entryupdateapi() :
 	entryupdateapiVar_service = EntryupdateapiService()
 
 	entryupdateapiVar_service.entryupdateapi(entryupdateapi_dto, jsonObj)
-	
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# dashboardinitapi - ダッシュボード（商工会）ダッシュボードを開く（初期データ取 - サーバー関数
+# @param dashboardinitapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/dashboardinitapi.do", methods=['POST'])
+
+def dashboardinitapi() :
+	"""dashboardinitapi - ダッシュボード（商工会）ダッシュボードを開く（初期データ取 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	dashboardinitapi_dto = DashboardinitapiDto.dict_to_json(data)
+	dashboardinitapiVar_service = DashboardinitapiService()
+
+	dashboardinitapiVar_service.dashboardinitapi(dashboardinitapi_dto, jsonObj)
+
 	return jsonObj.toJsonString()
 
 
