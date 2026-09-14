@@ -1,0 +1,25 @@
+.form-control {
+	margin: 2.5px 0!important;
+	padding: 2.5px 5px!important;
+}
+.col-form-label {
+	margin: 2.5px 8px 2.5px 0!important;
+}
+.btn {
+	padding: 5px 10px;
+}
+.page_content_div img {
+	margin: 5px 0!important;
+}
+.queryItem {
+	margin-bottom: 0!important;
+}
+.card {
+	margin: 5px 10px!important;
+}
+.card.custom-card .card-header {
+	padding: 0.3rem 1rem!important;
+}
+.card.custom-card .card-body {
+	padding: 1rem;
+}

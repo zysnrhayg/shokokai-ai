@@ -1,0 +1,452 @@
+from flask import session
+class MenuRightUtil :
+	def setRightMap(self,rightMap):
+		#グループ名
+		menuStyleMap = {}
+		menuStyleMap["M00006"]="width: 7.14%;"
+		menuStyleMap["M00008"]="width: 7.14%;"
+		menuStyleMap["M00009"]="width: 7.14%;"
+		menuStyleMap["M00012"]="width: 7.14%;"
+		menuStyleMap["M00013"]="width: 7.14%;"
+		menuStyleMap["M00014"]="width: 7.14%;"
+		menuStyleMap["M00015"]="width: 7.14%;"
+		menuStyleMap["M00016"]="width: 7.14%;"
+		menuStyleMap["M00017"]="width: 7.14%;"
+		menuStyleMap["M00019"]="width: 7.14%;"
+		menuStyleMap["M00020"]="width: 7.14%;"
+		menuStyleMap["M00021"]="width: 7.14%;"
+		menuStyleMap["M00022"]="width: 7.14%;"
+		menuStyleMap["M00023"]="width: 7.14%;"
+		menuStyleMap["M00024"]="display:none;"
+		rightMap["G00045"] = menuStyleMap
+		#ルー
+		menuStyleMap.clear()
+		menuStyleMap["M00006"]="width: 7.14%;"
+		menuStyleMap["M00008"]="width: 7.14%;"
+		menuStyleMap["M00009"]="width: 7.14%;"
+		menuStyleMap["M00012"]="width: 7.14%;"
+		menuStyleMap["M00013"]="width: 7.14%;"
+		menuStyleMap["M00014"]="width: 7.14%;"
+		menuStyleMap["M00015"]="width: 7.14%;"
+		menuStyleMap["M00016"]="width: 7.14%;"
+		menuStyleMap["M00017"]="width: 7.14%;"
+		menuStyleMap["M00019"]="width: 7.14%;"
+		menuStyleMap["M00020"]="width: 7.14%;"
+		menuStyleMap["M00021"]="width: 7.14%;"
+		menuStyleMap["M00022"]="width: 7.14%;"
+		menuStyleMap["M00023"]="width: 7.14%;"
+		menuStyleMap["M00024"]="display:none;"
+		rightMap["G00048"] = menuStyleMap
+		#担当者
+		menuStyleMap.clear()
+		menuStyleMap["M00006"]="width: 7.14%;"
+		menuStyleMap["M00008"]="width: 7.14%;"
+		menuStyleMap["M00009"]="width: 7.14%;"
+		menuStyleMap["M00012"]="width: 7.14%;"
+		menuStyleMap["M00013"]="width: 7.14%;"
+		menuStyleMap["M00014"]="width: 7.14%;"
+		menuStyleMap["M00015"]="width: 7.14%;"
+		menuStyleMap["M00016"]="width: 7.14%;"
+		menuStyleMap["M00017"]="width: 7.14%;"
+		menuStyleMap["M00019"]="width: 7.14%;"
+		menuStyleMap["M00020"]="width: 7.14%;"
+		menuStyleMap["M00021"]="width: 7.14%;"
+		menuStyleMap["M00022"]="width: 7.14%;"
+		menuStyleMap["M00023"]="width: 7.14%;"
+		menuStyleMap["M00024"]="display:none;"
+		rightMap["G00050"] = menuStyleMap
+		#TM_信息管理部
+		menuStyleMap.clear()
+		menuStyleMap["M00006"]="width: 7.14%;"
+		menuStyleMap["M00008"]="width: 7.14%;"
+		menuStyleMap["M00009"]="width: 7.14%;"
+		menuStyleMap["M00012"]="width: 7.14%;"
+		menuStyleMap["M00013"]="width: 7.14%;"
+		menuStyleMap["M00014"]="width: 7.14%;"
+		menuStyleMap["M00015"]="width: 7.14%;"
+		menuStyleMap["M00016"]="width: 7.14%;"
+		menuStyleMap["M00017"]="width: 7.14%;"
+		menuStyleMap["M00019"]="width: 7.14%;"
+		menuStyleMap["M00020"]="width: 7.14%;"
+		menuStyleMap["M00021"]="width: 7.14%;"
+		menuStyleMap["M00022"]="width: 7.14%;"
+		menuStyleMap["M00023"]="width: 7.14%;"
+		menuStyleMap["M00024"]="display:none;"
+		rightMap["G00051"] = menuStyleMap
+		#TM_IT运维服务部
+		menuStyleMap.clear()
+		menuStyleMap["M00006"]="width: 7.14%;"
+		menuStyleMap["M00008"]="width: 7.14%;"
+		menuStyleMap["M00009"]="width: 7.14%;"
+		menuStyleMap["M00012"]="width: 7.14%;"
+		menuStyleMap["M00013"]="width: 7.14%;"
+		menuStyleMap["M00014"]="width: 7.14%;"
+		menuStyleMap["M00015"]="width: 7.14%;"
+		menuStyleMap["M00016"]="width: 7.14%;"
+		menuStyleMap["M00017"]="width: 7.14%;"
+		menuStyleMap["M00019"]="width: 7.14%;"
+		menuStyleMap["M00020"]="width: 7.14%;"
+		menuStyleMap["M00021"]="width: 7.14%;"
+		menuStyleMap["M00022"]="width: 7.14%;"
+		menuStyleMap["M00023"]="width: 7.14%;"
+		menuStyleMap["M00024"]="display:none;"
+		rightMap["G00052"] = menuStyleMap
+		#TM_质量管理部
+		menuStyleMap.clear()
+		menuStyleMap["M00006"]="width: 7.14%;"
+		menuStyleMap["M00008"]="width: 7.14%;"
+		menuStyleMap["M00009"]="width: 7.14%;"
+		menuStyleMap["M00012"]="width: 7.14%;"
+		menuStyleMap["M00013"]="width: 7.14%;"
+		menuStyleMap["M00014"]="width: 7.14%;"
+		menuStyleMap["M00015"]="width: 7.14%;"
+		menuStyleMap["M00016"]="width: 7.14%;"
+		menuStyleMap["M00017"]="width: 7.14%;"
+		menuStyleMap["M00019"]="width: 7.14%;"
+		menuStyleMap["M00020"]="width: 7.14%;"
+		menuStyleMap["M00021"]="width: 7.14%;"
+		menuStyleMap["M00022"]="width: 7.14%;"
+		menuStyleMap["M00023"]="width: 7.14%;"
+		menuStyleMap["M00024"]="display:none;"
+		rightMap["G00053"] = menuStyleMap
+		#TM_流程质量部
+		menuStyleMap.clear()
+		menuStyleMap["M00006"]="width: 7.14%;"
+		menuStyleMap["M00008"]="width: 7.14%;"
+		menuStyleMap["M00009"]="width: 7.14%;"
+		menuStyleMap["M00012"]="width: 7.14%;"
+		menuStyleMap["M00013"]="width: 7.14%;"
+		menuStyleMap["M00014"]="width: 7.14%;"
+		menuStyleMap["M00015"]="width: 7.14%;"
+		menuStyleMap["M00016"]="width: 7.14%;"
+		menuStyleMap["M00017"]="width: 7.14%;"
+		menuStyleMap["M00019"]="width: 7.14%;"
+		menuStyleMap["M00020"]="width: 7.14%;"
+		menuStyleMap["M00021"]="width: 7.14%;"
+		menuStyleMap["M00022"]="width: 7.14%;"
+		menuStyleMap["M00023"]="width: 7.14%;"
+		menuStyleMap["M00024"]="display:none;"
+		rightMap["G00054"] = menuStyleMap
+		#SH_制造中心
+		menuStyleMap.clear()
+		menuStyleMap["M00006"]="width: 7.14%;"
+		menuStyleMap["M00008"]="width: 7.14%;"
+		menuStyleMap["M00009"]="width: 7.14%;"
+		menuStyleMap["M00012"]="width: 7.14%;"
+		menuStyleMap["M00013"]="width: 7.14%;"
+		menuStyleMap["M00014"]="width: 7.14%;"
+		menuStyleMap["M00015"]="width: 7.14%;"
+		menuStyleMap["M00016"]="width: 7.14%;"
+		menuStyleMap["M00017"]="width: 7.14%;"
+		menuStyleMap["M00019"]="width: 7.14%;"
+		menuStyleMap["M00020"]="width: 7.14%;"
+		menuStyleMap["M00021"]="width: 7.14%;"
+		menuStyleMap["M00022"]="width: 7.14%;"
+		menuStyleMap["M00023"]="width: 7.14%;"
+		menuStyleMap["M00024"]="display:none;"
+		rightMap["G00054"] = menuStyleMap
+		#SH_面板厂
+		menuStyleMap.clear()
+		menuStyleMap["M00006"]="width: 7.14%;"
+		menuStyleMap["M00008"]="width: 7.14%;"
+		menuStyleMap["M00009"]="width: 7.14%;"
+		menuStyleMap["M00012"]="width: 7.14%;"
+		menuStyleMap["M00013"]="width: 7.14%;"
+		menuStyleMap["M00014"]="width: 7.14%;"
+		menuStyleMap["M00015"]="width: 7.14%;"
+		menuStyleMap["M00016"]="width: 7.14%;"
+		menuStyleMap["M00017"]="width: 7.14%;"
+		menuStyleMap["M00019"]="width: 7.14%;"
+		menuStyleMap["M00020"]="width: 7.14%;"
+		menuStyleMap["M00021"]="width: 7.14%;"
+		menuStyleMap["M00022"]="width: 7.14%;"
+		menuStyleMap["M00023"]="width: 7.14%;"
+		menuStyleMap["M00024"]="display:none;"
+		rightMap["G00056"]= menuStyleMap
+		#テストグループ
+		menuStyleMap.clear()
+		menuStyleMap["M00006"]="width: 6.67%;"
+		menuStyleMap["M00008"]="width: 6.67%;"
+		menuStyleMap["M00009"]="width: 6.67%;"
+		menuStyleMap["M00012"]="width: 6.67%;"
+		menuStyleMap["M00013"]="width: 6.67%;"
+		menuStyleMap["M00014"]="width: 6.67%;"
+		menuStyleMap["M00015"]="width: 6.67%;"
+		menuStyleMap["M00016"]="width: 6.67%;"
+		menuStyleMap["M00017"]="width: 6.67%;"
+		menuStyleMap["M00019"]="width: 6.67%;"
+		menuStyleMap["M00020"]="width: 6.67%;"
+		menuStyleMap["M00021"]="width: 6.67%;"
+		menuStyleMap["M00022"]="width: 6.67%;"
+		menuStyleMap["M00023"]="width: 6.67%;"
+		menuStyleMap["M00024"]="width: 6.67%;"
+		rightMap["G00057"]= menuStyleMap
+		#管理员
+		menuStyleMap.clear()
+		menuStyleMap["M00006"]="width: 7.14%;"
+		menuStyleMap["M00008"]="width: 7.14%;"
+		menuStyleMap["M00009"]="width: 7.14%;"
+		menuStyleMap["M00012"]="width: 7.14%;"
+		menuStyleMap["M00013"]="width: 7.14%;"
+		menuStyleMap["M00014"]="width: 7.14%;"
+		menuStyleMap["M00015"]="width: 7.14%;"
+		menuStyleMap["M00016"]="width: 7.14%;"
+		menuStyleMap["M00017"]="width: 7.14%;"
+		menuStyleMap["M00019"]="width: 7.14%;"
+		menuStyleMap["M00020"]="width: 7.14%;"
+		menuStyleMap["M00021"]="width: 7.14%;"
+		menuStyleMap["M00022"]="width: 7.14%;"
+		menuStyleMap["M00023"]="width: 7.14%;"
+		menuStyleMap["M00024"]="display:none;"
+		rightMap["G00058"]= menuStyleMap
+		#业务员
+		menuStyleMap.clear()
+		menuStyleMap["M00006"]="width: 7.14%;"
+		menuStyleMap["M00008"]="width: 7.14%;"
+		menuStyleMap["M00009"]="width: 7.14%;"
+		menuStyleMap["M00012"]="width: 7.14%;"
+		menuStyleMap["M00013"]="width: 7.14%;"
+		menuStyleMap["M00014"]="width: 7.14%;"
+		menuStyleMap["M00015"]="width: 7.14%;"
+		menuStyleMap["M00016"]="width: 7.14%;"
+		menuStyleMap["M00017"]="width: 7.14%;"
+		menuStyleMap["M00019"]="width: 7.14%;"
+		menuStyleMap["M00020"]="width: 7.14%;"
+		menuStyleMap["M00021"]="width: 7.14%;"
+		menuStyleMap["M00022"]="width: 7.14%;"
+		menuStyleMap["M00023"]="width: 7.14%;"
+		menuStyleMap["M00024"]="display:none;"
+		rightMap["G00059"]= menuStyleMap
+		#财务
+		menuStyleMap.clear()
+		menuStyleMap["M00006"]="width: 7.14%;"
+		menuStyleMap["M00008"]="width: 7.14%;"
+		menuStyleMap["M00009"]="width: 7.14%;"
+		menuStyleMap["M00012"]="width: 7.14%;"
+		menuStyleMap["M00013"]="width: 7.14%;"
+		menuStyleMap["M00014"]="width: 7.14%;"
+		menuStyleMap["M00015"]="width: 7.14%;"
+		menuStyleMap["M00016"]="width: 7.14%;"
+		menuStyleMap["M00017"]="width: 7.14%;"
+		menuStyleMap["M00019"]="width: 7.14%;"
+		menuStyleMap["M00020"]="width: 7.14%;"
+		menuStyleMap["M00021"]="width: 7.14%;"
+		menuStyleMap["M00022"]="width: 7.14%;"
+		menuStyleMap["M00023"]="width: 7.14%;"
+		menuStyleMap["M00024"]="display:none;"
+		rightMap["G00060"]= menuStyleMap
+		#操作员
+		menuStyleMap.clear()
+		menuStyleMap["M00006"]="width: 7.14%;"
+		menuStyleMap["M00008"]="width: 7.14%;"
+		menuStyleMap["M00009"]="width: 7.14%;"
+		menuStyleMap["M00012"]="width: 7.14%;"
+		menuStyleMap["M00013"]="width: 7.14%;"
+		menuStyleMap["M00014"]="width: 7.14%;"
+		menuStyleMap["M00015"]="width: 7.14%;"
+		menuStyleMap["M00016"]="width: 7.14%;"
+		menuStyleMap["M00017"]="width: 7.14%;"
+		menuStyleMap["M00019"]="width: 7.14%;"
+		menuStyleMap["M00020"]="width: 7.14%;"
+		menuStyleMap["M00021"]="width: 7.14%;"
+		menuStyleMap["M00022"]="width: 7.14%;"
+		menuStyleMap["M00023"]="width: 7.14%;"
+		menuStyleMap["M00024"]="display:none;"
+		rightMap["G00061"]= menuStyleMap
+		#管理者S級
+		menuStyleMap.clear()
+		menuStyleMap["M00006"]="width: 7.14%;"
+		menuStyleMap["M00008"]="width: 7.14%;"
+		menuStyleMap["M00009"]="width: 7.14%;"
+		menuStyleMap["M00012"]="width: 7.14%;"
+		menuStyleMap["M00013"]="width: 7.14%;"
+		menuStyleMap["M00014"]="width: 7.14%;"
+		menuStyleMap["M00015"]="width: 7.14%;"
+		menuStyleMap["M00016"]="width: 7.14%;"
+		menuStyleMap["M00017"]="width: 7.14%;"
+		menuStyleMap["M00019"]="width: 7.14%;"
+		menuStyleMap["M00020"]="width: 7.14%;"
+		menuStyleMap["M00021"]="width: 7.14%;"
+		menuStyleMap["M00022"]="width: 7.14%;"
+		menuStyleMap["M00023"]="width: 7.14%;"
+		menuStyleMap["M00024"]="display:none;"
+		rightMap["G00062"]= menuStyleMap
+		#管理者A級
+		menuStyleMap.clear()
+		menuStyleMap["M00006"]="width: 7.14%;"
+		menuStyleMap["M00008"]="width: 7.14%;"
+		menuStyleMap["M00009"]="width: 7.14%;"
+		menuStyleMap["M00012"]="width: 7.14%;"
+		menuStyleMap["M00013"]="width: 7.14%;"
+		menuStyleMap["M00014"]="width: 7.14%;"
+		menuStyleMap["M00015"]="width: 7.14%;"
+		menuStyleMap["M00016"]="width: 7.14%;"
+		menuStyleMap["M00017"]="width: 7.14%;"
+		menuStyleMap["M00019"]="width: 7.14%;"
+		menuStyleMap["M00020"]="width: 7.14%;"
+		menuStyleMap["M00021"]="width: 7.14%;"
+		menuStyleMap["M00022"]="width: 7.14%;"
+		menuStyleMap["M00023"]="width: 7.14%;"
+		menuStyleMap["M00024"]="display:none;"
+		rightMap["G00063"]= menuStyleMap
+		#営業部門長
+		menuStyleMap.clear()
+		menuStyleMap["M00006"]="width: 7.14%;"
+		menuStyleMap["M00008"]="width: 7.14%;"
+		menuStyleMap["M00009"]="width: 7.14%;"
+		menuStyleMap["M00012"]="width: 7.14%;"
+		menuStyleMap["M00013"]="width: 7.14%;"
+		menuStyleMap["M00014"]="width: 7.14%;"
+		menuStyleMap["M00015"]="width: 7.14%;"
+		menuStyleMap["M00016"]="width: 7.14%;"
+		menuStyleMap["M00017"]="width: 7.14%;"
+		menuStyleMap["M00019"]="width: 7.14%;"
+		menuStyleMap["M00020"]="width: 7.14%;"
+		menuStyleMap["M00021"]="width: 7.14%;"
+		menuStyleMap["M00022"]="width: 7.14%;"
+		menuStyleMap["M00023"]="width: 7.14%;"
+		menuStyleMap["M00024"]="display:none;"
+		rightMap["G00064"]= menuStyleMap
+		#営業
+		menuStyleMap.clear()
+		menuStyleMap["M00006"]="width: 7.14%;"
+		menuStyleMap["M00008"]="width: 7.14%;"
+		menuStyleMap["M00009"]="width: 7.14%;"
+		menuStyleMap["M00012"]="width: 7.14%;"
+		menuStyleMap["M00013"]="width: 7.14%;"
+		menuStyleMap["M00014"]="width: 7.14%;"
+		menuStyleMap["M00015"]="width: 7.14%;"
+		menuStyleMap["M00016"]="width: 7.14%;"
+		menuStyleMap["M00017"]="width: 7.14%;"
+		menuStyleMap["M00019"]="width: 7.14%;"
+		menuStyleMap["M00020"]="width: 7.14%;"
+		menuStyleMap["M00021"]="width: 7.14%;"
+		menuStyleMap["M00022"]="width: 7.14%;"
+		menuStyleMap["M00023"]="width: 7.14%;"
+		menuStyleMap["M00024"]="display:none;"
+		rightMap["G00065"]= menuStyleMap
+		#購買設計部門長
+		menuStyleMap.clear()
+		menuStyleMap["M00006"]="width: 7.14%;"
+		menuStyleMap["M00008"]="width: 7.14%;"
+		menuStyleMap["M00009"]="width: 7.14%;"
+		menuStyleMap["M00012"]="width: 7.14%;"
+		menuStyleMap["M00013"]="width: 7.14%;"
+		menuStyleMap["M00014"]="width: 7.14%;"
+		menuStyleMap["M00015"]="width: 7.14%;"
+		menuStyleMap["M00016"]="width: 7.14%;"
+		menuStyleMap["M00017"]="width: 7.14%;"
+		menuStyleMap["M00019"]="width: 7.14%;"
+		menuStyleMap["M00020"]="width: 7.14%;"
+		menuStyleMap["M00021"]="width: 7.14%;"
+		menuStyleMap["M00022"]="width: 7.14%;"
+		menuStyleMap["M00023"]="width: 7.14%;"
+		menuStyleMap["M00024"]="display:none;"
+		rightMap["G00066"]= menuStyleMap
+		#設計
+		menuStyleMap.clear()
+		menuStyleMap["M00006"]="width: 7.14%;"
+		menuStyleMap["M00008"]="width: 7.14%;"
+		menuStyleMap["M00009"]="width: 7.14%;"
+		menuStyleMap["M00012"]="width: 7.14%;"
+		menuStyleMap["M00013"]="width: 7.14%;"
+		menuStyleMap["M00014"]="width: 7.14%;"
+		menuStyleMap["M00015"]="width: 7.14%;"
+		menuStyleMap["M00016"]="width: 7.14%;"
+		menuStyleMap["M00017"]="width: 7.14%;"
+		menuStyleMap["M00019"]="width: 7.14%;"
+		menuStyleMap["M00020"]="width: 7.14%;"
+		menuStyleMap["M00021"]="width: 7.14%;"
+		menuStyleMap["M00022"]="width: 7.14%;"
+		menuStyleMap["M00023"]="width: 7.14%;"
+		menuStyleMap["M00024"]="display:none;"
+		rightMap["G00067"]= menuStyleMap
+		#購買検収
+		menuStyleMap.clear()
+		menuStyleMap["M00006"]="width: 7.14%;"
+		menuStyleMap["M00008"]="width: 7.14%;"
+		menuStyleMap["M00009"]="width: 7.14%;"
+		menuStyleMap["M00012"]="width: 7.14%;"
+		menuStyleMap["M00013"]="width: 7.14%;"
+		menuStyleMap["M00014"]="width: 7.14%;"
+		menuStyleMap["M00015"]="width: 7.14%;"
+		menuStyleMap["M00016"]="width: 7.14%;"
+		menuStyleMap["M00017"]="width: 7.14%;"
+		menuStyleMap["M00019"]="width: 7.14%;"
+		menuStyleMap["M00020"]="width: 7.14%;"
+		menuStyleMap["M00021"]="width: 7.14%;"
+		menuStyleMap["M00022"]="width: 7.14%;"
+		menuStyleMap["M00023"]="width: 7.14%;"
+		menuStyleMap["M00024"]="display:none;"
+		rightMap["G00068"]= menuStyleMap
+		#財務
+		menuStyleMap.clear()
+		menuStyleMap["M00006"]="width: 7.14%;"
+		menuStyleMap["M00008"]="width: 7.14%;"
+		menuStyleMap["M00009"]="width: 7.14%;"
+		menuStyleMap["M00012"]="width: 7.14%;"
+		menuStyleMap["M00013"]="width: 7.14%;"
+		menuStyleMap["M00014"]="width: 7.14%;"
+		menuStyleMap["M00015"]="width: 7.14%;"
+		menuStyleMap["M00016"]="width: 7.14%;"
+		menuStyleMap["M00017"]="width: 7.14%;"
+		menuStyleMap["M00019"]="width: 7.14%;"
+		menuStyleMap["M00020"]="width: 7.14%;"
+		menuStyleMap["M00021"]="width: 7.14%;"
+		menuStyleMap["M00022"]="width: 7.14%;"
+		menuStyleMap["M00023"]="width: 7.14%;"
+		menuStyleMap["M00024"]="display:none;"
+		rightMap["G00069"]= menuStyleMap
+		#一般利用者
+		menuStyleMap.clear()
+		menuStyleMap["M00006"]="width: 7.14%;"
+		menuStyleMap["M00008"]="width: 7.14%;"
+		menuStyleMap["M00009"]="width: 7.14%;"
+		menuStyleMap["M00012"]="width: 7.14%;"
+		menuStyleMap["M00013"]="width: 7.14%;"
+		menuStyleMap["M00014"]="width: 7.14%;"
+		menuStyleMap["M00015"]="width: 7.14%;"
+		menuStyleMap["M00016"]="width: 7.14%;"
+		menuStyleMap["M00017"]="width: 7.14%;"
+		menuStyleMap["M00019"]="width: 7.14%;"
+		menuStyleMap["M00020"]="width: 7.14%;"
+		menuStyleMap["M00021"]="width: 7.14%;"
+		menuStyleMap["M00022"]="width: 7.14%;"
+		menuStyleMap["M00023"]="width: 7.14%;"
+		menuStyleMap["M00024"]="display:none;"
+		rightMap["G00070"]= menuStyleMap
+		#管理者
+		menuStyleMap.clear()
+		menuStyleMap["M00006"]="width: 7.14%;"
+		menuStyleMap["M00008"]="width: 7.14%;"
+		menuStyleMap["M00009"]="width: 7.14%;"
+		menuStyleMap["M00012"]="width: 7.14%;"
+		menuStyleMap["M00013"]="width: 7.14%;"
+		menuStyleMap["M00014"]="width: 7.14%;"
+		menuStyleMap["M00015"]="width: 7.14%;"
+		menuStyleMap["M00016"]="width: 7.14%;"
+		menuStyleMap["M00017"]="width: 7.14%;"
+		menuStyleMap["M00019"]="width: 7.14%;"
+		menuStyleMap["M00020"]="width: 7.14%;"
+		menuStyleMap["M00021"]="width: 7.14%;"
+		menuStyleMap["M00022"]="width: 7.14%;"
+		menuStyleMap["M00023"]="width: 7.14%;"
+		menuStyleMap["M00024"]="display:none;"
+		rightMap["G00071"]= menuStyleMap
+		
+	def setAdminSessionRight(self,session):
+		session[f"right_M00022"] = "width: 33.33%;"
+		session[f"right_M00023"] = "width: 33.33%;"
+		session[f"right_M00024"] = "width: 33.33%;"
+   
+	def setSessionRight(self,session,groupID):     
+		rightMap = {}
+		menu_style_map = {}
+		self.setRightMap(rightMap)
+		menu_style_map = rightMap[groupID]
+		if menu_style_map and len(menu_style_map) > 0:
+			for menu_id, style in menu_style_map.items():
+            	# Check for non-empty menu_id
+				if menu_id:  
+					session[f"right_{menu_id}"] = style
+	

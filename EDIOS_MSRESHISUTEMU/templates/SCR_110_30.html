@@ -1,0 +1,531 @@
+<html lang="ja" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light" data-menu-styles="dark" data-toggled="close"><head>
+
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title> Template </title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="./static/img/logo/logo.png" type="image/x-icon">
+    
+    <!-- Choices JS -->
+    <script src="./static/compact/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+
+    <!-- Main Theme Js -->
+    <script src="./static/compact/js/main.js"></script>
+    
+    <!-- Bootstrap Css -->
+    <link id="style" href="./static/compact/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Style Css -->
+    <link href="./static/compact/css/styles.min.css" rel="stylesheet">
+
+    <!-- Icons Css -->
+    <link href="./static/compact/css/icons.css" rel="stylesheet">
+
+    <!-- Node Waves Css -->
+    <link href="./static/compact/libs/node-waves/waves.min.css" rel="stylesheet"> 
+
+    <!-- Simplebar Css -->
+    <link href="./static/compact/libs/simplebar/simplebar.min.css" rel="stylesheet">
+    
+    <!-- Color Picker Css -->
+    <link rel="stylesheet" href="./static/compact/libs/flatpickr/flatpickr.min.css">
+    <link rel="stylesheet" href="./static/compact/libs/@simonwep/pickr/themes/nano.min.css">
+
+    <!-- Choices Css -->
+    <link rel="stylesheet" href="./static/compact/libs/choices.js/public/assets/styles/choices.min.css">
+
+    <!-- <link rel="stylesheet" href="./static/vendor/libs/jquery/jquery-ui.css" /> -->
+    
+    <link rel="stylesheet" href="./static/libs/jquery/jquery-ui.min.css">
+
+    <link rel="stylesheet" href="./static/vendor/libs/select2/select2.css">
+
+    <link rel="stylesheet" href="./static/vendor/libs/nvd3/nv.d3.min.css">
+
+    <link rel="stylesheet" href="./static/css/compact.css">
+
+    <link rel="stylesheet" href="./static/css/custimized.css">
+
+</head>
+
+<body>
+
+    <div class="page">
+         <!-- app-header -->
+         <header class="app-header">
+
+            <!-- Start::main-header-container -->
+            <div class="main-header-container container-fluid">
+
+                <!-- Start::header-content-left -->
+                <div class="header-content-left">
+
+                    <!-- Start::header-element -->
+                    <div class="header-element header-element-logo">
+                        <div class="horizontal-logo">
+                            <a href="#" class="header-logo">
+                                <img src="./static/img/logo/desktop.jpg" alt="logo" class="desktop-logo">
+                                <img src="./static/img/logo/logo.png" alt="logo" class="toggle-logo">
+                                <img src="./static/img/logo/desktop.jpg" alt="logo" class="desktop-dark">
+                                <img src="./static/img/logo/toggle.jpg" alt="logo" class="toggle-dark">
+                            </a>
+                        </div>
+                    </div>
+                    <!-- End::header-element -->
+
+                    <!-- Start::header-element -->
+                    <div class="header-element header-element-sidebar">
+                        <!-- Start::header-link -->
+                        <a aria-label="Hide Sidebar" class="sidemenu-toggle header-link animated-arrow hor-toggle horizontal-navtoggle" data-bs-toggle="sidebar" href="javascript:void(0);"><span></span></a>
+                        <!-- End::header-link -->
+                    </div>
+                    <!-- End::header-element -->
+
+                    <div class="header-element header-element-logo-nomenu" style="display: none;">
+                        <img src="./static/img/logo/desktop.jpg">
+                    </div>
+
+                    <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+                        <h1 class="page-title fw-semibold fs-18 mb-0 systemName">EDIOS_MSREシステム - テンプレート-SCR_110_30</h1>
+                    </div>
+
+                </div>
+                <!-- End::header-content-left -->
+
+                <!-- Start::header-content-right -->
+                <div class="header-content-right">
+
+                    <!-- Start::header-element -->
+                    <div class="header-element header-theme-mode">
+                        <!-- Start::header-link|layout-setting -->
+                        <a href="javascript:void(0);" class="header-link layout-setting">
+                            <span class="light-layout">
+                                <!-- Start::header-link-icon -->
+                            <i class="bx bx-moon header-link-icon"></i>
+                                <!-- End::header-link-icon -->
+                            </span>
+                            <span class="dark-layout">
+                                <!-- Start::header-link-icon -->
+                            <i class="bx bx-sun header-link-icon"></i>
+                                <!-- End::header-link-icon -->
+                            </span>
+                        </a>
+                        <!-- End::header-link|layout-setting -->
+                    </div>
+                    <!-- End::header-element -->
+
+                    <!-- Start::header-element -->
+                    <div class="header-element header-fullscreen">
+                        <!-- Start::header-link -->
+                        <a onclick="openFullscreen();" href="#" class="header-link">
+                            <i class="bx bx-fullscreen full-screen-open header-link-icon"></i>
+                            <i class="bx bx-exit-fullscreen full-screen-close header-link-icon d-none"></i>
+                        </a>
+                        <!-- End::header-link -->
+                    </div>
+                    <!-- End::header-element -->
+
+                    <!-- Start::header-element -->
+                    <div class="header-element">
+                        <!-- Start::header-link|dropdown-toggle -->
+                        <a href="#" class="header-link dropdown-toggle" id="mainHeaderProfile" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                            <div class="d-flex align-items-center">
+                                <div class="me-sm-2 me-0">
+                                    <img src="./static/compact/images/faces/21.jpg" alt="img" width="32" height="32" class="rounded-circle">
+                                </div>
+                                <div class="d-sm-block d-none">
+                                    <p class="fw-semibold mb-0 lh-1 username">Admin</p>
+                                    <span class="op-7 fw-normal d-block fs-11 userid">Admin</span>
+                                </div>
+                            </div>
+                        </a>
+                        <!-- End::header-link|dropdown-toggle -->
+                        <ul class="main-header-dropdown dropdown-menu pt-0 overflow-hidden header-profile-dropdown dropdown-menu-end" aria-labelledby="mainHeaderProfile">
+                            <li><a class="dropdown-item d-flex" id="logout" href="#"><i class="ti ti-logout fs-18 me-2 op-7"></i><span i18n="logout"></span></a></li>
+                            <li><a class="dropdown-item d-flex" id="changePassword" href="#"><i class="ti ti-key fs-18 me-2 op-7"></i><span i18n="resetPassword"></span></a></li>
+                        </ul>
+                    </div>  
+                    <!-- End::header-element -->
+
+                </div>
+                <!-- End::header-content-right -->
+
+            </div>
+            <!-- End::main-header-container -->
+
+        </header>
+        <!-- /app-header -->
+        <!-- Start::app-sidebar -->
+        <aside class="app-sidebar sticky" id="sidebar">
+
+            <!-- Start::main-sidebar-header -->
+            <div class="main-sidebar-header">
+                <a href="#" class="header-logo">
+                    <img src="./static/img/logo/desktop.jpg" alt="logo" class="desktop-logo">
+                    <img src="./static/img/logo/logo.png" alt="logo" class="toggle-logo">
+                    <img src="./static/img/logo/desktop.jpg" alt="logo" class="desktop-dark">
+                    <img src="./static/img/logo/toggle.jpg" alt="logo" class="toggle-dark">
+                </a>
+            </div>
+            <!-- End::main-sidebar-header -->
+
+            <!-- Start::main-sidebar -->
+            <div class="main-sidebar" id="sidebar-scroll">
+
+                <!-- Start::nav -->
+                <nav class="main-menu-container nav nav-pills flex-column sub-open">
+                    <div class="slide-left" id="slide-left">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="#7b8191" width="24" height="24" viewBox="0 0 24 24"> <path d="M13.293 6.293 7.586 12l5.707 5.707 1.414-1.414L10.414 12l4.293-4.293z"></path> </svg>
+                    </div>
+                    <ul class="main-menu"></ul>
+                    <div class="slide-right" id="slide-right"><svg xmlns="http://www.w3.org/2000/svg" fill="#7b8191" width="24" height="24" viewBox="0 0 24 24"> <path d="M10.707 17.707 16.414 12l-5.707-5.707-1.414 1.414L13.586 12l-4.293 4.293z"></path> </svg></div>
+                </nav>
+                <!-- End::nav -->
+
+            </div>
+            <!-- End::main-sidebar -->
+
+        </aside>
+        <!-- End::app-sidebar -->
+
+        <!-- Start::app-content -->
+        <div class="main-content app-content content-wrapper">
+            <div class="container-fluid">
+
+                <!-- Page Header -->
+                <h1></h1>
+                <!-- Page Header Close -->
+
+                <form id="form1" name="form1" class="">
+                  <input type="hidden" name="pagename" id="pagename">
+                  <input type="hidden" name="ServerScriptID" id="ServerScriptID">
+                  <input type="hidden" name="ServerScriptFlg" id="ServerScriptFlg">
+                  <input type="hidden" name="ServerScriptResult" id="ServerScriptResult">
+                  <input type="hidden" name="WF_PRINTFILEID" id="WF_PRINTFILEID">
+                  <input type="hidden" name="WF_PRINTFILEENCODE" id="WF_PRINTFILEENCODE">
+                  <input type="hidden" name="pringFlg" id="pringFlg">
+                  <input type="hidden" name="PageID" id="PageID">
+                  <input type="hidden" name="SubID" id="SubID">
+                  <input type="hidden" name="pageRcds" id="pageRcds">
+                  <input type="hidden" name="currentpage" id="currentpage">
+                  <input type="hidden" name="div" id="div">
+                  <input type="hidden" name="actid" id="actid">
+                  <input type="hidden" name="actflg" id="actflg" value="1">
+                  <input type="hidden" name="mode" id="mode" value="2">
+                  <input type="hidden" name="TargetObj" id="TargetObj">
+                  <input type="hidden" name="filterID" id="filterID">
+                  <input type="hidden" name="filterRow" id="filterRow">
+                  <input type="hidden" name="filterError" id="filterError">
+                  <input type="hidden" name="recognID" id="recognID">
+                  <input type="hidden" name="srecognID" id="srecognID">
+                  <input type="hidden" name="initSearch" id="initSearch">
+                  <input type="hidden" name="sinitSearch" id="sinitSearch">
+                  <input type="hidden" name="dataControlFlg" id="dataControlFlg">
+                  <input type="hidden" name="uniqueId" id="uniqueId">
+                  <input type="hidden" name="importFilePath" id="importFilePath">
+                  <input type="hidden" name="popflg" id="popflg">
+                  <input type="hidden" name="unloadCheck" id="unloadCheck">
+                  <input type="hidden" name="isAfter" id="isAfter">
+                  <input type="hidden" name="WF_RUNRESULT" id="WF_RUNRESULT">
+                  <input type="hidden" name="prevLoc" id="prevLoc">
+                  <input type="hidden" name="WF_CURRLOC" id="WF_CURRLOC">
+                  <input type="hidden" name="WF_ADDLOC" id="WF_ADDLOC">
+                  <input type="hidden" name="WF_CUSTOMIZE-CHARTID" id="WF_CUSTOMIZE-CHARTID">
+                  <input type="hidden" name="WF_CACHEABLE" id="WF_CACHEABLE">
+                  <input type="hidden" name="pageFlg" id="pageFlg">
+                  <input type="hidden" name="triggerID" id="triggerID">
+                
+					<div class="page_content_div" top="0">
+						<div class="card custom-card" posleft="25">
+							<div class="card-header">
+								<div class="card-title">詳細
+								</div>
+							</div>
+							<div class="card-body">
+								<div class="row" top="30">
+									<div id="dragB1" item-name="テンプレート" style="display: flex;" data-top="30" data-left="25" data-width="25" data-height="28">
+										<div class="label" id="b2" subid="1" style="flex-grow: 1; white-space: nowrap; display: flex; align-items: center;">テンプレート
+										</div>
+									</div>
+								</div>
+								<div class="row" top="150">
+									<div id="dragB3" item-name="F6" style="display: flex; align-items: center;" data-top="150" data-left="126" data-width="177" data-height="30" data-labelwidth="0">
+										<label class="col-form-label f6_label" style="margin: 8px 10px 8px 0px; flex-shrink: 0; text-align: right; width: 0px; display: none;">F6</label>
+										<input class="form-control" id="f6" name="f6" subid="3" type="text" isauto="false" style="text-align: center; margin: 8px 0px;" kind="5">
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</form>
+                <div class="content-backdrop show">
+                    <div><img src="./static/img/loading.gif"></div>
+                    <div>Loading...</div>
+                </div>
+                <div class="content-backdrop-op1 show">
+                    <div><img src="./static/img/loading.gif"></div>
+                    <div>Loading...</div>
+                </div>
+                <div class="animsition"></div>
+            </div>
+        </div>
+        <!-- End::app-content -->
+
+        <!-- Footer Start -->
+        <footer class="footer mt-auto py-3 bg-white text-center">
+            <div class="container">
+                <span class="text-muted"> Copyright © <span id="year"></span></span>
+            </div>
+        </footer>
+        <!-- Footer End -->
+
+    </div>
+
+    
+	<div class="modal fade" id="uploadFileModal" tabindex="-1" style="display: none;" aria-hidden="true">
+      
+		<div class="modal-dialog" role="document">
+        
+			<div class="modal-content">
+          
+				<div class="modal-header">
+            
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+					</button>
+          
+				</div>
+          
+				<div class="modal-body">
+            
+					<div class="card" style="max-width: 600px; margin: auto;">
+              
+						<h5 class="card-header">Upload File
+						</h5>
+              
+						<div class="card-body">
+                
+							<p>※以下のインポートファイルの形式を確認の上、インポートファイルを指定してください
+							</p>
+                
+							<p>インポートファイルに選択してください。
+							</p>
+                
+							<div class="form-check">
+                  
+								<input class="form-check-input" type="checkbox" id="delExistData">
+                  
+								<label class="form-check-label" for="delExistData">既存データ削除</label>
+                
+							</div>
+                
+							<div class="form-check">
+                  
+								<input class="form-check-input" type="checkbox" id="updateExistData">
+                  
+								<label class="form-check-label" for="updateExistData">同じデータ更新</label>
+                
+							</div>
+              
+						</div>
+            
+					</div>
+          
+				</div>
+          
+				<div class="modal-footer">
+            
+					<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{i18n:cancel}
+					</button>
+            &nbsp;&nbsp;
+            
+					<button type="button" class="btn btn-primary" id="uploadFile">アップロード
+					</button>
+          
+				</div>
+        
+			</div>
+      
+		</div>
+    
+	</div>
+
+    
+	<div class="modal fade" id="popSearchModal" tabindex="-1" style="display: none;" aria-hidden="true">
+      
+		<div class="modal-dialog" role="document">
+        
+			<div class="modal-content">
+          
+				<div class="modal-header">
+            
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+					</button>
+          
+				</div>
+          
+				<div class="modal-body">
+            
+					<div class="card" style="margin: auto;">
+              
+						<h5 class="card-header">検索条件
+						</h5>
+              
+						<div class="card-body">
+						</div>
+            
+					</div>
+          
+				</div>
+        
+			</div>
+      
+		</div>
+    
+	</div>
+    
+    <div class="scrollToTop">
+        <span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span>
+    </div>
+    <div id="responsive-overlay"></div>
+
+     <div class="scrollToTop">
+        <span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span>
+    </div>
+    <div id="responsive-overlay"></div>
+
+    <!-- Popper JS -->
+    <script src="./static/compact/libs/@popperjs/core/umd/popper.min.js"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="./static/compact/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Defaultmenu JS -->
+    <script src="./static/compact/js/defaultmenu.min.js"></script>
+
+    <!-- Node Waves JS-->
+    <script src="./static/compact/libs/node-waves/waves.min.js"></script>
+
+    <!-- Sticky JS -->
+    <script src="./static/compact/js/sticky.js"></script>
+
+    <!-- Simplebar JS -->
+    <script src="./static/compact/libs/simplebar/simplebar.min.js"></script>
+    <script src="./static/compact/js/simplebar.js"></script>
+
+    <!-- Color Picker JS -->
+    <script src="./static/compact/libs/@simonwep/pickr/pickr.es5.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="./static/compact/js/custom.js"></script>
+
+    <script src="./static/js/jquery.min.js"></script>
+    <script src="./static/libs/jquery/jquery-ui.min.js"></script>
+
+    <!-- <script src="./static/vendor/libs/jquery/jquery.js"></script> -->
+    <!-- <script src="./static/vendor/libs/jquery/jquery-ui.js"></script> -->
+    <script src="./static/js/jquery.i18n.properties.min.js"></script>
+
+    <script src="./static/vendor/libs/select2/select2.js"></script>
+
+    <script src="./static/vendor/libs/nvd3/d3.min.js"></script>
+    <script src="./static/vendor/libs/nvd3/nv.d3.min.js"></script>
+
+    <script src="./static/i18n/d_jp.js"></script>
+    <script src="./static/i18n/d_zh.js"></script>
+    <script src="./static/js/config.js"></script>
+
+    <script src="./static/js/checkuserjpn.js"></script>
+    <script src="./static/js/saasforce-1.0.0.1.js"></script>
+    <script src="./static/js/xmlhttp.js"></script>
+
+    <script src="./static/js/moment.js"></script>
+    <script src="./static/js/client.js"></script>
+
+    <script src="./static/js/template_compact.js"></script>
+    
+    <script src="./static/js/custom.js"></script>
+
+    	<script>function runPageEvents() {  }</script>
+
+<script id="pageScript">
+$(document).ready(function() {
+
+  pageId = "SCR_110_30"
+  mainId = "SCR_110_30"
+
+  $("body").addClass(mainId)
+
+  pageWidth = [1300,356]
+  if (pageWidth[1] < 900) pageWidth[1] = 900
+  else pageWidth[1] = 1300
+
+  optimizeUI()
+
+  $("title").html("テンプレート-SCR_110_30")
+  $("#pagename").val("テンプレート-SCR_110_30")
+
+  lang = "jp"
+  changeLanguage()
+
+  function initPage() {
+
+    let svs = getParam("svs") || "[]"
+    svs = JSON.parse(svs)
+    for (let sv of svs) {
+      let elm = $("[subid='" + sv.subid + "']")
+      if (elm.is("select")) {
+        elm.find("option").attr("value", sv.value)
+      } else {
+        elm.val(sv.value).trigger("change")
+      }
+      if (elm.attr("isprikey") == "true") elm.attr("readonly", true)
+    }
+
+    let kvs = getParam("kvs") || "[]"
+    kvs = JSON.parse(kvs)
+    for (let kv of kvs) {
+      let elm = $("#" + kv.key)
+      if (elm.is("select")) {
+        elm.find("option").attr("value", kv.value)
+      } else {
+        elm.val(kv.value).trigger("change")
+      }
+      if (elm.attr("isprikey") == "true") elm.attr("readonly", true)
+    }
+
+    let mode = getParam("mode")
+    let actflg = getParam("actflg")
+    if (mode) $("#mode").val(mode)
+    if (actflg) $("#actflg").val(actflg)
+
+    let list = sessionStorage.getItem(mainId)
+    let index = sessionStorage.getItem("index") || Infinity
+    list = JSON.parse(list || "[]")
+    if (list.length > index) {
+      if (index != 0) buildPrevPage(index)
+      if (index != list.length - 1) buildNextPage(index)
+    }
+
+    let url = apiUrl + "/" + mainId + "Init.do"
+    ajax(url, getFormData(), "initPageAfter(data)")
+
+    var script = document.createElement('script');
+    script.src = apiUrl + "/static/js/check/" + mainId + ".js"
+    document.body.appendChild(script);
+  }
+
+  initPage()
+  
+  enterToTab = true
+  
+  initMenu()
+  
+})
+</script>
+
+
+
+</body></html>

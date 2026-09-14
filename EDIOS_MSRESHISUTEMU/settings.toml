@@ -1,0 +1,27 @@
+# Dynaconf/config.py 用の settings.toml。
+# 秘密値はこのファイルへ保存せず、環境変数または .secrets.toml で設定する。
+
+[default]
+# 実行環境。
+APP_ENV = "production"
+# CSRF 保護。本番では true が必須。
+CSRF_ENABLED = true
+# SECRET_KEY と DB 接続値は秘密設定として別途指定する。
+SECRET_KEY = ""
+DB_NAME = ""
+DB_HOST = ""
+DB_PORT = ""
+DB_USER = ""
+DB_PASSWORD = ""
+
+# Optional: whether to run DB initialization on app startup (prefer a standalone script in production)
+# RUN_DB_INIT = false
+
+# SQL echo: convenient for local debug; set false in production (startup warns if true when FLASK_ENV=production).
+# SQL_ECHO = false
+# Max characters per SQL line in logs when SQL_ECHO=true (long queries are truncated with "...")
+SQL_LOG_MAX_LEN = 3000
+
+# Optional: connection pool
+# DB_POOL_SIZE = 8
+# DB_POOL_RECYCLE = 1800
