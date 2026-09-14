@@ -20,6 +20,9 @@ from app.service.vectorsaveapi.vectorsaveapi_service import VectorsaveapiService
 from app.service.vectorsinitapi.vectorsinitapi_service import VectorsinitapiService
 from app.service.vectorsresyncapi.vectorsresyncapi_service import VectorsresyncapiService
 from app.service.vectorupdateapi.vectorupdateapi_service import VectorupdateapiService
+from app.service.monthlyinitapi.monthlyinitapi_service import MonthlyinitapiService
+from app.service.monthlyfiscalyearapi.monthlyfiscalyearapi_service import MonthlyfiscalyearapiService
+from app.service.monthlyexportapi.monthlyexportapi_service import MonthlyexportapiService
 from app.dto.vectordetailinitapi.vectordetailinitapi_dto import VectordetailinitapiDto
 from app.dto.vectorforminitapi.vectorforminitapi_dto import VectorforminitapiDto
 from app.dto.vectorformnewinitapi.vectorformnewinitapi_dto import VectorformnewinitapiDto
@@ -27,6 +30,9 @@ from app.dto.vectorsaveapi.vectorsaveapi_dto import VectorsaveapiDto
 from app.dto.vectorsinitapi.vectorsinitapi_dto import VectorsinitapiDto
 from app.dto.vectorsresyncapi.vectorsresyncapi_dto import VectorsresyncapiDto
 from app.dto.vectorupdateapi.vectorupdateapi_dto import VectorupdateapiDto
+from app.dto.monthlyinitapi.monthlyinitapi_dto import MonthlyinitapiDto
+from app.dto.monthlyfiscalyearapi.monthlyfiscalyearapi_dto import MonthlyfiscalyearapiDto
+from app.dto.monthlyexportapi.monthlyexportapi_dto import MonthlyexportapiDto
 
 commonfunction_route = Blueprint('commonfunction_route', __name__)
 
@@ -547,6 +553,93 @@ def vectorupdateapi() :
 	vectorupdateapiVar_service = VectorupdateapiService()
 
 	vectorupdateapiVar_service.vectorupdateapi(vectorupdateapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# monthlyexportapi - 月次報告月次帳票出力 - サーバー関数
+# @param monthlyexportapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/monthlyexportapi.do", methods=['POST'])
+
+def monthlyexportapi() :
+	"""monthlyexportapi - 月次報告月次帳票出力 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	monthlyexportapi_dto = MonthlyexportapiDto.dict_to_json(data)
+	monthlyexportapiVar_service = MonthlyexportapiService()
+
+	monthlyexportapiVar_service.monthlyexportapi(monthlyexportapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# monthlyfiscalyearapi - 月次報告年度切替 - サーバー関数
+# @param monthlyfiscalyearapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/monthlyfiscalyearapi.do", methods=['POST'])
+
+def monthlyfiscalyearapi() :
+	"""monthlyfiscalyearapi - 月次報告年度切替 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	monthlyfiscalyearapi_dto = MonthlyfiscalyearapiDto.dict_to_json(data)
+	monthlyfiscalyearapiVar_service = MonthlyfiscalyearapiService()
+
+	monthlyfiscalyearapiVar_service.monthlyfiscalyearapi(monthlyfiscalyearapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# monthlyinitapi - 月次報告画面初期表示 - サーバー関数
+# @param monthlyinitapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/monthlyinitapi.do", methods=['POST'])
+
+def monthlyinitapi() :
+	"""monthlyinitapi - 月次報告画面初期表示 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	monthlyinitapi_dto = MonthlyinitapiDto.dict_to_json(data)
+	monthlyinitapiVar_service = MonthlyinitapiService()
+
+	monthlyinitapiVar_service.monthlyinitapi(monthlyinitapi_dto, jsonObj)
 
 	return jsonObj.toJsonString()
 
