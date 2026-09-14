@@ -46,6 +46,22 @@ from app.dto.voiceextendapi.voiceextendapi_dto import VoiceextendapiDto
 from app.dto.voiceinsertcontentapi.voiceinsertcontentapi_dto import VoiceinsertcontentapiDto
 from app.dto.voicerecordapi.voicerecordapi_dto import VoicerecordapiDto
 from app.dto.voiceuploadapi.voiceuploadapi_dto import VoiceuploadapiDto
+from app.service.knowledgeinitapi.knowledgeinitapi_service import KnowledgeinitapiService
+from app.service.documentdetailinitapi.documentdetailinitapi_service import DocumentdetailinitapiService
+from app.service.documentforminitapi.documentforminitapi_service import DocumentforminitapiService
+from app.service.documentformnewinitapi.documentformnewinitapi_service import DocumentformnewinitapiService
+from app.service.documentsaveapi.documentsaveapi_service import DocumentsaveapiService
+from app.service.documentupdateapi.documentupdateapi_service import DocumentupdateapiService
+from app.service.documentversiondownloadapi.documentversiondownloadapi_service import DocumentversiondownloadapiService
+from app.service.documentversionnewapi.documentversionnewapi_service import DocumentversionnewapiService
+from app.dto.knowledgeinitapi.knowledgeinitapi_dto import KnowledgeinitapiDto
+from app.dto.documentdetailinitapi.documentdetailinitapi_dto import DocumentdetailinitapiDto
+from app.dto.documentforminitapi.documentforminitapi_dto import DocumentforminitapiDto
+from app.dto.documentformnewinitapi.documentformnewinitapi_dto import DocumentformnewinitapiDto
+from app.dto.documentsaveapi.documentsaveapi_dto import DocumentsaveapiDto
+from app.dto.documentupdateapi.documentupdateapi_dto import DocumentupdateapiDto
+from app.dto.documentversiondownloadapi.documentversiondownloadapi_dto import DocumentversiondownloadapiDto
+from app.dto.documentversionnewapi.documentversionnewapi_dto import DocumentversionnewapiDto
 
 commonfunction_route = Blueprint('commonfunction_route', __name__)
 
@@ -885,6 +901,238 @@ def voiceuploadapi() :
 	voiceuploadapiVar_service = VoiceuploadapiService()
 
 	voiceuploadapiVar_service.voiceuploadapi(voiceuploadapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# documentdetailinitapi - ナレッジ文書詳細画面初期表示 - サーバー関数
+# @param documentdetailinitapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/documentdetailinitapi.do", methods=['POST'])
+
+def documentdetailinitapi() :
+	"""documentdetailinitapi - ナレッジ文書詳細画面初期表示 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	documentdetailinitapi_dto = DocumentdetailinitapiDto.dict_to_json(data)
+	documentdetailinitapiVar_service = DocumentdetailinitapiService()
+
+	documentdetailinitapiVar_service.documentdetailinitapi(documentdetailinitapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# documentforminitapi - ナレッジ文書編集編集 - サーバー関数
+# @param documentforminitapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/documentforminitapi.do", methods=['POST'])
+
+def documentforminitapi() :
+	"""documentforminitapi - ナレッジ文書編集編集 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	documentforminitapi_dto = DocumentforminitapiDto.dict_to_json(data)
+	documentforminitapiVar_service = DocumentforminitapiService()
+
+	documentforminitapiVar_service.documentforminitapi(documentforminitapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# documentformnewinitapi - ナレッジ文書新規＋ 文書を登録 - サーバー関数
+# @param documentformnewinitapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/documentformnewinitapi.do", methods=['POST'])
+
+def documentformnewinitapi() :
+	"""documentformnewinitapi - ナレッジ文書新規＋ 文書を登録 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	documentformnewinitapi_dto = DocumentformnewinitapiDto.dict_to_json(data)
+	documentformnewinitapiVar_service = DocumentformnewinitapiService()
+
+	documentformnewinitapiVar_service.documentformnewinitapi(documentformnewinitapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# documentsaveapi - ナレッジ文書新規画面登録ボタン - サーバー関数
+# @param documentsaveapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/documentsaveapi.do", methods=['POST'])
+
+def documentsaveapi() :
+	"""documentsaveapi - ナレッジ文書新規画面登録ボタン - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	documentsaveapi_dto = DocumentsaveapiDto.dict_to_json(data)
+	documentsaveapiVar_service = DocumentsaveapiService()
+
+	documentsaveapiVar_service.documentsaveapi(documentsaveapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# documentupdateapi - ナレッジ文書編集画面登録ボタン - サーバー関数
+# @param documentupdateapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/documentupdateapi.do", methods=['POST'])
+
+def documentupdateapi() :
+	"""documentupdateapi - ナレッジ文書編集画面登録ボタン - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	documentupdateapi_dto = DocumentupdateapiDto.dict_to_json(data)
+	documentupdateapiVar_service = DocumentupdateapiService()
+
+	documentupdateapiVar_service.documentupdateapi(documentupdateapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# documentversiondownloadapi - ナレッジ文書詳細⬇ ダウンロード - サーバー関数
+# @param documentversiondownloadapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/documentversiondownloadapi.do", methods=['POST'])
+
+def documentversiondownloadapi() :
+	"""documentversiondownloadapi - ナレッジ文書詳細⬇ ダウンロード - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	documentversiondownloadapi_dto = DocumentversiondownloadapiDto.dict_to_json(data)
+	documentversiondownloadapiVar_service = DocumentversiondownloadapiService()
+
+	documentversiondownloadapiVar_service.documentversiondownloadapi(documentversiondownloadapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# documentversionnewapi - ナレッジ文書詳細画面版登録 - サーバー関数
+# @param documentversionnewapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/documentversionnewapi.do", methods=['POST'])
+
+def documentversionnewapi() :
+	"""documentversionnewapi - ナレッジ文書詳細画面版登録 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	documentversionnewapi_dto = DocumentversionnewapiDto.dict_to_json(data)
+	documentversionnewapiVar_service = DocumentversionnewapiService()
+
+	documentversionnewapiVar_service.documentversionnewapi(documentversionnewapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# knowledgeinitapi - ナレッジ文書一覧画面初期表示 - サーバー関数
+# @param knowledgeinitapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/knowledgeinitapi.do", methods=['POST'])
+
+def knowledgeinitapi() :
+	"""knowledgeinitapi - ナレッジ文書一覧画面初期表示 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	knowledgeinitapi_dto = KnowledgeinitapiDto.dict_to_json(data)
+	knowledgeinitapiVar_service = KnowledgeinitapiService()
+
+	knowledgeinitapiVar_service.knowledgeinitapi(knowledgeinitapi_dto, jsonObj)
 
 	return jsonObj.toJsonString()
 
