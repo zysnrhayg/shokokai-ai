@@ -12,6 +12,7 @@ import resources.messages
 
 from app.service.entryupdateapi.entryupdateapi_service import EntryupdateapiService
 from app.service.dashboardinitapi.dashboardinitapi_service import DashboardinitapiService
+from app.service.verify2faapi.verify2faapi_service import Verify2faapiService
 
 commonfunction_route = Blueprint('commonfunction_route', __name__)
 
@@ -216,5 +217,120 @@ def dashboardinitapi() :
 
 	return jsonObj.toJsonString()
 
+
+
+#
+# loginapi - ログイン画面ログインボタン - サーバー関数
+# @param loginapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/loginapi.do", methods=['POST'])
+
+def loginapi() :
+	"""loginapi - ログイン画面ログインボタン - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	loginapi_dto = LoginapiDto.dict_to_json(data)
+	loginapiVar_service = LoginapiService()
+
+	loginapiVar_service.loginapi(loginapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# logininitapi - ログイン画面 - サーバー関数
+# @param logininitapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/logininitapi.do", methods=['POST'])
+
+def logininitapi() :
+	"""logininitapi - ログイン画面 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	logininitapi_dto = LogininitapiDto.dict_to_json(data)
+	logininitapiVar_service = LogininitapiService()
+
+	logininitapiVar_service.logininitapi(logininitapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# logoutapi - ログアウト - サーバー関数
+# @param logoutapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/logoutapi.do", methods=['POST'])
+
+def logoutapi() :
+	"""logoutapi - ログアウト - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	logoutapi_dto = LogoutapiDto.dict_to_json(data)
+	logoutapiVar_service = LogoutapiService()
+
+	logoutapiVar_service.logoutapi(logoutapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# verify2faapi - 二要素認証画面認証ボタン - サーバー関数
+# @param verify2faapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/verify2faapi.do", methods=['POST'])
+
+def verify2faapi() :
+	"""verify2faapi - 二要素認証画面認証ボタン - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	verify2faapi_dto = Verify2faapiDto.dict_to_json(data)
+	verify2faapiVar_service = Verify2faapiService()
+
+	verify2faapiVar_service.verify2faapi(verify2faapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
 
 
