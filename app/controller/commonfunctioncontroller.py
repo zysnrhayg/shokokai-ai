@@ -13,6 +13,20 @@ import resources.messages
 from app.service.entryupdateapi.entryupdateapi_service import EntryupdateapiService
 from app.service.dashboardinitapi.dashboardinitapi_service import DashboardinitapiService
 from app.service.verify2faapi.verify2faapi_service import Verify2faapiService
+from app.service.vectordetailinitapi.vectordetailinitapi_service import VectordetailinitapiService
+from app.service.vectorforminitapi.vectorforminitapi_service import VectorforminitapiService
+from app.service.vectorformnewinitapi.vectorformnewinitapi_service import VectorformnewinitapiService
+from app.service.vectorsaveapi.vectorsaveapi_service import VectorsaveapiService
+from app.service.vectorsinitapi.vectorsinitapi_service import VectorsinitapiService
+from app.service.vectorsresyncapi.vectorsresyncapi_service import VectorsresyncapiService
+from app.service.vectorupdateapi.vectorupdateapi_service import VectorupdateapiService
+from app.dto.vectordetailinitapi.vectordetailinitapi_dto import VectordetailinitapiDto
+from app.dto.vectorforminitapi.vectorforminitapi_dto import VectorforminitapiDto
+from app.dto.vectorformnewinitapi.vectorformnewinitapi_dto import VectorformnewinitapiDto
+from app.dto.vectorsaveapi.vectorsaveapi_dto import VectorsaveapiDto
+from app.dto.vectorsinitapi.vectorsinitapi_dto import VectorsinitapiDto
+from app.dto.vectorsresyncapi.vectorsresyncapi_dto import VectorsresyncapiDto
+from app.dto.vectorupdateapi.vectorupdateapi_dto import VectorupdateapiDto
 
 commonfunction_route = Blueprint('commonfunction_route', __name__)
 
@@ -330,6 +344,209 @@ def verify2faapi() :
 	verify2faapiVar_service = Verify2faapiService()
 
 	verify2faapiVar_service.verify2faapi(verify2faapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# vectordetailinitapi - ベクトル詳細画面初期表示 - サーバー関数
+# @param vectordetailinitapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/vectordetailinitapi.do", methods=['POST'])
+
+def vectordetailinitapi() :
+	"""vectordetailinitapi - ベクトル詳細画面初期表示 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	vectordetailinitapi_dto = VectordetailinitapiDto.dict_to_json(data)
+	vectordetailinitapiVar_service = VectordetailinitapiService()
+
+	vectordetailinitapiVar_service.vectordetailinitapi(vectordetailinitapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# vectorforminitapi - ベクトルコレクション編集編集 - サーバー関数
+# @param vectorforminitapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/vectorforminitapi.do", methods=['POST'])
+
+def vectorforminitapi() :
+	"""vectorforminitapi - ベクトルコレクション編集編集 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	vectorforminitapi_dto = VectorforminitapiDto.dict_to_json(data)
+	vectorforminitapiVar_service = VectorforminitapiService()
+
+	vectorforminitapiVar_service.vectorforminitapi(vectorforminitapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# vectorformnewinitapi - ベクトルコレクション新規＋ コレクションを登録 - サーバー関数
+# @param vectorformnewinitapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/vectorformnewinitapi.do", methods=['POST'])
+
+def vectorformnewinitapi() :
+	"""vectorformnewinitapi - ベクトルコレクション新規＋ コレクションを登録 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	vectorformnewinitapi_dto = VectorformnewinitapiDto.dict_to_json(data)
+	vectorformnewinitapiVar_service = VectorformnewinitapiService()
+
+	vectorformnewinitapiVar_service.vectorformnewinitapi(vectorformnewinitapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# vectorsaveapi - ベクトル新規画面登録ボタン - サーバー関数
+# @param vectorsaveapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/vectorsaveapi.do", methods=['POST'])
+
+def vectorsaveapi() :
+	"""vectorsaveapi - ベクトル新規画面登録ボタン - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	vectorsaveapi_dto = VectorsaveapiDto.dict_to_json(data)
+	vectorsaveapiVar_service = VectorsaveapiService()
+
+	vectorsaveapiVar_service.vectorsaveapi(vectorsaveapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# vectorsinitapi - ベクトル一覧画面初期表示 - サーバー関数
+# @param vectorsinitapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/vectorsinitapi.do", methods=['POST'])
+
+def vectorsinitapi() :
+	"""vectorsinitapi - ベクトル一覧画面初期表示 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	vectorsinitapi_dto = VectorsinitapiDto.dict_to_json(data)
+	vectorsinitapiVar_service = VectorsinitapiService()
+
+	vectorsinitapiVar_service.vectorsinitapi(vectorsinitapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# vectorsresyncapi - ベクトル一覧画面再同期ボタン - サーバー関数
+# @param vectorsresyncapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/vectorsresyncapi.do", methods=['POST'])
+
+def vectorsresyncapi() :
+	"""vectorsresyncapi - ベクトル一覧画面再同期ボタン - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	vectorsresyncapi_dto = VectorsresyncapiDto.dict_to_json(data)
+	vectorsresyncapiVar_service = VectorsresyncapiService()
+
+	vectorsresyncapiVar_service.vectorsresyncapi(vectorsresyncapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# vectorupdateapi - ベクトル編集画面登録ボタン - サーバー関数
+# @param vectorupdateapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/vectorupdateapi.do", methods=['POST'])
+
+def vectorupdateapi() :
+	"""vectorupdateapi - ベクトル編集画面登録ボタン - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	vectorupdateapi_dto = VectorupdateapiDto.dict_to_json(data)
+	vectorupdateapiVar_service = VectorupdateapiService()
+
+	vectorupdateapiVar_service.vectorupdateapi(vectorupdateapi_dto, jsonObj)
 
 	return jsonObj.toJsonString()
 
