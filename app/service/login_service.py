@@ -23,8 +23,9 @@ def _is_user_login_enabled(row) -> bool:
 	return _user_eff_from_row(row) == "1"
 
 def _upgrade_legacy_password(loginid: str, plain: str, stored: str, admin: bool = False) -> None:
-	"""旧 SHA-1 認証の成功直後に保存値を bcrypt へ更新する。"""
-	if is_bcrypt_hash(str(stored or "").strip()):
+	"""旧 SHA-1 認証の成功直後に保存値を bcrypt へ更新する。平文はそのまま残す。"""
+	stored_s = str(stored or "").strip()
+	if is_bcrypt_hash(stored_s) or stored_s == plain:
 		return
 	new_hash = hash_password(plain)
 	updated = (LoginDao.updateAdminPasswordAfterLogin(loginid, new_hash)
@@ -117,7 +118,7 @@ class LoginService :
 					self.setLoginSession()
 					jsonObj.setScript("username", usernm1)
 				
-					jsonObj.setScript("OK", "./null")
+					jsonObj.setScript("OK", "./#home")
 					return jsonObj.toJsonString()
 		else : 
 
@@ -133,14 +134,15 @@ class LoginService :
 					jsonObj.setValue("i", "会員Noかパスワードが間違っています。");
 					return jsonObj.toJsonString()
 				_upgrade_legacy_password(loginid, password, admin_hashed, admin=True)
-				self.userSurname = loginid
-				self.userName = loginid
 				self.loginid = loginid
+				self.groupID = ((admin_row.get("group_id") or admin_row.get("GROUP_ID")) if isinstance(admin_row, dict) else "") or ""
+				self.userSurname = ((admin_row.get("shokuin_kj") or loginid) if isinstance(admin_row, dict) else loginid)
+				self.userName = self.userSurname
 				# Sessionを設定
 				self.setLoginSession()
 				menuRightUtil.setAdminSessionRight(session)
-				jsonObj.setScript("OK", "./null")
-				jsonObj.setScript("username", "admin")
+				jsonObj.setScript("OK", "./#home")
+				jsonObj.setScript("username", self.userSurname)
 				return jsonObj.toJsonString()
 
 	# 

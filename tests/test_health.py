@@ -16,3 +16,13 @@ def test_ready_returns_200_or_503(client):
     """GET /ready returns 200 (DB ok) or 503 (DB unreachable)."""
     r = client.get("/ready")
     assert r.status_code in (200, 503)
+
+
+def test_index_serves_mockup_frontend(client):
+    """GET / serves the mockup SPA."""
+    r = client.get("/")
+    assert r.status_code == 200
+    body = r.get_data(as_text=True)
+    assert "商工会AIシステム" in body
+    assert "mockup/css/mockup.css" in body
+    assert "login-form" in body

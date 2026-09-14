@@ -1,0 +1,13 @@
+/* mockup style block 5 */
+.sidebar-header { padding-top: var(--space-5); padding-bottom: var(--space-5); display: flex; flex-direction: column; justify-content: center; gap: var(--space-2); }
+  .sidebar-header .user-info { margin-top: 0; }
+  .btn-outline:hover { background: var(--surface-hover); }
+  .nav-item-desc { display:inline; font-size: var(--fs-xs); color: var(--muted); font-weight: var(--fw-regular); white-space:nowrap; }
+
+  .export-groups { display:flex; flex-direction:column; align-items:flex-end; gap:var(--space-2); margin-bottom:var(--space-6); }
+  .export-group { display:flex; align-items:center; gap:var(--space-3); }
+  .export-group__label { font-size:var(--fs-xs); color:var(--muted); white-space:nowrap; min-width:5.5em; text-align:right; }
+
+  a.btn { text-decoration: none; }
+
+  .btn-sm { font-size: var(--fs-base); padding: var(--space-4) var(--space-7); }

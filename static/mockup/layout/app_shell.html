@@ -1,0 +1,72 @@
+<div id="app-shell">
+  <button type="button" class="nav-toggle-fixed" id="nav-toggle-btn" aria-label="メニューを開く">☰</button>
+  <div class="sidebar-scrim" id="sidebar-scrim"></div>
+  <div class="page active">
+    <div class="sidebar">
+      <div class="sidebar-brand-group">
+        <div class="sidebar-brand">
+          <div>商工会<span>AI</span>システム</div>
+        </div>
+        <div class="sidebar-header sidebar-header--shokokai">
+
+          <div class="sidebar-header__top">
+            <select id="org-role-select" style="max-width:100px; font-size:11px; padding:2px 4px; border-radius:4px; border:1px solid rgba(255,255,255,0.4); background:rgba(255,255,255,0.12); color:white;">
+              <option value="national">全国連</option>
+              <option value="pref">県連</option>
+              <option value="shokokai" selected>商工会</option>
+            </select>
+            <div><div class="org-name" id="org-name-display">札幌商工会連合会</div></div>
+          </div>
+          <div class="user-info">012：小島 直樹</div>
+        </div>
+      </div>
+      <div class="nav-section" id="nav-section-home">
+        <div class="nav-section-label">ホーム</div>
+        <a class="nav-item" href="#home" data-route="home"><span class="icon">🏠</span> ホーム</a>
+      </div>
+      <div class="nav-section" id="nav-section-entry">
+        <div class="nav-section-label">受付／報告書を作成する</div>
+        <a class="nav-item" href="#ai-input" data-route="ai-input"><span class="icon">🗣️</span> 相談を受ける</a>
+        <a class="nav-item" href="#manual-input" data-route="manual-input"><span class="icon">✍️</span> 報告書を作る</a>
+        <a class="nav-item" href="#expert-import" data-route="expert-import"><span class="icon">📥</span> 専門家の報告を取り込む</a>
+      </div>
+      <div class="nav-section" id="nav-section-reports">
+        <div class="nav-section-label">報告書を見る</div>
+        <a class="nav-item" href="#reports" data-route="reports"><span class="icon">📋</span> 報告書を見る</a>
+      </div>
+      <div class="nav-section" id="nav-section-monthly">
+        <div class="nav-section-label">実績確認・帳票出力</div>
+        <a class="nav-item" href="#monthly" data-route="monthly"><span class="icon">📈</span>実績確認・帳票出力</a>
+      </div>
+      <div class="nav-section" id="nav-section-ai">
+        <div class="nav-section-label">AI支援提案</div>
+        <a class="nav-item" href="#ai-proposal" data-route="ai-proposal"><span class="icon">🧑‍💻💭</span>AIと一緒に考える</a>
+        <a class="nav-item" href="#knowledge-search" data-route="knowledge-search"><span class="icon">🔍</span>ナレッジを検索する</a>
+      </div>
+      <div class="nav-section" id="nav-section-admin">
+        <div class="nav-section-label">管理</div>
+        <a class="nav-item" href="#accounts" data-route="accounts"><span class="icon">⚙️</span>アカウント管理</a>
+
+        <a class="nav-item" href="#knowledge" data-route="knowledge" id="nav-item-knowledge"><span class="icon">📚</span>ナレッジ管理</a>
+      </div>
+
+    </div>
+    <div class="main">
+      <div class="top-bar">
+        <div class="top-bar__heading-actions">
+          <div class="top-bar__heading">
+            <div class="top-bar__title" id="app-title">ホーム</div>
+            <div class="top-bar__subtitle" id="app-subtitle">事業環境変化対応型支援事業</div>
+          </div>
+          <div class="top-bar__actions">
+            <a class="top-bar-btn" id="app-back-btn" href="#home" style="display:none">← 戻る</a>
+            <a class="top-bar-btn" href="help_center.html" target="shokokai-help-center" rel="noopener">❓ 困ったときは</a>
+            <a class="top-bar-btn" href="#login">🚪 ログアウト</a>
+          </div>
+        </div>
+      </div>
+      <div id="main-mount">
+<!-- MOCKUP_VIEWS -->
+</div></div>
+</div>
+    </div>

@@ -1,0 +1,27 @@
+<div class="login-screen">
+    <div class="login-card">
+      <div class="login-brand">商工会<span>AI</span>システム</div>
+
+      <div class="login-step-title">2段階認証</div>
+      <div class="login-error" id="mfa-error" style="display:none">⚠ 確認コードが正しくありません</div>
+      <div class="login-mfa-desc">登録済み認証アプリの確認コードを入力してください。</div>
+
+      <form id="mfa-form">
+        <div class="login-field">
+          <label class="login-label">確認コード</label>
+          <div class="login-otp-row" id="login-otp-row">
+            <input type="text" class="form-input login-otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code">
+            <input type="text" class="form-input login-otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+            <input type="text" class="form-input login-otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+            <input type="text" class="form-input login-otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+            <input type="text" class="form-input login-otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+            <input type="text" class="form-input login-otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+          </div>
+          <input type="hidden" id="login-otp-hidden">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">認証してログイン</button>
+      </form>
+
+      <a class="login-back" href="#login">← ログイン画面に戻る</a>
+    </div>
+    <div class="login-footnote">© 全国商工会連合会</div>

@@ -1,0 +1,28 @@
+<div id="knowledge-search-root">
+      <div class="screen-body screen-body--fill">
+        <div class="cat-lbl">🔍 検索条件を入力すると蓄積されたナレッジを検索できます</div>
+        <div class="card" id="ks-search-card" style="margin-bottom:var(--space-6)">
+          <div class="card-header card-header--navy"><div class="card-title card-title--white">🔍 検索条件</div></div>
+          <div class="card-body" id="ks-search-header">
+            <div class="flex items-end gap-md" style="width:100%;">
+              <div class="filter-field" style="flex:1;">
+                <div class="filter-field__label">検索したい内容</div>
+                <input type="text" class="form-input" id="ks-keyword" placeholder="例：インボイス、賃上げ促進税制 など">
+              </div>
+
+              <div class="filter-field" style="align-self:stretch;">
+                <div class="filter-field__label">&nbsp;</div>
+                <button type="button" class="btn btn-primary--violet btn-sm" style="color:white; flex:1;" id="ks-search-btn">🔍 ナレッジを検索する</button>
+              </div>
+              <div class="filter-field" style="align-self:stretch;">
+                <div class="filter-field__label">&nbsp;</div>
+                <button type="button" class="btn btn-outline btn-sm" style="flex:1;" id="ks-clear-btn">✕ 検索内容をクリア</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cat-lbl">
+          <span>📚 検索結果<span id="ks-result-count" class="text-muted" style="font-weight:var(--fw-regular);margin-left:var(--space-3);"></span></span>
+        </div>
+        <div class="grid grid-gap-md" id="ks-results" style="min-height: 416.766px;"><div class="text-muted text-sm" style="grid-column:1/-1">上の欄にキーワードを入力し「ナレッジを検索」を押してください。</div></div>
+      </div>

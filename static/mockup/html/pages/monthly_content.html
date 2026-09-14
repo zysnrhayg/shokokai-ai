@@ -1,0 +1,102 @@
+<div id="monthly-root">
+      <div class="screen-body screen-body--fill">
+        <div class="cat-lbl">📄 帳票は指定した条件で出力、CSVは条件に関係なく一覧を出力します</div>
+
+        <div class="card" id="monthly-filter-card">
+          <div class="card-header" id="monthly-filter-header" style="min-height: 83.5px;">
+            <div class="filter-row">
+              <div class="filter-field"><div class="filter-field__label">出力種別</div>
+                <div class="flex items-center gap-md" style="height:36px; box-sizing:border-box;">
+                  <label class="flex items-center gap-xs" style="white-space:nowrap;cursor:pointer;"><input type="radio" name="f-period-type" value="monthly" checked=""> 月次</label>
+                  <label class="flex items-center gap-xs" style="white-space:nowrap;cursor:pointer;"><input type="radio" name="f-period-type" value="annual"> 年次</label>
+                </div>
+              </div>
+              <div class="filter-field" id="monthly-year-month-field">
+
+        <div class="filter-field__label">実施年月</div>
+        <select class="form-input form-input--compact" style="width:110px;height:36px;box-sizing:border-box;" id="f-month" data-fit-wired="1">
+          <option value="2027-02">令和9年2月</option><option value="2027-01">令和9年1月</option><option value="2026-12">令和8年12月</option><option value="2026-11">令和8年11月</option><option value="2026-10">令和8年10月</option><option value="2026-09" selected="">令和8年9月</option><option value="2026-08">令和8年8月</option><option value="2026-07">令和8年7月</option><option value="2026-06">令和8年6月</option><option value="2026-05">令和8年5月</option><option value="2026-04">令和8年4月</option><option value="2026-03">令和8年3月</option><option value="2026-02">令和8年2月</option>
+        </select>
+      </div>
+              <div class="filter-field" style="margin-left:auto;">
+                <div class="filter-field__label">帳票出力</div>
+                <div class="flex items-center gap-xs" id="monthly-export-groups"><button type="button" class="btn btn-outline btn-sm" data-export-form="I-2" data-export-label="I-2 月次実績報告相談員（人件費、雑役務費）">I-2 月次相談員（人件費、雑役務費）</button><button type="button" class="btn btn-outline btn-sm" data-export-form="I-3" data-export-label="I-3 月次実績報告相談員（謝金）支援状況">I-3 月次相談員（謝金）</button><button type="button" class="btn btn-outline btn-sm" data-export-form="I-6" data-export-label="I-6 月次実績報告事業者向け講習会実施状況">I-6 月次講習会状況</button></div>
+              </div>
+              <div class="filter-field" style="border-left:1px solid var(--gold-border); padding-left:var(--space-6);">
+                <div class="filter-field__label">&nbsp;</div>
+                <div class="flex items-center gap-md">
+                  <button type="button" class="btn btn-outline btn-sm" id="monthly-csv-btn">⬇ 一覧をCSVに出力する</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="monthly-table-card">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>支援テーマ</th>
+                <th class="num">令和8年2月</th><th class="num">令和8年3月</th><th class="num">令和8年4月</th><th class="num">令和8年5月</th><th class="num">令和8年6月</th><th class="num">令和8年7月</th><th class="num">令和8年8月</th><th class="num">令和8年9月</th><th class="num">令和8年10月</th><th class="num">令和8年11月</th><th class="num">令和8年12月</th><th class="num">令和9年1月</th><th class="num">令和9年2月</th>
+                <th class="num">累計</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>賃上げ・最低賃金引上げ</td>
+                  <td class="num">127</td><td class="num">140</td><td class="num">153</td><td class="num">166</td><td class="num">179</td><td class="num">192</td><td class="num">205</td><td class="num">218</td><td class="num">231</td><td class="num">244</td><td class="num">257</td><td class="num">270</td><td class="num">283</td>
+                  <td class="num">2,665</td>
+                </tr>
+                <tr>
+                  <td>省力化促進・人手不足</td>
+                  <td class="num">164</td><td class="num">177</td><td class="num">190</td><td class="num">203</td><td class="num">216</td><td class="num">229</td><td class="num">242</td><td class="num">255</td><td class="num">268</td><td class="num">281</td><td class="num">294</td><td class="num">27</td><td class="num">40</td>
+                  <td class="num">2,586</td>
+                </tr>
+                <tr>
+                  <td>エネルギー価格・物価の高騰</td>
+                  <td class="num">201</td><td class="num">214</td><td class="num">227</td><td class="num">240</td><td class="num">253</td><td class="num">266</td><td class="num">279</td><td class="num">292</td><td class="num">25</td><td class="num">38</td><td class="num">51</td><td class="num">64</td><td class="num">77</td>
+                  <td class="num">2,227</td>
+                </tr>
+                <tr>
+                  <td>デジタル化</td>
+                  <td class="num">238</td><td class="num">251</td><td class="num">264</td><td class="num">277</td><td class="num">290</td><td class="num">23</td><td class="num">36</td><td class="num">49</td><td class="num">62</td><td class="num">75</td><td class="num">88</td><td class="num">101</td><td class="num">114</td>
+                  <td class="num">1,868</td>
+                </tr>
+                <tr>
+                  <td>米国関税</td>
+                  <td class="num">275</td><td class="num">288</td><td class="num">21</td><td class="num">34</td><td class="num">47</td><td class="num">60</td><td class="num">73</td><td class="num">86</td><td class="num">99</td><td class="num">112</td><td class="num">125</td><td class="num">138</td><td class="num">151</td>
+                  <td class="num">1,509</td>
+                </tr>
+                <tr>
+                  <td>インボイス制度</td>
+                  <td class="num">32</td><td class="num">45</td><td class="num">58</td><td class="num">71</td><td class="num">84</td><td class="num">97</td><td class="num">110</td><td class="num">123</td><td class="num">136</td><td class="num">149</td><td class="num">162</td><td class="num">175</td><td class="num">188</td>
+                  <td class="num">1,430</td>
+                </tr>
+                <tr>
+                  <td>電子帳簿保存法</td>
+                  <td class="num">69</td><td class="num">82</td><td class="num">95</td><td class="num">108</td><td class="num">121</td><td class="num">134</td><td class="num">147</td><td class="num">160</td><td class="num">173</td><td class="num">186</td><td class="num">199</td><td class="num">212</td><td class="num">225</td>
+                  <td class="num">1,911</td>
+                </tr>
+                <tr>
+                  <td>新型コロナ</td>
+                  <td class="num">106</td><td class="num">119</td><td class="num">132</td><td class="num">145</td><td class="num">158</td><td class="num">171</td><td class="num">184</td><td class="num">197</td><td class="num">210</td><td class="num">223</td><td class="num">236</td><td class="num">249</td><td class="num">262</td>
+                  <td class="num">2,392</td>
+                </tr>
+                <tr>
+                  <td>事業実施に係る事務処理</td>
+                  <td class="num">143</td><td class="num">156</td><td class="num">169</td><td class="num">182</td><td class="num">195</td><td class="num">208</td><td class="num">221</td><td class="num">234</td><td class="num">247</td><td class="num">260</td><td class="num">273</td><td class="num">286</td><td class="num">299</td>
+                  <td class="num">2,873</td>
+                </tr>
+            </tbody>
+            <tfoot>
+              <tr class="total">
+                <td><strong>合計</strong></td>
+                <td class="num"><strong>1,355</strong></td><td class="num"><strong>1,472</strong></td><td class="num"><strong>1,309</strong></td><td class="num"><strong>1,426</strong></td><td class="num"><strong>1,543</strong></td><td class="num"><strong>1,380</strong></td><td class="num"><strong>1,497</strong></td><td class="num"><strong>1,614</strong></td><td class="num"><strong>1,451</strong></td><td class="num"><strong>1,568</strong></td><td class="num"><strong>1,685</strong></td><td class="num"><strong>1,522</strong></td><td class="num"><strong>1,639</strong></td>
+                <td class="num"><strong>19,461</strong></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+    </div>
+        </div>
+      </div>

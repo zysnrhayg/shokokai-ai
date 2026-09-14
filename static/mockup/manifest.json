@@ -1,0 +1,472 @@
+{
+  "source": "D:\\eclipse17\\workspace\\shokokai-ai-flask\\DB関連\\商工会AIシステムのモックアップ.html",
+  "output_dir": "D:\\eclipse17\\workspace\\shokokai-ai-flask\\DB関連\\設計書\\mockup_extracted",
+  "title": "商工会AIシステムのモックアップ（統合版：ホーム／相談を受ける・報告書を作る・専門家の報告を取り込む／報告書を見る／月次帳票を出力する を1ファイルに統合、CSS/JS完全内蔵）",
+  "css_files": [
+    "css/mockup-part-01.css",
+    "css/mockup-part-02.css",
+    "css/mockup-part-03.css",
+    "css/mockup-part-04.css",
+    "css/mockup-part-05.css",
+    "css/mockup-part-06.css",
+    "css/mockup.css"
+  ],
+  "scripts": [
+    {
+      "index": 0,
+      "type": "javascript",
+      "file": "js/login_otp_input.js",
+      "hint": "login_otp_input"
+    },
+    {
+      "index": 1,
+      "type": "javascript",
+      "file": "js/toast.js",
+      "hint": "toast"
+    },
+    {
+      "index": 2,
+      "type": "javascript",
+      "file": "js/select_width.js",
+      "hint": "select_width"
+    },
+    {
+      "index": 3,
+      "type": "javascript",
+      "file": "js/dom_utils.js",
+      "hint": "dom_utils"
+    },
+    {
+      "index": 4,
+      "type": "javascript",
+      "file": "js/nav_toggle.js",
+      "hint": "nav_toggle"
+    },
+    {
+      "index": 5,
+      "type": "javascript",
+      "file": "js/role_accent.js",
+      "hint": "role_accent"
+    },
+    {
+      "index": 6,
+      "type": "javascript",
+      "file": "js/org_role_switcher.js",
+      "hint": "org_role_switcher"
+    },
+    {
+      "index": 7,
+      "type": "javascript",
+      "file": "js/dashboard.js",
+      "hint": "dashboard"
+    },
+    {
+      "index": 8,
+      "type": "javascript",
+      "file": "js/layout_sync.js",
+      "hint": "layout_sync"
+    },
+    {
+      "index": 9,
+      "type": "json",
+      "file": "data/monthly-data.json",
+      "id": "monthly-data",
+      "embed_html": "<script id=\"monthly-data\" type=\"application/json\">\n{\n  \"title\": \"月次実績を確認・報告書を出力する\",\n  \"subtitle\": \"月次・年次の実績確認と帳票を出力できます\",\n  \"current_fiscal_year_code\": \"R8\",\n  \"fiscal_years\": [\n    {\n      \"fiscal_year_code\": \"R6\",\n      \"label\": \"令和6年度\",\n      \"start_month\": \"2024-02\",\n      \"end_month\": \"2025-02\"\n    },\n    {\n      \"fiscal_year_code\": \"R7\",\n      \"label\": \"令和7年度\",\n      \"start_month\": \"2025-02\",\n      \"end_month\": \"2026-02\"\n    },\n    {\n      \"fiscal_year_code\": \"R8\",\n      \"label\": \"令和8年度\",\n      \"start_month\": \"2026-02\",\n      \"end_month\": \"2027-02\"\n    }\n  ],\n  \"themes_by_year\": {\n    \"R6\": [],\n    \"R7\": [],\n    \"R8\": [\n      {\n        \"theme_id\": 1,\n        \"label\": \"賃上げ・最低賃金引上げ\"\n      },\n      {\n        \"theme_id\": 2,\n        \"label\": \"省力化促進・人手不足\"\n      },\n      {\n        \"theme_id\": 3,\n        \"label\": \"エネルギー価格・物価の高騰\"\n      },\n      {\n        \"theme_id\": 4,\n        \"label\": \"デジタル化\"\n      },\n      {\n        \"theme_id\": 5,\n        \"label\": \"米国関税\"\n      },\n      {\n        \"theme_id\": 6,\n        \"label\": \"インボイス制度\"\n      },\n      {\n        \"theme_id\": 7,\n        \"label\": \"電子帳簿保存法\"\n      },\n      {\n        \"theme_id\": 8,\n        \"label\": \"新型コロナ\"\n      },\n      {\n        \"theme_id\": 9,\n        \"label\": \"事業実施に係る事務処理\"\n      }\n    ]\n  },\n  \"_comment_data\": \"2026-08-25：各月2〜3桁・累計は4桁になる数字に作り直す指示のため、R6〜R8の全月×全テーマ分を用意する（以前は数件だけのスカスカなデータだった）。\",\n  \"detail_rows\": [\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2024-02\",\n      \"support_count\": 89\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2024-02\",\n      \"support_count\": 126\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2024-02\",\n      \"support_count\": 163\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2024-02\",\n      \"support_count\": 200\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2024-02\",\n      \"support_count\": 237\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2024-02\",\n      \"support_count\": 274\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2024-02\",\n      \"support_count\": 31\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2024-02\",\n      \"support_count\": 68\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2024-02\",\n      \"support_count\": 105\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2024-03\",\n      \"support_count\": 102\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2024-03\",\n      \"support_count\": 139\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2024-03\",\n      \"support_count\": 176\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2024-03\",\n      \"support_count\": 213\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2024-03\",\n      \"support_count\": 250\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2024-03\",\n      \"support_count\": 287\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2024-03\",\n      \"support_count\": 44\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2024-03\",\n      \"support_count\": 81\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2024-03\",\n      \"support_count\": 118\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2024-04\",\n      \"support_count\": 115\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2024-04\",\n      \"support_count\": 152\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2024-04\",\n      \"support_count\": 189\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2024-04\",\n      \"support_count\": 226\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2024-04\",\n      \"support_count\": 263\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2024-04\",\n      \"support_count\": 20\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2024-04\",\n      \"support_count\": 57\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2024-04\",\n      \"support_count\": 94\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2024-04\",\n      \"support_count\": 131\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2024-05\",\n      \"support_count\": 128\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2024-05\",\n      \"support_count\": 165\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2024-05\",\n      \"support_count\": 202\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2024-05\",\n      \"support_count\": 239\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2024-05\",\n      \"support_count\": 276\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2024-05\",\n      \"support_count\": 33\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2024-05\",\n      \"support_count\": 70\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2024-05\",\n      \"support_count\": 107\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2024-05\",\n      \"support_count\": 144\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2024-06\",\n      \"support_count\": 141\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2024-06\",\n      \"support_count\": 178\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2024-06\",\n      \"support_count\": 215\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2024-06\",\n      \"support_count\": 252\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2024-06\",\n      \"support_count\": 289\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2024-06\",\n      \"support_count\": 46\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2024-06\",\n      \"support_count\": 83\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2024-06\",\n      \"support_count\": 120\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2024-06\",\n      \"support_count\": 157\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2024-07\",\n      \"support_count\": 154\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2024-07\",\n      \"support_count\": 191\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2024-07\",\n      \"support_count\": 228\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2024-07\",\n      \"support_count\": 265\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2024-07\",\n      \"support_count\": 22\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2024-07\",\n      \"support_count\": 59\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2024-07\",\n      \"support_count\": 96\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2024-07\",\n      \"support_count\": 133\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2024-07\",\n      \"support_count\": 170\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2024-08\",\n      \"support_count\": 167\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2024-08\",\n      \"support_count\": 204\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2024-08\",\n      \"support_count\": 241\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2024-08\",\n      \"support_count\": 278\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2024-08\",\n      \"support_count\": 35\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2024-08\",\n      \"support_count\": 72\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2024-08\",\n      \"support_count\": 109\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2024-08\",\n      \"support_count\": 146\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2024-08\",\n      \"support_count\": 183\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2024-09\",\n      \"support_count\": 180\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2024-09\",\n      \"support_count\": 217\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2024-09\",\n      \"support_count\": 254\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2024-09\",\n      \"support_count\": 291\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2024-09\",\n      \"support_count\": 48\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2024-09\",\n      \"support_count\": 85\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2024-09\",\n      \"support_count\": 122\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2024-09\",\n      \"support_count\": 159\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2024-09\",\n      \"support_count\": 196\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2024-10\",\n      \"support_count\": 193\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2024-10\",\n      \"support_count\": 230\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2024-10\",\n      \"support_count\": 267\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2024-10\",\n      \"support_count\": 24\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2024-10\",\n      \"support_count\": 61\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2024-10\",\n      \"support_count\": 98\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2024-10\",\n      \"support_count\": 135\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2024-10\",\n      \"support_count\": 172\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2024-10\",\n      \"support_count\": 209\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2024-11\",\n      \"support_count\": 206\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2024-11\",\n      \"support_count\": 243\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2024-11\",\n      \"support_count\": 280\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2024-11\",\n      \"support_count\": 37\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2024-11\",\n      \"support_count\": 74\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2024-11\",\n      \"support_count\": 111\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2024-11\",\n      \"support_count\": 148\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2024-11\",\n      \"support_count\": 185\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2024-11\",\n      \"support_count\": 222\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2024-12\",\n      \"support_count\": 219\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2024-12\",\n      \"support_count\": 256\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2024-12\",\n      \"support_count\": 293\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2024-12\",\n      \"support_count\": 50\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2024-12\",\n      \"support_count\": 87\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2024-12\",\n      \"support_count\": 124\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2024-12\",\n      \"support_count\": 161\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2024-12\",\n      \"support_count\": 198\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2024-12\",\n      \"support_count\": 235\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2025-01\",\n      \"support_count\": 232\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2025-01\",\n      \"support_count\": 269\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2025-01\",\n      \"support_count\": 26\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2025-01\",\n      \"support_count\": 63\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2025-01\",\n      \"support_count\": 100\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2025-01\",\n      \"support_count\": 137\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2025-01\",\n      \"support_count\": 174\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2025-01\",\n      \"support_count\": 211\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2025-01\",\n      \"support_count\": 248\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2025-02\",\n      \"support_count\": 245\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2025-02\",\n      \"support_count\": 282\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2025-02\",\n      \"support_count\": 39\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2025-02\",\n      \"support_count\": 76\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2025-02\",\n      \"support_count\": 113\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2025-02\",\n      \"support_count\": 150\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2025-02\",\n      \"support_count\": 187\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2025-02\",\n      \"support_count\": 224\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2025-02\",\n      \"support_count\": 261\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2025-02\",\n      \"support_count\": 110\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2025-02\",\n      \"support_count\": 147\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2025-02\",\n      \"support_count\": 184\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2025-02\",\n      \"support_count\": 221\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2025-02\",\n      \"support_count\": 258\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2025-02\",\n      \"support_count\": 295\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2025-02\",\n      \"support_count\": 52\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2025-02\",\n      \"support_count\": 89\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2025-02\",\n      \"support_count\": 126\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2025-03\",\n      \"support_count\": 123\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2025-03\",\n      \"support_count\": 160\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2025-03\",\n      \"support_count\": 197\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2025-03\",\n      \"support_count\": 234\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2025-03\",\n      \"support_count\": 271\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2025-03\",\n      \"support_count\": 28\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2025-03\",\n      \"support_count\": 65\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2025-03\",\n      \"support_count\": 102\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2025-03\",\n      \"support_count\": 139\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2025-04\",\n      \"support_count\": 136\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2025-04\",\n      \"support_count\": 173\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2025-04\",\n      \"support_count\": 210\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2025-04\",\n      \"support_count\": 247\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2025-04\",\n      \"support_count\": 284\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2025-04\",\n      \"support_count\": 41\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2025-04\",\n      \"support_count\": 78\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2025-04\",\n      \"support_count\": 115\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2025-04\",\n      \"support_count\": 152\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2025-05\",\n      \"support_count\": 149\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2025-05\",\n      \"support_count\": 186\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2025-05\",\n      \"support_count\": 223\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2025-05\",\n      \"support_count\": 260\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2025-05\",\n      \"support_count\": 297\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2025-05\",\n      \"support_count\": 54\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2025-05\",\n      \"support_count\": 91\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2025-05\",\n      \"support_count\": 128\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2025-05\",\n      \"support_count\": 165\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2025-06\",\n      \"support_count\": 162\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2025-06\",\n      \"support_count\": 199\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2025-06\",\n      \"support_count\": 236\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2025-06\",\n      \"support_count\": 273\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2025-06\",\n      \"support_count\": 30\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2025-06\",\n      \"support_count\": 67\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2025-06\",\n      \"support_count\": 104\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2025-06\",\n      \"support_count\": 141\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2025-06\",\n      \"support_count\": 178\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2025-07\",\n      \"support_count\": 175\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2025-07\",\n      \"support_count\": 212\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2025-07\",\n      \"support_count\": 249\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2025-07\",\n      \"support_count\": 286\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2025-07\",\n      \"support_count\": 43\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2025-07\",\n      \"support_count\": 80\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2025-07\",\n      \"support_count\": 117\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2025-07\",\n      \"support_count\": 154\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2025-07\",\n      \"support_count\": 191\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2025-08\",\n      \"support_count\": 188\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2025-08\",\n      \"support_count\": 225\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2025-08\",\n      \"support_count\": 262\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2025-08\",\n      \"support_count\": 299\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2025-08\",\n      \"support_count\": 56\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2025-08\",\n      \"support_count\": 93\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2025-08\",\n      \"support_count\": 130\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2025-08\",\n      \"support_count\": 167\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2025-08\",\n      \"support_count\": 204\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2025-09\",\n      \"support_count\": 201\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2025-09\",\n      \"support_count\": 238\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2025-09\",\n      \"support_count\": 275\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2025-09\",\n      \"support_count\": 32\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2025-09\",\n      \"support_count\": 69\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2025-09\",\n      \"support_count\": 106\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2025-09\",\n      \"support_count\": 143\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2025-09\",\n      \"support_count\": 180\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2025-09\",\n      \"support_count\": 217\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2025-10\",\n      \"support_count\": 214\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2025-10\",\n      \"support_count\": 251\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2025-10\",\n      \"support_count\": 288\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2025-10\",\n      \"support_count\": 45\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2025-10\",\n      \"support_count\": 82\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2025-10\",\n      \"support_count\": 119\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2025-10\",\n      \"support_count\": 156\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2025-10\",\n      \"support_count\": 193\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2025-10\",\n      \"support_count\": 230\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2025-11\",\n      \"support_count\": 227\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2025-11\",\n      \"support_count\": 264\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2025-11\",\n      \"support_count\": 21\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2025-11\",\n      \"support_count\": 58\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2025-11\",\n      \"support_count\": 95\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2025-11\",\n      \"support_count\": 132\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2025-11\",\n      \"support_count\": 169\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2025-11\",\n      \"support_count\": 206\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2025-11\",\n      \"support_count\": 243\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2025-12\",\n      \"support_count\": 240\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2025-12\",\n      \"support_count\": 277\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2025-12\",\n      \"support_count\": 34\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2025-12\",\n      \"support_count\": 71\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2025-12\",\n      \"support_count\": 108\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2025-12\",\n      \"support_count\": 145\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2025-12\",\n      \"support_count\": 182\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2025-12\",\n      \"support_count\": 219\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2025-12\",\n      \"support_count\": 256\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2026-01\",\n      \"support_count\": 253\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2026-01\",\n      \"support_count\": 290\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2026-01\",\n      \"support_count\": 47\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2026-01\",\n      \"support_count\": 84\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2026-01\",\n      \"support_count\": 121\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2026-01\",\n      \"support_count\": 158\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2026-01\",\n      \"support_count\": 195\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2026-01\",\n      \"support_count\": 232\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2026-01\",\n      \"support_count\": 269\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2026-02\",\n      \"support_count\": 266\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2026-02\",\n      \"support_count\": 23\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2026-02\",\n      \"support_count\": 60\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2026-02\",\n      \"support_count\": 97\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2026-02\",\n      \"support_count\": 134\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2026-02\",\n      \"support_count\": 171\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2026-02\",\n      \"support_count\": 208\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2026-02\",\n      \"support_count\": 245\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2026-02\",\n      \"support_count\": 282\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2026-02\",\n      \"support_count\": 127\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2026-02\",\n      \"support_count\": 164\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2026-02\",\n      \"support_count\": 201\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2026-02\",\n      \"support_count\": 238\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2026-02\",\n      \"support_count\": 275\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2026-02\",\n      \"support_count\": 32\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2026-02\",\n      \"support_count\": 69\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2026-02\",\n      \"support_count\": 106\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2026-02\",\n      \"support_count\": 143\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2026-03\",\n      \"support_count\": 140\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2026-03\",\n      \"support_count\": 177\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2026-03\",\n      \"support_count\": 214\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2026-03\",\n      \"support_count\": 251\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2026-03\",\n      \"support_count\": 288\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2026-03\",\n      \"support_count\": 45\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2026-03\",\n      \"support_count\": 82\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2026-03\",\n      \"support_count\": 119\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2026-03\",\n      \"support_count\": 156\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2026-04\",\n      \"support_count\": 153\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2026-04\",\n      \"support_count\": 190\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2026-04\",\n      \"support_count\": 227\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2026-04\",\n      \"support_count\": 264\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2026-04\",\n      \"support_count\": 21\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2026-04\",\n      \"support_count\": 58\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2026-04\",\n      \"support_count\": 95\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2026-04\",\n      \"support_count\": 132\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2026-04\",\n      \"support_count\": 169\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2026-05\",\n      \"support_count\": 166\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2026-05\",\n      \"support_count\": 203\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2026-05\",\n      \"support_count\": 240\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2026-05\",\n      \"support_count\": 277\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2026-05\",\n      \"support_count\": 34\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2026-05\",\n      \"support_count\": 71\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2026-05\",\n      \"support_count\": 108\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2026-05\",\n      \"support_count\": 145\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2026-05\",\n      \"support_count\": 182\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2026-06\",\n      \"support_count\": 179\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2026-06\",\n      \"support_count\": 216\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2026-06\",\n      \"support_count\": 253\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2026-06\",\n      \"support_count\": 290\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2026-06\",\n      \"support_count\": 47\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2026-06\",\n      \"support_count\": 84\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2026-06\",\n      \"support_count\": 121\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2026-06\",\n      \"support_count\": 158\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2026-06\",\n      \"support_count\": 195\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2026-07\",\n      \"support_count\": 192\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2026-07\",\n      \"support_count\": 229\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2026-07\",\n      \"support_count\": 266\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2026-07\",\n      \"support_count\": 23\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2026-07\",\n      \"support_count\": 60\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2026-07\",\n      \"support_count\": 97\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2026-07\",\n      \"support_count\": 134\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2026-07\",\n      \"support_count\": 171\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2026-07\",\n      \"support_count\": 208\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2026-08\",\n      \"support_count\": 205\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2026-08\",\n      \"support_count\": 242\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2026-08\",\n      \"support_count\": 279\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2026-08\",\n      \"support_count\": 36\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2026-08\",\n      \"support_count\": 73\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2026-08\",\n      \"support_count\": 110\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2026-08\",\n      \"support_count\": 147\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2026-08\",\n      \"support_count\": 184\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2026-08\",\n      \"support_count\": 221\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2026-09\",\n      \"support_count\": 218\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2026-09\",\n      \"support_count\": 255\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2026-09\",\n      \"support_count\": 292\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2026-09\",\n      \"support_count\": 49\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2026-09\",\n      \"support_count\": 86\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2026-09\",\n      \"support_count\": 123\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2026-09\",\n      \"support_count\": 160\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2026-09\",\n      \"support_count\": 197\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2026-09\",\n      \"support_count\": 234\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2026-10\",\n      \"support_count\": 231\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2026-10\",\n      \"support_count\": 268\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2026-10\",\n      \"support_count\": 25\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2026-10\",\n      \"support_count\": 62\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2026-10\",\n      \"support_count\": 99\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2026-10\",\n      \"support_count\": 136\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2026-10\",\n      \"support_count\": 173\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2026-10\",\n      \"support_count\": 210\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2026-10\",\n      \"support_count\": 247\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2026-11\",\n      \"support_count\": 244\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2026-11\",\n      \"support_count\": 281\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2026-11\",\n      \"support_count\": 38\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2026-11\",\n      \"support_count\": 75\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2026-11\",\n      \"support_count\": 112\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2026-11\",\n      \"support_count\": 149\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2026-11\",\n      \"support_count\": 186\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2026-11\",\n      \"support_count\": 223\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2026-11\",\n      \"support_count\": 260\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2026-12\",\n      \"support_count\": 257\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2026-12\",\n      \"support_count\": 294\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2026-12\",\n      \"support_count\": 51\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2026-12\",\n      \"support_count\": 88\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2026-12\",\n      \"support_count\": 125\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2026-12\",\n      \"support_count\": 162\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2026-12\",\n      \"support_count\": 199\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2026-12\",\n      \"support_count\": 236\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2026-12\",\n      \"support_count\": 273\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2027-01\",\n      \"support_count\": 270\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2027-01\",\n      \"support_count\": 27\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2027-01\",\n      \"support_count\": 64\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2027-01\",\n      \"support_count\": 101\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2027-01\",\n      \"support_count\": 138\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2027-01\",\n      \"support_count\": 175\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2027-01\",\n      \"support_count\": 212\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2027-01\",\n      \"support_count\": 249\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2027-01\",\n      \"support_count\": 286\n    },\n    {\n      \"theme_id\": 1,\n      \"year_month\": \"2027-02\",\n      \"support_count\": 283\n    },\n    {\n      \"theme_id\": 2,\n      \"year_month\": \"2027-02\",\n      \"support_count\": 40\n    },\n    {\n      \"theme_id\": 3,\n      \"year_month\": \"2027-02\",\n      \"support_count\": 77\n    },\n    {\n      \"theme_id\": 4,\n      \"year_month\": \"2027-02\",\n      \"support_count\": 114\n    },\n    {\n      \"theme_id\": 5,\n      \"year_month\": \"2027-02\",\n      \"support_count\": 151\n    },\n    {\n      \"theme_id\": 6,\n      \"year_month\": \"2027-02\",\n      \"support_count\": 188\n    },\n    {\n      \"theme_id\": 7,\n      \"year_month\": \"2027-02\",\n      \"support_count\": 225\n    },\n    {\n      \"theme_id\": 8,\n      \"year_month\": \"2027-02\",\n      \"support_count\": 262\n    },\n    {\n      \"theme_id\": 9,\n      \"year_month\": \"2027-02\",\n      \"support_count\": 299\n    }\n  ],\n  \"total_rows\": [\n    {\n      \"year_month\": \"2024-02\",\n      \"support_count\": 1293\n    },\n    {\n      \"year_month\": \"2024-03\",\n      \"support_count\": 1410\n    },\n    {\n      \"year_month\": \"2024-04\",\n      \"support_count\": 1247\n    },\n    {\n      \"year_month\": \"2024-05\",\n      \"support_count\": 1364\n    },\n    {\n      \"year_month\": \"2024-06\",\n      \"support_count\": 1481\n    },\n    {\n      \"year_month\": \"2024-07\",\n      \"support_count\": 1318\n    },\n    {\n      \"year_month\": \"2024-08\",\n      \"support_count\": 1435\n    },\n    {\n      \"year_month\": \"2024-09\",\n      \"support_count\": 1552\n    },\n    {\n      \"year_month\": \"2024-10\",\n      \"support_count\": 1389\n    },\n    {\n      \"year_month\": \"2024-11\",\n      \"support_count\": 1506\n    },\n    {\n      \"year_month\": \"2024-12\",\n      \"support_count\": 1623\n    },\n    {\n      \"year_month\": \"2025-01\",\n      \"support_count\": 1460\n    },\n    {\n      \"year_month\": \"2025-02\",\n      \"support_count\": 1577\n    },\n    {\n      \"year_month\": \"2025-02\",\n      \"support_count\": 1482\n    },\n    {\n      \"year_month\": \"2025-03\",\n      \"support_count\": 1319\n    },\n    {\n      \"year_month\": \"2025-04\",\n      \"support_count\": 1436\n    },\n    {\n      \"year_month\": \"2025-05\",\n      \"support_count\": 1553\n    },\n    {\n      \"year_month\": \"2025-06\",\n      \"support_count\": 1390\n    },\n    {\n      \"year_month\": \"2025-07\",\n      \"support_count\": 1507\n    },\n    {\n      \"year_month\": \"2025-08\",\n      \"support_count\": 1624\n    },\n    {\n      \"year_month\": \"2025-09\",\n      \"support_count\": 1461\n    },\n    {\n      \"year_month\": \"2025-10\",\n      \"support_count\": 1578\n    },\n    {\n      \"year_month\": \"2025-11\",\n      \"support_count\": 1415\n    },\n    {\n      \"year_month\": \"2025-12\",\n      \"support_count\": 1532\n    },\n    {\n      \"year_month\": \"2026-01\",\n      \"support_count\": 1649\n    },\n    {\n      \"year_month\": \"2026-02\",\n      \"support_count\": 1486\n    },\n    {\n      \"year_month\": \"2026-02\",\n      \"support_count\": 1355\n    },\n    {\n      \"year_month\": \"2026-03\",\n      \"support_count\": 1472\n    },\n    {\n      \"year_month\": \"2026-04\",\n      \"support_count\": 1309\n    },\n    {\n      \"year_month\": \"2026-05\",\n      \"support_count\": 1426\n    },\n    {\n      \"year_month\": \"2026-06\",\n      \"support_count\": 1543\n    },\n    {\n      \"year_month\": \"2026-07\",\n      \"support_count\": 1380\n    },\n    {\n      \"year_month\": \"2026-08\",\n      \"support_count\": 1497\n    },\n    {\n      \"year_month\": \"2026-09\",\n      \"support_count\": 1614\n    },\n    {\n      \"year_month\": \"2026-10\",\n      \"support_count\": 1451\n    },\n    {\n      \"year_month\": \"2026-11\",\n      \"support_count\": 1568\n    },\n    {\n      \"year_month\": \"2026-12\",\n      \"support_count\": 1685\n    },\n    {\n      \"year_month\": \"2027-01\",\n      \"support_count\": 1522\n    },\n    {\n      \"year_month\": \"2027-02\",\n      \"support_count\": 1639\n    }\n  ],\n  \"export_forms\": [\n    {\n      \"form_code\": \"H\",\n      \"short_label\": \"H 月次総支援件数\",\n      \"full_label\": \"H 月次実績報告総支援件数\"\n    },\n    {\n      \"form_code\": \"I-1\",\n      \"short_label\": \"I-1 相談員等配置状況\",\n      \"full_label\": \"I-1 月次実績報告相談員等配置状況\"\n    },\n    {\n      \"form_code\": \"I-2\",\n      \"short_label\": \"I-2 月次相談員（人件費、雑役務費）\",\n      \"full_label\": \"I-2 月次実績報告相談員（人件費、雑役務費）\"\n    },\n    {\n      \"form_code\": \"I-3\",\n      \"short_label\": \"I-3 月次相談員（謝金）\",\n      \"full_label\": \"I-3 月次実績報告相談員（謝金）支援状況\"\n    },\n    {\n      \"form_code\": \"I-6\",\n      \"short_label\": \"I-6 月次講習会状況\",\n      \"full_label\": \"I-6 月次実績報告事業者向け講習会実施状況\"\n    }\n  ]\n}\n</script>"
+    },
+    {
+      "index": 10,
+      "type": "javascript",
+      "file": "js/entry_form_wiring.js",
+      "hint": "entry_form_wiring"
+    },
+    {
+      "index": 11,
+      "type": "javascript",
+      "file": "js/expert_import_modal.js",
+      "hint": "expert_import_modal"
+    },
+    {
+      "index": 12,
+      "type": "javascript",
+      "file": "js/ai_proposal.js",
+      "hint": "ai_proposal"
+    },
+    {
+      "index": 13,
+      "type": "javascript",
+      "file": "js/monthly.js",
+      "hint": "monthly"
+    },
+    {
+      "index": 14,
+      "type": "javascript",
+      "file": "js/reports_annual_csv.js",
+      "hint": "reports_annual_csv"
+    },
+    {
+      "index": 15,
+      "type": "javascript",
+      "file": "js/entry_screen.js",
+      "hint": "entry_screen"
+    },
+    {
+      "index": 16,
+      "type": "javascript",
+      "file": "js/expert_import_wire.js",
+      "hint": "expert_import_wire"
+    },
+    {
+      "index": 17,
+      "type": "javascript",
+      "file": "js/reports_list.js",
+      "hint": "reports_list"
+    },
+    {
+      "index": 18,
+      "type": "javascript",
+      "file": "js/entry_history.js",
+      "hint": "entry_history"
+    },
+    {
+      "index": 19,
+      "type": "javascript",
+      "file": "js/entry_jigyosho_autocomplete.js",
+      "hint": "entry_jigyosho_autocomplete"
+    },
+    {
+      "index": 20,
+      "type": "javascript",
+      "file": "js/accounts.js",
+      "hint": "accounts"
+    },
+    {
+      "index": 21,
+      "type": "javascript",
+      "file": "js/knowledge.js",
+      "hint": "knowledge"
+    },
+    {
+      "index": 22,
+      "type": "javascript",
+      "file": "js/knowledge_search.js",
+      "hint": "knowledge_search"
+    },
+    {
+      "index": 23,
+      "type": "javascript",
+      "file": "js/router.js",
+      "hint": "router"
+    }
+  ],
+  "views": [
+    {
+      "view_id": "view-home",
+      "slug": "home",
+      "file": "html/home.html",
+      "content_file": "html/home_content.html",
+      "in_app_shell": true,
+      "js_rendered": false
+    },
+    {
+      "view_id": "view-entry",
+      "slug": "entry",
+      "file": "html/entry.html",
+      "content_file": "html/entry_content.html",
+      "in_app_shell": true,
+      "js_rendered": false
+    },
+    {
+      "view_id": "view-reports",
+      "slug": "reports",
+      "file": "html/reports.html",
+      "content_file": "html/reports_content.html",
+      "in_app_shell": true,
+      "js_rendered": false
+    },
+    {
+      "view_id": "view-ai-proposal",
+      "slug": "ai_proposal",
+      "file": "html/ai_proposal.html",
+      "content_file": "html/ai_proposal_content.html",
+      "in_app_shell": true,
+      "js_rendered": false
+    },
+    {
+      "view_id": "view-monthly",
+      "slug": "monthly",
+      "file": "html/monthly.html",
+      "content_file": "html/monthly_content.html",
+      "in_app_shell": true,
+      "js_rendered": false
+    },
+    {
+      "view_id": "view-accounts",
+      "slug": "accounts",
+      "file": "html/accounts.html",
+      "content_file": "html/accounts_content.html",
+      "in_app_shell": true,
+      "js_rendered": false
+    },
+    {
+      "view_id": "view-knowledge",
+      "slug": "knowledge",
+      "file": "html/knowledge.html",
+      "content_file": "html/knowledge_content.html",
+      "in_app_shell": true,
+      "js_rendered": false
+    },
+    {
+      "view_id": "view-knowledge-search",
+      "slug": "knowledge_search",
+      "file": "html/knowledge_search.html",
+      "content_file": "html/knowledge_search_content.html",
+      "in_app_shell": true,
+      "js_rendered": false
+    },
+    {
+      "view_id": "view-login",
+      "slug": "login",
+      "file": "html/login.html",
+      "content_file": "html/login_content.html",
+      "in_app_shell": false,
+      "js_rendered": false
+    },
+    {
+      "view_id": "view-verify-2fa",
+      "slug": "verify_2fa",
+      "file": "html/verify_2fa.html",
+      "content_file": "html/verify_2fa_content.html",
+      "in_app_shell": false,
+      "js_rendered": false
+    }
+  ],
+  "pages": [
+    {
+      "no": 1,
+      "screen_name": "ログイン画面",
+      "manage_id": "login",
+      "file_slug": "login",
+      "route": "login",
+      "role": "shokokai",
+      "view_id": "view-login",
+      "capture": "auth_login",
+      "file": "html/pages/login.html",
+      "content_file": "html/pages/login_content.html",
+      "rendered_file": "html/pages/login_rendered.html",
+      "content_source": "rendered"
+    },
+    {
+      "no": 2,
+      "screen_name": "二段階認証画面",
+      "manage_id": "verify_2fa",
+      "file_slug": "verify_2fa",
+      "route": "verify-2fa",
+      "role": "shokokai",
+      "view_id": "view-verify-2fa",
+      "capture": "auth_verify",
+      "file": "html/pages/verify_2fa.html",
+      "content_file": "html/pages/verify_2fa_content.html",
+      "rendered_file": "html/pages/verify_2fa_rendered.html",
+      "content_source": "rendered"
+    },
+    {
+      "no": 3,
+      "screen_name": "ダッシュボード（全国連）",
+      "manage_id": "dashboard_national",
+      "file_slug": "dashboard_national",
+      "route": "home",
+      "role": "national",
+      "view_id": "view-home",
+      "capture": "dashboard",
+      "file": "html/pages/dashboard_national.html",
+      "content_file": "html/pages/dashboard_national_content.html",
+      "rendered_file": "html/pages/dashboard_national_rendered.html",
+      "content_source": "rendered"
+    },
+    {
+      "no": 4,
+      "screen_name": "ダッシュボード（県連）",
+      "manage_id": "dashboard_pref",
+      "file_slug": "dashboard_pref",
+      "route": "home",
+      "role": "pref",
+      "view_id": "view-home",
+      "capture": "dashboard",
+      "file": "html/pages/dashboard_pref.html",
+      "content_file": "html/pages/dashboard_pref_content.html",
+      "rendered_file": "html/pages/dashboard_pref_rendered.html",
+      "content_source": "rendered"
+    },
+    {
+      "no": 5,
+      "screen_name": "ダッシュボード（商工会）",
+      "manage_id": "dashboard_shokokai",
+      "file_slug": "dashboard_shokokai",
+      "route": "home",
+      "role": "shokokai",
+      "view_id": "view-home",
+      "capture": "dashboard",
+      "file": "html/pages/dashboard_shokokai.html",
+      "content_file": "html/pages/dashboard_shokokai_content.html",
+      "rendered_file": "html/pages/dashboard_shokokai_rendered.html",
+      "content_source": "rendered"
+    },
+    {
+      "no": 6,
+      "screen_name": "相談を受ける",
+      "manage_id": "form_ai_input",
+      "file_slug": "form_ai_input",
+      "route": "ai-input",
+      "role": "shokokai",
+      "view_id": "view-entry",
+      "capture": "nav_ai_input",
+      "file": "html/pages/form_ai_input.html",
+      "content_file": "html/pages/form_ai_input_content.html",
+      "rendered_file": "html/pages/form_ai_input_rendered.html",
+      "content_source": "rendered"
+    },
+    {
+      "no": 7,
+      "screen_name": "報告書を作る",
+      "manage_id": "form_new",
+      "file_slug": "form_new",
+      "route": "manual-input",
+      "role": "shokokai",
+      "view_id": "view-entry",
+      "capture": "nav_manual_input",
+      "file": "html/pages/form_new.html",
+      "content_file": "html/pages/form_new_content.html",
+      "rendered_file": "html/pages/form_new_rendered.html",
+      "content_source": "rendered"
+    },
+    {
+      "no": 8,
+      "screen_name": "専門家の報告を取り込む",
+      "manage_id": "form_expert_import",
+      "file_slug": "form_expert_import",
+      "route": "expert-import",
+      "role": "shokokai",
+      "view_id": "view-entry",
+      "capture": "nav_expert_import",
+      "file": "html/pages/form_expert_import.html",
+      "content_file": "html/pages/form_expert_import_content.html",
+      "rendered_file": "html/pages/form_expert_import_rendered.html",
+      "content_source": "rendered"
+    },
+    {
+      "no": 9,
+      "screen_name": "報告書を見る",
+      "manage_id": "reports",
+      "file_slug": "reports",
+      "route": "reports",
+      "role": "shokokai",
+      "view_id": "view-reports",
+      "capture": "nav_reports",
+      "file": "html/pages/reports.html",
+      "content_file": "html/pages/reports_content.html",
+      "rendered_file": "html/pages/reports_rendered.html",
+      "content_source": "rendered"
+    },
+    {
+      "no": 10,
+      "screen_name": "実績確認・帳票出力",
+      "manage_id": "monthly",
+      "file_slug": "monthly",
+      "route": "monthly",
+      "role": "shokokai",
+      "view_id": "view-monthly",
+      "capture": "nav_monthly",
+      "file": "html/pages/monthly.html",
+      "content_file": "html/pages/monthly_content.html",
+      "rendered_file": "html/pages/monthly_rendered.html",
+      "content_source": "rendered"
+    },
+    {
+      "no": 11,
+      "screen_name": "AIと一緒に考える",
+      "manage_id": "search",
+      "file_slug": "search",
+      "route": "ai-proposal",
+      "role": "shokokai",
+      "view_id": "view-ai-proposal",
+      "capture": "nav_ai_proposal",
+      "file": "html/pages/search.html",
+      "content_file": "html/pages/search_content.html",
+      "rendered_file": "html/pages/search_rendered.html",
+      "content_source": "rendered"
+    },
+    {
+      "no": 12,
+      "screen_name": "ナレッジを検索する",
+      "manage_id": "search",
+      "file_slug": "knowledge_search",
+      "route": "knowledge-search",
+      "role": "shokokai",
+      "view_id": "view-knowledge-search",
+      "capture": "nav_knowledge_search",
+      "file": "html/pages/knowledge_search.html",
+      "content_file": "html/pages/knowledge_search_content.html",
+      "rendered_file": "html/pages/knowledge_search_rendered.html",
+      "content_source": "rendered"
+    },
+    {
+      "no": 13,
+      "screen_name": "アカウント一覧",
+      "manage_id": "accounts",
+      "file_slug": "accounts",
+      "route": "accounts",
+      "role": "shokokai",
+      "view_id": "view-accounts",
+      "capture": "accounts_list",
+      "file": "html/pages/accounts.html",
+      "content_file": "html/pages/accounts_content.html",
+      "rendered_file": "html/pages/accounts_rendered.html",
+      "content_source": "rendered"
+    },
+    {
+      "no": 14,
+      "screen_name": "ナレッジ管理（①ファイル保管＝文書一覧）",
+      "manage_id": "documents_list",
+      "file_slug": "documents_list",
+      "route": "knowledge",
+      "role": "national",
+      "view_id": "view-knowledge",
+      "capture": "knowledge_tab_document",
+      "file": "html/pages/documents_list.html",
+      "content_file": "html/pages/documents_list_content.html",
+      "rendered_file": "html/pages/documents_list_rendered.html",
+      "content_source": "rendered"
+    },
+    {
+      "no": 15,
+      "screen_name": "ナレッジ管理（②タグ付け・レビュー＝知識データ一覧）",
+      "manage_id": "entries_list",
+      "file_slug": "entries_list",
+      "route": "knowledge",
+      "role": "national",
+      "view_id": "view-knowledge",
+      "capture": "knowledge_tab_entry",
+      "file": "html/pages/entries_list.html",
+      "content_file": "html/pages/entries_list_content.html",
+      "rendered_file": "html/pages/entries_list_rendered.html",
+      "content_source": "rendered"
+    },
+    {
+      "no": 16,
+      "screen_name": "ナレッジ管理（③ベクトル反映）",
+      "manage_id": "vectors_list",
+      "file_slug": "vectors_list",
+      "route": "knowledge",
+      "role": "national",
+      "view_id": "view-knowledge",
+      "capture": "knowledge_tab_vector",
+      "file": "html/pages/vectors_list.html",
+      "content_file": "html/pages/vectors_list_content.html",
+      "rendered_file": "html/pages/vectors_list_rendered.html",
+      "content_source": "rendered"
+    }
+  ],
+  "layout": "layout/app_shell.html",
+  "preview": "preview.html",
+  "rendered_snapshots": true
+}

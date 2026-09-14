@@ -32,17 +32,25 @@ def is_bcrypt_hash(hashed: str) -> bool:
 	return hashed.startswith(("$2a$", "$2b$", "$2y$")) and len(hashed) >= 59
 
 
+def _is_sha1_hex(hashed: str) -> bool:
+	if not hashed or len(hashed) != 40:
+		return False
+	return all(c in "0123456789abcdefABCDEF" for c in hashed)
+
+
 def verify_password(plain: str, hashed: str) -> bool:
 	"""
 	Verify plaintext against stored hash.
-	Supports bcrypt (current) and SHA-1 hex (legacy) so existing users can still log in.
+	Supports bcrypt, SHA-1 hex (legacy), and temporary plaintext (mst_user_account).
 	"""
 	if not plain or not hashed:
 		return False
 	hashed = str(hashed).strip()
 	if is_bcrypt_hash(hashed):
 		return check_password(plain, hashed)
-	return check_password_sha1(plain, hashed)
+	if _is_sha1_hex(hashed):
+		return check_password_sha1(plain, hashed)
+	return plain == hashed
 
 
 def encrypt_for_storage(password: str) -> str:

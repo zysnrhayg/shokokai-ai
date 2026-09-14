@@ -22,6 +22,3 @@ class Api121GetstaffoptionsDto(BaseEntity):
 	
 	def dict_to_json(dict):
 		return Api121GetstaffoptionsDto(dict.get("mode",""),dict.get("actflg",""),dict.get("triggerid",""),dict.get("row",""),dict.get("userid",""),dict.get("shokuinkj",""),dict.get("prefecturecode",""),dict.get("shokokaicd",""))
-	
-	
-	

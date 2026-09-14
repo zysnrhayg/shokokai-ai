@@ -13,7 +13,7 @@ def _normalize_path(p):
 
 def _exempt_paths():
     # Keep default exemptions minimal and explicit.
-    raw = os.getenv("CSRF_EXEMPT_PATHS", "/login.do,/health,/ready")
+    raw = os.getenv("CSRF_EXEMPT_PATHS", "/login.do,/logininitapi.do,/loginapi.do,/verify2faapi.do,/health,/ready")
     paths = [_normalize_path(p) for p in raw.split(",") if p.strip()]
     # Never allow global exemption via "/".
     return [p for p in paths if p != "/"]

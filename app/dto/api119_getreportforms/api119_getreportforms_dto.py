@@ -22,6 +22,3 @@ class Api119GetreportformsDto(BaseEntity):
 	
 	def dict_to_json(dict):
 		return Api119GetreportformsDto(dict.get("mode",""),dict.get("actflg",""),dict.get("triggerid",""),dict.get("row",""),dict.get("formcode",""),dict.get("fulllabel",""),dict.get("shortlabel",""),dict.get("fiscalyearid",""))
-	
-	
-	

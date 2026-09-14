@@ -1,0 +1,97 @@
+<div class="app-view active" id="view-accounts" style=""><div id="accounts-root">
+      <div class="screen-body screen-body--fill">
+        <div class="cat-lbl">🔍 条件を入力すると一覧を絞り込みできます</div>
+
+        <div class="card card--fill" id="accounts-filter-card" style="min-height: 597.656px; max-height: 597.656px;">
+          <div class="card-header" id="accounts-filter-header" style="min-height: 83.5px;">
+            <div class="filter-row">
+              <div class="filter-field"><div class="filter-field__label">権限ロール</div>
+                <select class="form-input form-input--compact" id="f-role" style="width: 96px;" data-fit-wired="1">
+                  <option>全ロール</option><option>管理者</option><option>一般職員</option>
+                </select>
+              </div>
+              <div class="filter-field"><div class="filter-field__label">ステータス</div>
+                <select class="form-input form-input--compact" id="f-status" style="width: 84px;" data-fit-wired="1">
+                  <option>全ステータス</option><option selected="">利用中</option><option>利用停止</option>
+                </select>
+              </div>
+
+              <div class="filter-field" id="accounts-f-pref-field" style="display:none;">
+                <div class="filter-field__label">県</div>
+                <select class="form-input form-input--compact" id="accounts-f-pref" style="width: 108px;" data-fit-wired="1">
+                  <option value="">全都道府県</option>
+                  <option>北海道</option><option>青森県</option><option>岩手県</option>
+                  <option>宮城県</option><option>秋田県</option><option>山形県</option>
+                  <option>福島県</option><option>茨城県</option><option>栃木県</option>
+                  <option>群馬県</option><option>埼玉県</option><option>千葉県</option>
+                  <option>東京都</option><option>神奈川県</option><option>新潟県</option>
+                  <option>富山県</option><option>石川県</option><option>福井県</option>
+                  <option>山梨県</option><option>長野県</option><option>岐阜県</option>
+                  <option>静岡県</option><option>愛知県</option><option>三重県</option>
+                  <option>滋賀県</option><option>京都府</option><option>大阪府</option>
+                  <option>兵庫県</option><option>奈良県</option><option>和歌山県</option>
+                  <option>鳥取県</option><option>島根県</option><option>岡山県</option>
+                  <option>広島県</option><option>山口県</option><option>徳島県</option>
+                  <option>香川県</option><option>愛媛県</option><option>高知県</option>
+                  <option>福岡県</option><option>佐賀県</option><option>長崎県</option>
+                  <option>熊本県</option><option>大分県</option><option>宮崎県</option>
+                  <option>鹿児島県</option><option>沖縄県</option>
+                </select>
+              </div>
+
+              <div class="filter-field" id="accounts-f-shokokai-field" style="display:none;">
+                <div class="filter-field__label">商工会</div>
+                <select class="form-input form-input--compact" id="accounts-f-shokokai" style="width: 96px;" data-fit-wired="1">
+                  <option value="">全商工会</option>
+                  <option>札幌商工会連合会</option>
+                  <option>函館商工会連合会</option>
+                  <option>旭川商工会連合会</option>
+                  <option>苫小牧商工会連合会</option>
+                  <option>釧路商工会連合会</option>
+                  <option>帯広商工会連合会</option>
+                </select>
+              </div>
+              <div class="filter-field"><div class="filter-field__label">キーワード</div>
+                <input type="text" class="form-input form-input--compact" id="f-search" placeholder="ユーザID、職員名、メールアドレスで絞り込みができます" style="width: 340px;">
+              </div>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" id="accounts-new-btn">アカウントを追加する</button>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>ユーザID</th><th>職員名</th><th>メールアドレス</th>
+                  <th>権限ロール</th><th>基幹連携</th><th>ステータス</th><th>最終ログイン</th><th class="col-action"></th>
+                </tr>
+              </thead>
+              <tbody id="accounts-tbody">
+      <tr>
+        <td>012</td>
+        <td>小島 直樹</td>
+        <td>kojima@hokkaido-shokoren.example.jp</td>
+        <td>管理者</td>
+        <td><span class="badge badge-status-pending">あり</span></td>
+        <td><span class="badge badge-status-ok">利用中</span></td>
+        <td>2026/08/22 09:12:03</td>
+        <td class="col-action"><button type="button" class="btn btn-primary btn-sm accounts-detail-btn" data-id="1">詳細</button></td>
+      </tr>
+      
+    
+      <tr>
+        <td>011</td>
+        <td>北海道一般</td>
+        <td>ippan@hokkaido-shokoren.example.jp</td>
+        <td>一般職員</td>
+        <td><span class="badge badge-status-new">なし</span></td>
+        <td><span class="badge badge-status-ok">利用中</span></td>
+        <td>2026/08/20 17:40:11</td>
+        <td class="col-action"><button type="button" class="btn btn-primary btn-sm accounts-detail-btn" data-id="2">詳細</button></td>
+      </tr>
+      
+    </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div></div>

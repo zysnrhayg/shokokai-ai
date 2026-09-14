@@ -1,0 +1,62 @@
+/* mockup style block 6 */
+body { background: white; }
+.screen-body { padding-top: 0; max-width: none; }
+.top-bar { display: flex; align-items: center; justify-content: space-between; height: 100px; padding: 0 var(--space-8); box-sizing: border-box; }
+.card.notice-card { border: 2px solid var(--red); background: white; margin-bottom: var(--space-8); }
+.sidebar { background: var(--purple); color: white; width: 200px; }
+
+.sidebar-brand-group { padding: 8px; }
+
+.action-card__icon { margin: 0; white-space: nowrap; }
+
+.sidebar .nav-item .icon { white-space: nowrap; overflow: visible; }
+.cat-lbl { line-height: var(--lh-loose); }
+
+.top-bar__heading-actions { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+
+.top-bar__actions { margin-left: auto; justify-content: flex-end; }
+
+.recent-reports-card td { height: 38px; box-sizing: border-box; }
+
+.table-scroll td { padding: 4px; }
+.table-scroll th { padding: 4px; }
+
+.recent-reports-card .table-scroll { max-height: 214px; overflow-y: auto; }
+.recent-reports-card { margin-bottom: 0; }
+.recent-reports-card .table-scroll th { position: sticky; top: 0; z-index: 1; }
+
+.notice-panel { padding: var(--space-7); }
+
+.top-bar-btn { width: 130px; justify-content: center; }
+
+#mi-draft { border-color: var(--purple); color: var(--purple); }
+#mi-form-export-btn { background: white; border: 2px solid var(--purple); color: var(--purple); }
+
+.card-header.card-header--navy { padding: 0 8px 0 16px; }
+
+.top-bar { padding: 0 var(--space-9); }
+@media (max-width: 900px) {
+  .top-bar { padding: var(--space-4) var(--space-9); }
+}
+@media (max-width: 600px) {
+  .top-bar { padding: var(--space-4) var(--space-7); }
+}
+
+#dash-quick-actions .qa-primary-row .action-card { gap: var(--space-1); }
+#dash-quick-actions .qa-secondary-row .action-card { gap: var(--space-2); min-height: 80px; }
+
+.sidebar-header .org-name, .sidebar-header .user-info { line-height: 2; }
+
+.sidebar-header { background: transparent; padding: 0; margin: 0; display: flex; flex-direction: column; justify-content: center; }
+.sidebar-header--shokokai { padding: 0; margin: 0; border-bottom: none; display: flex; flex-direction: column; justify-content: center; gap: 0; }
+
+.sidebar-brand-group { border-bottom: 1px solid rgba(255,255,255,0.25); }
+
+.sidebar-brand { padding: 0; margin: 0; justify-content: flex-start; height: 26px; }
+
+#mi-required-note, #mi-utility-label {
+  font-size: var(--fs-md) !important; font-weight: var(--fw-bold) !important;
+  color: var(--navy) !important; line-height: var(--lh-loose) !important;
+}
+.app-view { display: none; }
+.app-view.active { display: block; }

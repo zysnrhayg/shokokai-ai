@@ -1,170 +1,140 @@
-#BasicService.vm
-#make Service templete
-import json
+import hashlib
+from datetime import datetime, timezone
+
+from flask import request, session
+
 import utils.config
-import threading
-import utils.json_constant	
-from flask import session 
-from app.common.getautonum import GetAutonum
-from datetime import datetime, timezone, timedelta
-import utils.date_util
-from utils.jsonwfc_object import JSONWFCObject
-import resources.messages
+import utils.json_constant
+import utils.session_constant
+import utils.string_util
 from app.dao.api105_authenticateuser.api105_authenticateuser_dao import Api105AuthenticateuserDao
 from app.dao.api106_gettrusteddevice.api106_gettrusteddevice_dao import Api106GettrusteddeviceDao
 from app.dto.api105_authenticateuser.api105_authenticateuser_dto import Api105AuthenticateuserDto
 from app.dto.api106_gettrusteddevice.api106_gettrusteddevice_dto import Api106GettrusteddeviceDto
-from app.dto.loginapi.loginapi_dto import LoginapiDto
-from utils.save_data_check_utils import SaveDataCheckUtil
-import utils.string_util
+from logger import currentLog
+from utils.encrypt import verify_password
 
 
+def _is_true(value):
+    return str(value or "").strip().lower() in ("1", "true", "t", "yes", "on")
 
 
-class LoginapiService :
+def _hash_device_token(token):
+    token = str(token or "").strip()
+    if not token:
+        return ""
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
 
-	#	# 
-	# ログイン画面ログインボタン
-	# @param Entity
-	# @param jsonObj
-	# @throws Exception
-	#
-	def loginapi(self,loginapi_dto,jsonObj) :
-			
-		#GeniusClientScript 1315
-		PREFECTURE_CODE = loginapi_dto.prefecturecode#GeninusClientScript 1318
-		USER_ID = loginapi_dto.userid#GeninusClientScript 1318
-		PASSWORD = loginapi_dto.password#GeninusClientScript 1318
-		REMEMBER = loginapi_dto.remember#GeninusClientScript 1318
-		api105_authenticateuser = Api105AuthenticateuserDto.dict_to_json({}) #CommonFunction 110
-		api105_authenticateuserList = None #ResultGenerator 72
-		#ResultGenerator 80
-		SHUTOKUKENSUU = ""
-		#_dto api105_authenticateuser_dto = None #ResultGenerator 119
-		#ResultGenerator365
-		USERACCOUNTID = ""
-		PREFECTURECODE = ""
-		SHOKOKAICD = ""
-		USERID = ""
-		SHOKUINKJ = ""
-		STATUS = ""
-		TOTPSECRET = ""
-		ISMFAENABLED = ""
-		FAILEDLOGINCOUNT = ""
-		LOCKEDUNTIL = ""
-		NYUURYOKUPASUWAADO = ""
-		api106_gettrusteddevice = Api106GettrusteddeviceDto.dict_to_json({}) #CommonFunction 110
-		api106_gettrusteddeviceList = None #ResultGenerator 72
-		#_dto api106_gettrusteddevice_dto = None #ResultGenerator 119
-		TRUSTEDDEVICEID = ""
-		EXPIRESAT = ""
-		#UltimateGeniuBean 115
-		utils.config.global_log.debug(str(threading.current_thread().native_id)+ ": start")
-		try :
-			#ログイン画面ログインボタン_LoginAPI_(API)
-			
-			#「項目処理」（共通関数:LoginAPI）,パラメータは（prefecture_code,user_id,password,remember）
-			
-			#以下の処理を行う。
-			
-			#関数「API105_AuthenticateUser」の「db_API105_AuthenticateUser」メソッドを行う,パラメータは「prefecture_code,user_id」,戻り値設定は「<user_account_id>=user_account_id,<prefecture_code>=prefecture_code,<shokokai_cd>=shokokai_cd,<user_id>=user_id,<shokuin_kj>=shokuin_kj,<password>=password,<status>=status,<totp_secret>=totp_secret,<is_mfa_enabled>=is_mfa_enabled,<failed_login_count>=failed_login_count,<locked_until>=locked_until」を設定する。
-			
-			# prefecture_code
-			api105_authenticateuser.prefecturecode = PREFECTURE_CODE #ArgumentGenerator 274
-			#ArgumentGenerator 274
-			
-			# user_id
-			api105_authenticateuser.userid = USER_ID #ArgumentGenerator 274
-			#ArgumentGenerator 274
-			
-			#ReulstGenerator 87
-			api105_authenticateuserList = Api105AuthenticateuserDao().api105_authenticateuser(api105_authenticateuser)
-			api105_authenticateuserlistVar = None #ResultGenerator 89
-			#ResultGenerator 89
-			if api105_authenticateuserList != None :
-				api105_authenticateuserlistVar = api105_authenticateuserList.fetchall() if hasattr(api105_authenticateuserList, 'fetchall') else api105_authenticateuserList
-			if api105_authenticateuserlistVar != None and len(api105_authenticateuserlistVar) > 0 :
-				SHUTOKUKENSUU = str(len(api105_authenticateuserlistVar))
-			# --LINE114 retrieved first value
-			if api105_authenticateuserlistVar != None and len(api105_authenticateuserlistVar) > 0 :
-				rec = api105_authenticateuserlistVar[0]
-				USERACCOUNTID = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "user_account_id")) # ResultGenerator 385
-				# ResultGenerator 385
-				
-				PREFECTURECODE = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "prefecture_code")) # ResultGenerator 385
-				# ResultGenerator 385
-				
-				SHOKOKAICD = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "shokokai_cd")) # ResultGenerator 385
-				# ResultGenerator 385
-				
-				USERID = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "user_id")) # ResultGenerator 385
-				# ResultGenerator 385
-				
-				SHOKUINKJ = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "shokuin_kj")) # ResultGenerator 385
-				# ResultGenerator 385
-				
-				PASSWORD = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "password")) # ResultGenerator 385
-				# ResultGenerator 385
-				
-				STATUS = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "status")) # ResultGenerator 385
-				# ResultGenerator 385
-				
-				TOTPSECRET = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "totp_secret")) # ResultGenerator 385
-				# ResultGenerator 385
-				
-				ISMFAENABLED = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "is_mfa_enabled")) # ResultGenerator 385
-				# ResultGenerator 385
-				
-				FAILEDLOGINCOUNT = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "failed_login_count")) # ResultGenerator 385
-				# ResultGenerator 385
-				
-				LOCKEDUNTIL = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "locked_until")) # ResultGenerator 385
-				# ResultGenerator 385
-				
-			#<入力パスワード>が<password>でないまたは<password>が空白の場合,以下の処理を行う。
-			#GeniusClientScript 983
-			if NYUURYOKUPASUWAADO.replace(" ", "")!=PASSWORD or utils.string_util.isNullOrBlank(PASSWORD)   : #GeniusContion 823
-				#GeniusContion 823
-				#処理終了。
-				pass
-				#GeniusClientScript 1207
-			#関数「API106_GetTrustedDevice」の「db_API106_GetTrustedDevice」メソッドを行う,パラメータは「user_account_id,token_hash」,戻り値設定は「<trusted_device_id>=trusted_device_id,<user_account_id>=user_account_id,<expires_at>=expires_at」を設定する。
-			
-			# user_account_id
-			api106_gettrusteddevice.useraccountid = USERACCOUNTID #ArgumentGenerator 274
-			#ArgumentGenerator 274
-			
-			# token_hash
-			api106_gettrusteddevice.tokenhash = TOKEN_HASH #ArgumentGenerator 274
-			#ArgumentGenerator 274
-			
-			#ReulstGenerator 87
-			api106_gettrusteddeviceList = Api106GettrusteddeviceDao().api106_gettrusteddevice(api106_gettrusteddevice)
-			api106_gettrusteddevicelistVar = None #ResultGenerator 89
-			#ResultGenerator 89
-			if api106_gettrusteddeviceList != None :
-				api106_gettrusteddevicelistVar = api106_gettrusteddeviceList.fetchall() if hasattr(api106_gettrusteddeviceList, 'fetchall') else api106_gettrusteddeviceList
-			if api106_gettrusteddevicelistVar != None and len(api106_gettrusteddevicelistVar) > 0 :
-				SHUTOKUKENSUU = str(len(api106_gettrusteddevicelistVar))
-			# --LINE114 retrieved first value
-			if api106_gettrusteddevicelistVar != None and len(api106_gettrusteddevicelistVar) > 0 :
-				rec = api106_gettrusteddevicelistVar[0]
-				TRUSTEDDEVICEID = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "trusted_device_id")) # ResultGenerator 385
-				# ResultGenerator 385
-				
-				USERACCOUNTID = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "user_account_id")) # ResultGenerator 385
-				# ResultGenerator 385
-				
-				EXPIRESAT = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "expires_at")) # ResultGenerator 385
-				# ResultGenerator 385
-				
-			#処理終了。
-			
-		except Exception as e:
-			utils.config.global_log.error(e)
-			raise
-		utils.config.global_log.debug(str(threading.current_thread().native_id)+ ": end") 
-		
-			
-	
-	
+
+def _parse_locked_until(value):
+    if not value:
+        return None
+    if isinstance(value, datetime):
+        dt = value
+    else:
+        text = str(value).strip()
+        if not text:
+            return None
+        try:
+            dt = datetime.fromisoformat(text.replace("Z", "+00:00"))
+        except ValueError:
+            return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt
+
+
+def apply_staff_login_session(account, remember=False):
+    loginid = utils.string_util.changeNullToBlank(account.get("user_id"))
+    name = utils.string_util.changeNullToBlank(account.get("shokuin_kj")) or loginid
+    session[utils.session_constant.LANGUAGE_ID] = "JPN"
+    session[utils.session_constant.USER_ID] = loginid
+    session["LOGIN_USER_ID"] = loginid
+    session[utils.session_constant.APP_USER_ID] = loginid
+    session["USER_ACCOUNT_ID"] = utils.string_util.changeNullToBlank(account.get("user_account_id"))
+    session["PREFECTURE_CODE"] = utils.string_util.changeNullToBlank(account.get("prefecture_code"))
+    session["SHOKOKAI_CD"] = utils.string_util.changeNullToBlank(account.get("shokokai_cd"))
+    session["ORGID"] = utils.string_util.changeNullToBlank(account.get("shokokai_cd"))
+    session[utils.session_constant.USER_FLG] = "OK"
+    session["USER_NAME1"] = name
+    session["USER_NAME2"] = name
+    session.pop("PENDING_LOGIN", None)
+    session.permanent = _is_true(remember)
+    utils.config.global_log = currentLog.getLog(loginid)
+
+
+class LoginapiService:
+
+    def loginapi(self, loginapi_dto, jsonObj):
+        prefecture_code = utils.string_util.changeNullToBlank(loginapi_dto.prefecturecode)
+        user_id = utils.string_util.changeNullToBlank(loginapi_dto.userid)
+        input_password = loginapi_dto.password or ""
+        remember = loginapi_dto.remember
+        utils.config.global_log.debug("loginapi start")
+        try:
+            if utils.string_util.isNullOrBlank(prefecture_code) or utils.string_util.isNullOrBlank(user_id) or utils.string_util.isNullOrBlank(input_password):
+                jsonObj.setValue(utils.json_constant.JSONID_MSG, "⚠ 入力内容をご確認ください")
+                jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_FAIL)
+                return
+
+            api105_authenticateuser = Api105AuthenticateuserDto.dict_to_json({})
+            api105_authenticateuser.prefecturecode = prefecture_code
+            api105_authenticateuser.userid = user_id
+            rows = Api105AuthenticateuserDao().api105_authenticateuser(api105_authenticateuser) or []
+            if not rows:
+                jsonObj.setValue(utils.json_constant.JSONID_MSG, "会員Noかパスワードが間違っています。")
+                jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_FAIL)
+                return
+
+            rec = rows[0]
+            locked_until = _parse_locked_until(utils.string_util.dict_get(rec, "locked_until"))
+            if locked_until and locked_until > datetime.now(timezone.utc):
+                jsonObj.setValue(utils.json_constant.JSONID_MSG, "ユーザーはロックされました。システム管理者に連絡してください。")
+                jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_FAIL)
+                return
+
+            stored_password = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "password"))
+            if utils.string_util.isNullOrBlank(stored_password) or not verify_password(input_password, stored_password):
+                jsonObj.setValue(utils.json_constant.JSONID_MSG, "会員Noかパスワードが間違っています。")
+                jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_FAIL)
+                return
+
+            account = {
+                "user_account_id": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "user_account_id")),
+                "prefecture_code": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "prefecture_code")) or prefecture_code,
+                "shokokai_cd": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "shokokai_cd")),
+                "user_id": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "user_id")) or user_id,
+                "shokuin_kj": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "shokuin_kj")),
+                "totp_secret": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "totp_secret")),
+                "is_mfa_enabled": utils.string_util.dict_get(rec, "is_mfa_enabled"),
+                "remember": remember,
+            }
+
+            trusted = False
+            token_hash = _hash_device_token(request.cookies.get("trusted_device_token"))
+            if token_hash and account["user_account_id"]:
+                api106_gettrusteddevice = Api106GettrusteddeviceDto.dict_to_json({})
+                api106_gettrusteddevice.useraccountid = account["user_account_id"]
+                api106_gettrusteddevice.tokenhash = token_hash
+                trusted_rows = Api106GettrusteddeviceDao().api106_gettrusteddevice(api106_gettrusteddevice) or []
+                trusted = len(trusted_rows) > 0
+
+            if _is_true(account["is_mfa_enabled"]) and not trusted:
+                session["PENDING_LOGIN"] = account
+                jsonObj.setValue("need_mfa", True)
+                jsonObj.setValue("username", account["shokuin_kj"] or account["user_id"])
+                jsonObj.setScript("OK", "./#verify-2fa")
+                jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_SUCCESS)
+                return
+
+            apply_staff_login_session(account, remember)
+            jsonObj.setValue("need_mfa", False)
+            jsonObj.setValue("username", account["shokuin_kj"] or account["user_id"])
+            jsonObj.setScript("OK", "./#home")
+            jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_SUCCESS)
+        except Exception as e:
+            utils.config.global_log.error(e)
+            jsonObj.setValue(utils.json_constant.JSONID_ERR, "ログインに失敗しました。")
+            jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_FAIL)
+            raise
+        utils.config.global_log.debug("loginapi end")

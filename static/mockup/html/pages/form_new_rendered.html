@@ -1,0 +1,339 @@
+<div class="app-view active" id="view-entry"><div class="screen-body"><form method="post" action="#" id="mi-entry-form">
+            <input type="hidden" name="csrf_token" value="mock-token">
+
+              <div class="mi-detail-grid">
+
+                <div class="mi-detail-left-wrap">
+                  <div class="mi-hint-text" id="mi-required-note"><span class="detail-row__required">※</span> は必須項目です</div>
+                  <div class="card" id="mi-detail-card">
+                  <div class="card-header card-header--navy">
+                    <div class="card-title card-title--white">報告内容登録</div>
+                    <button type="button" class="btn btn-outline btn-sm" id="mi-form-export-btn">📊 帳票を出力する</button>
+                  </div>
+                  <div class="card-body">
+
+                    <div class="mi-detail-col">
+
+                  <div class="detail-row">
+                    <div class="detail-row__label">帳票／担当<span class="detail-row__required">※</span></div>
+                    <div class="detail-row__value">
+                      <select class="form-input is-placeholder" id="mi-form" name="form_code" style="max-width: 300px; width: 191px;" data-fit-wired="1">
+                        <option value="">帳票を選択してください</option>
+                        <option value="F" data-screens="ai-input" hidden="" disabled="">F 相談受付票</option>
+                        <option value="G-2" data-screens="manual-input">G-2 専門家相談員報告書</option>
+                        <option value="G-3" data-screens="manual-input">G-3 事業者向け講習会報告書</option>
+                        <option value="G-4" data-screens="expert-import" hidden="" disabled="">G-4 専門家派遣報告書</option>
+                        <option value="G-5" data-screens="expert-import" hidden="" disabled="">G-5 個人相談会報告書</option>
+                        <option value="G-6" data-screens="manual-input">G-6 指導員等研修会報告書</option>
+                        <option value="G-7" data-screens="manual-input">G-7 施策普及員報告書</option>
+                        <option value="G-8" data-screens="manual-input">G-8 研修会実績報告書</option>
+                      </select>
+
+                      <select class="form-input" id="mi-staff-main" name="staff_main_code" style="width: 103px;" data-fit-wired="1">
+                        <option value="">主担当</option>
+                        <option value="012" selected="">小島 直樹</option>
+                        <option value="011">北海道一般</option>
+                      </select>
+                      <select class="form-input is-placeholder" id="mi-staff-sub" name="staff_sub_code" style="width: 113px;" data-fit-wired="1">
+                        <option value="">副担当なし</option>
+                        <option value="012">小島 直樹</option>
+                        <option value="011">北海道一般</option>
+                      </select>
+
+                    </div>
+                  </div>
+
+                  <div class="detail-row">
+                    <div class="detail-row__label">対応日時<span class="detail-row__required">※</span></div>
+                    <div class="detail-row__value">
+                      <input type="date" class="form-input" id="mi-date" name="report_date" value="2026-08-18" style="width: 111px;">
+                      <input type="time" class="form-input" id="mi-time-start" name="time_start" style="width: 75px;">
+                      <span class="text-muted">〜</span>
+                      <input type="time" class="form-input" id="mi-time-end" name="time_end" style="width: 75px;">
+                      <span class="mi-hint-text" id="mi-date-prev-month-notice" style="width: 100%; color: var(--red);">前月の実績は締め切られているため、この報告は当月の実績としてカウントされます</span>
+                    </div>
+                  </div>
+
+                  <div class="detail-row mi-row--label-center-input">
+                    <div class="detail-row__label">事業所／業種<span class="detail-row__required">※</span></div>
+                    <div class="detail-row__value">
+
+                      <div class="mi-autocomplete">
+                        <input type="text" class="form-input" id="mi-jigyosho" name="business_name" placeholder="事業所を入力" autocomplete="off" style="width: 288px;">
+                        <div class="mi-autocomplete__dropdown" id="mi-jigyosho-dropdown"></div>
+                      </div>
+
+                      <select class="form-input is-placeholder" id="mi-industry" name="industry_code" style="max-width: 280px; width: 113px;" data-fit-wired="1">
+                        <option value="">業種を選択</option>
+                        <option value="I">卸売業、小売業</option>
+                        <option value="R">サービス業（他に分類されないもの）</option>
+                        <option value="D">建設業</option>
+                        <option value="M">宿泊業、飲食サービス業</option>
+                        <option value="P">医療、福祉</option>
+                        <option value="E">製造業</option>
+                        <option value="N">生活関連サービス業、娯楽業</option>
+                        <option value="K">不動産業、物品賃貸業</option>
+                        <option value="H">運輸業、郵便業</option>
+                        <option value="L">学術研究、専門・技術サービス業</option>
+                        <option value="O">教育、学習支援業</option>
+                        <option value="G">情報通信業</option>
+                        <option value="J">金融業、保険業</option>
+                        <option value="F">電気・ガス・熱供給・水道業</option>
+                        <option value="A">農業、林業</option>
+                        <option value="Q">複合サービス事業</option>
+                        <option value="B">漁業</option>
+                        <option value="C">鉱業、採石業、砂利採取業</option>
+                        <option value="S">公務（他に分類されるものを除く）</option>
+                        <option value="T">分類不能の産業</option>
+                      </select>
+
+                      <span class="mi-hint-text" style="width:100%">入力すると、過去に登録した事業所名の候補が表示されます</span>
+                    </div>
+                  </div>
+
+                  <div class="detail-row mi-row--top-align">
+                    <div class="detail-row__label">支援テーマ<span class="detail-row__required">※</span></div>
+                    <div class="detail-row__value">
+                      <div class="checkbox-grid">
+                        <label><input type="checkbox" class="mi-theme-checkbox" name="theme_codes" value="wage" data-label="賃上げ・最低賃金引上げ"> 賃上げ・最低賃金引上げ</label>
+                        <label><input type="checkbox" class="mi-theme-checkbox" name="theme_codes" value="labor" data-label="省力化促進・人手不足"> 省力化促進・人手不足</label>
+                        <label><input type="checkbox" class="mi-theme-checkbox" name="theme_codes" value="energy" data-label="エネルギー価格・物価の高騰"> エネルギー価格・物価の高騰</label>
+                        <label><input type="checkbox" class="mi-theme-checkbox" name="theme_codes" value="digital" data-label="デジタル化"> デジタル化</label>
+                        <label><input type="checkbox" class="mi-theme-checkbox" name="theme_codes" value="tariff" data-label="米国関税"> 米国関税</label>
+                        <label><input type="checkbox" class="mi-theme-checkbox" name="theme_codes" value="invoice" data-label="インボイス制度"> インボイス制度</label>
+                        <label><input type="checkbox" class="mi-theme-checkbox" name="theme_codes" value="ebooks" data-label="電子帳簿保存法"> 電子帳簿保存法</label>
+                        <label><input type="checkbox" class="mi-theme-checkbox" name="theme_codes" value="covid" data-label="新型コロナ"> 新型コロナ</label>
+                        <label><input type="checkbox" class="mi-theme-checkbox" name="theme_codes" value="admin" data-label="事業実施に係る事務処理"> 事業実施に係る事務処理</label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="detail-row mi-row--top-align">
+                    <div class="detail-row__label">内容<span class="detail-row__required">※</span></div>
+
+                    <div class="detail-row__value" style="flex-direction:column; align-items:flex-start;">
+
+                      <textarea class="form-input" id="mi-content" name="content" rows="5" placeholder="内容を入力" style="width: 548px;"></textarea>
+
+                      <div class="flex items-center gap-sm" style="margin-top:var(--space-3); flex-wrap:wrap;">
+                        <button type="button" class="btn btn-outline btn-sm" id="mi-content-ai-format">内容を整形する</button>
+                        <span class="mi-hint-text">登録した内容を、伝わりやすい文章に自動で整えます</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center" id="mi-form-actions" style="justify-content: space-between; margin-top: var(--space-5); flex-wrap: wrap; gap: var(--space-3); margin-left: 107px; width: 548px;">
+                    <div class="flex items-center gap-sm" style="flex-wrap:wrap;">
+                      <label class="btn btn-outline btn-sm" for="mi-attachments" style="">📎 ファイルを選択</label>
+                      <input type="file" id="mi-attachments" multiple="" style="display:none">
+                      <span class="mi-hint-text" id="mi-attachments-list"></span>
+                    </div>
+                    <div class="flex items-center gap-sm">
+                      <button type="submit" name="action" value="draft" class="btn btn-outline btn-sm" id="mi-draft">下書き保存</button>
+                      <button type="submit" name="action" value="submit" class="btn btn-primary btn-sm" id="mi-submit">登録する</button>
+                    </div>
+                  </div>
+                  </div>
+                </div>
+                </div>
+                </div>
+
+                <div class="mi-detail-col mi-detail-col--utility">
+                  <div class="mi-hint-text mi-utility-label" id="mi-utility-label" style="margin-bottom:var(--space-3)">便利機能</div>
+
+                  <details class="mi-dropdown mi-panel-tall" name="mi-right-col-accordion" id="mi-voice-card" data-default-minutes="30" data-start-maximized="false">
+                    <summary>
+                      <span class="flex items-center gap-sm">
+                        <span>🎤 話した内容を録音し、文字にして記録する</span>
+                      </span>
+                    </summary>
+
+                      <div class="flex gap-md" style="flex-wrap:wrap; margin-top:var(--space-3)">
+                        <button type="button" class="btn btn-primary mi-voice-btn-square" id="mi-voice-btn" disabled="">
+                          <span class="mi-voice-btn-square__icon">🎤</span>
+                          <span class="mi-voice-btn-square__label">録音をする</span>
+                        </button>
+                        <div style="display:flex; flex-direction:column; gap:var(--space-3);">
+                          <label class="mi-consent-bar" for="mi-voice-consent">
+                            <input type="checkbox" id="mi-voice-consent"> <span>音声入力にあたり事業者に許可を確認しています<br>チェックを入れると「録音をする」ボタンが押せます</span>
+                          </label>
+
+                          <div class="flex items-center gap-md" style="flex-wrap:wrap; padding-left:var(--space-4); margin-top:auto;">
+                            <span class="mi-timer" id="mi-timer-display">残り時間 30:00</span>
+                            <button type="button" class="btn btn-outline btn-sm" id="mi-extend-btn" disabled="">＋30分延長</button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-row" style="margin-top:var(--space-4)">
+
+                        <textarea class="form-input" id="mi-transcript-display" rows="16" placeholder="録音を開始すると音声入力をもとに文字を実施します。" readonly=""></textarea>
+                      </div>
+
+                      <div class="flex items-center gap-md" style="flex-wrap:wrap; margin-top:var(--space-3)">
+                        <button type="button" class="btn btn-outline btn-sm" id="mi-play-btn" disabled="">▶ 再生</button>
+                        <label class="btn btn-outline btn-sm" for="mi-audio-upload" id="mi-upload-label" style="opacity: 0.4; pointer-events: none;">📁 アップロード</label>
+                        <input type="file" accept="audio/*" id="mi-audio-upload" style="display:none" disabled="">
+                        <button type="button" class="btn btn-outline btn-sm" id="mi-transcript-apply-btn" disabled="">内容に転記する</button>
+                      </div>
+
+                      <div class="mi-hint-text" style="margin-top:var(--space-3)" id="mi-voice-expiry-note"></div>
+                      <audio id="mi-audio-player" style="display:none"></audio>
+                  </details>
+
+                  <div id="mi-expert-import-panels" style="display:none;">
+
+                    <div class="card mi-expert-steps">
+
+                      <div class="card-body" id="mi-expert-steps-card-body">
+
+                        <div id="mi-import-steps-content">
+
+                          <div class="mi-expert-steps__list">
+                            <div class="mi-expert-step">
+                              <div class="flow-step is-active mi-expert-step__num"><div class="flow-step__num">①</div><div class="flow-step__label">ファイルを取得</div></div>
+                              <div class="mi-expert-step__icon">📄</div>
+                              <div class="mi-expert-step__title" style="font-size:var(--fs-lg);">取り込みするExcelファイル（様式G-4／G-5）を、専門家から取得してください。</div>
+                            </div>
+                            <div class="flow-step__arrow">→</div>
+                            <div class="mi-expert-step">
+                              <div class="flow-step is-active mi-expert-step__num"><div class="flow-step__num">②</div><div class="flow-step__label">アップロード</div></div>
+                              <div class="mi-expert-step__icon">📤</div>
+                              <div class="mi-expert-step__title" style="font-size:var(--fs-lg);">下記のアップロード画面から「ファイルのアップロード」ボタンを押すか、ファイルをドラッグ＆ドロップしてアップロードしてください。</div>
+                            </div>
+                            <div class="flow-step__arrow">→</div>
+                            <div class="mi-expert-step">
+                              <div class="flow-step is-active mi-expert-step__num"><div class="flow-step__num">③</div><div class="flow-step__label">結果を確認</div></div>
+                              <div class="mi-expert-step__icon">🔍</div>
+                              <div class="mi-expert-step__title" style="font-size:var(--fs-lg);">アップロード後、取り込み結果が表示されますので、内容をご確認ください。</div>
+                            </div>
+                          </div>
+                          <div class="mi-expert-import-panels">
+                            <div class="mi-expert-panel mi-expert-panel--g4">
+                              <div class="mi-expert-panel__header">🗂️ 様式G-4 専門家派遣報告書</div>
+                              <label class="mi-expert-panel__dropzone" for="mi-g4-file" id="mi-g4-dropzone">
+                                <div class="mi-expert-panel__icon">📊</div>
+                                <span class="btn btn-outline btn-sm">ファイルをアップロード</span>
+                                <div class="mi-expert-panel__title">ドラッグ&amp;ドロップ可能</div>
+                              </label>
+                              <input type="file" accept=".xlsx,.xls" id="mi-g4-file" style="display:none">
+                            </div>
+                            <div class="mi-expert-panel mi-expert-panel--g5">
+                              <div class="mi-expert-panel__header">🗂️ 様式G-5 個別相談会報告書</div>
+                              <label class="mi-expert-panel__dropzone" for="mi-g5-file" id="mi-g5-dropzone">
+                                <div class="mi-expert-panel__icon">📊</div>
+                                <span class="btn btn-outline btn-sm">ファイルをアップロード</span>
+                                <div class="mi-expert-panel__title">ドラッグ&amp;ドロップ可能</div>
+                              </label>
+                              <input type="file" accept=".xlsx,.xls" id="mi-g5-file" style="display:none">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <details class="mi-dropdown" name="mi-right-col-accordion" id="mi-import-steps-dropdown" style="display:none;">
+                    <summary>
+                      <span class="flex items-center gap-sm">
+                        <span>📋 取り込みをやり直す場合は、再度アップロードできます。</span>
+                      </span>
+                    </summary>
+                    <div id="mi-import-steps-panel"></div>
+                  </details>
+
+                  <details class="mi-dropdown mi-history-dropdown" name="mi-right-col-accordion" id="mi-history-dropdown" open="">
+                    <summary>
+                      <span class="flex items-center gap-sm">
+                        <span id="mi-history-label">🕘 事業所に紐づく過去の報告履歴を表示します</span>
+                      </span>
+                    </summary>
+
+                      <div class="mi-hint-text" id="mi-history-empty" style="">事業所に紐づく報告履歴はありません。</div>
+                      <div class="mi-history-strip" id="mi-history-strip" style="display: none;">
+                        <div class="mi-history-item">
+                          <div class="mi-history-item__top">
+                            <span class="mi-history-item__date">2026-07-02</span>
+                            <span class="mi-history-item__theme">賃上げ・最低賃金引上げ</span>
+                            <span class="badge" style="--badge-color:#a04020">F 相談受付</span>
+                          </div>
+                          <div class="mi-history-item__summary">賃上げ実施時期の相談</div>
+                        </div>
+                        <div class="mi-history-item">
+                          <div class="mi-history-item__top">
+                            <span class="mi-history-item__date">2026-05-14</span>
+                            <span class="mi-history-item__theme">デジタル化</span>
+                            <span class="badge" style="--badge-color:#1a6fa8">G-2 専門家相談員</span>
+                          </div>
+                          <div class="mi-history-item__summary">ITツール導入の相談</div>
+                        </div>
+                        <div class="mi-history-item">
+                          <div class="mi-history-item__top">
+                            <span class="mi-history-item__date">2026-03-08</span>
+                            <span class="mi-history-item__theme">省力化促進・人手不足</span>
+                            <span class="badge" style="--badge-color:#a04020">F 相談受付</span>
+                          </div>
+                          <div class="mi-history-item__summary">人手不足に関する相談</div>
+                        </div>
+                        <div class="mi-history-item">
+                          <div class="mi-history-item__top">
+                            <span class="mi-history-item__date">2026-01-20</span>
+                            <span class="mi-history-item__theme">エネルギー価格・物価の高騰</span>
+                            <span class="badge" style="--badge-color:#a04020">F 相談受付</span>
+                          </div>
+                          <div class="mi-history-item__summary">燃料費高騰への対応の相談</div>
+                        </div>
+                        <div class="mi-history-item">
+                          <div class="mi-history-item__top">
+                            <span class="mi-history-item__date">2025-11-11</span>
+                            <span class="mi-history-item__theme">インボイス制度</span>
+                            <span class="badge" style="--badge-color:#1a6fa8">G-2 専門家相談員</span>
+                          </div>
+                          <div class="mi-history-item__summary">インボイス対応の相談</div>
+                        </div>
+                        <div class="mi-history-item">
+                          <div class="mi-history-item__top">
+                            <span class="mi-history-item__date">2025-09-03</span>
+                            <span class="mi-history-item__theme">賃上げ・最低賃金引上げ</span>
+                            <span class="badge" style="--badge-color:#a04020">F 相談受付</span>
+                          </div>
+                          <div class="mi-history-item__summary">最低賃金改定に伴う相談</div>
+                        </div>
+                      </div>
+                  </details>
+
+                  <details class="mi-dropdown" name="mi-right-col-accordion" id="mi-detail-info-dropdown">
+                    <summary>
+                      <span class="flex items-center gap-sm">
+                        <span>📄 事業所に紐づく詳細情報を表示します</span>
+                      </span>
+                    </summary>
+
+                    <div class="mi-hint-text" id="mi-detail-info-dropdown__body" style="font-size:var(--fs-md);">来年度構築予定</div>
+                  </details>
+                </div>
+              </div>
+
+          </form>
+
+          <div class="modal-overlay" id="ei-import-modal">
+            <div class="modal-box" style="width:360px">
+              <div class="modal-box__header">
+                <div class="modal-box__title">📥 専門家報告書の取り込み</div>
+                <button type="button" class="modal-box__close" id="ei-modal-close">✕</button>
+              </div>
+              <div class="modal-box__body">
+                <div class="form-row">
+                  <div class="form-label">Excelファイル <span class="req">*</span></div>
+                  <label class="import-zone import-zone--lg" for="ei-file" id="ei-drop-zone">
+                    <div class="import-icon">📁</div>
+                    <div class="import-text">ファイルを選択またはドラッグ＆ドロップ</div>
+                    <div class="import-sub" id="ei-filename">未選択（様式はファイル名から自動判定します）</div>
+                  </label>
+                  <input type="file" accept=".xlsx,.xls" id="ei-file" style="display:none">
+                  <button type="button" class="btn btn-primary btn-block mt-md" id="ei-submit">取り込む</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div></div>

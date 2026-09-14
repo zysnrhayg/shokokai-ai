@@ -1,0 +1,369 @@
+<div class="app-view active" id="view-reports"><div class="screen-body screen-body--fill">
+
+          <div class="cat-lbl">🔍 条件を入力すると一覧を絞り込みできます</div>
+
+          <div class="card card--fill" id="reports-filter-card" style="min-height: 597.656px; max-height: 597.656px;">
+            <div class="card-header" id="reports-filter-header" style="min-height: 83.5px;">
+            <div class="filter-row">
+              <div class="filter-field">
+                <div class="filter-field__label">実施年月</div>
+
+                <select class="form-input form-input--compact" id="f-yearmonth" style="width: 122px;" data-fit-wired="1">
+                  <option value="FY:R8">令和8年度</option>
+                  <option value="2026-02">　令和8年2月</option>
+                  <option value="2026-03">　令和8年3月</option>
+                  <option value="2026-04">　令和8年4月</option>
+                  <option value="2026-05">　令和8年5月</option>
+                  <option value="2026-06">　令和8年6月</option>
+                  <option value="2026-07">　令和8年7月</option>
+                  <option value="2026-08" selected="">　令和8年8月</option>
+                  <option value="2026-09">　令和8年9月</option>
+                  <option value="2026-10">　令和8年10月</option>
+                  <option value="2026-11">　令和8年11月</option>
+                  <option value="2026-12">　令和8年12月</option>
+                  <option value="2027-01">　令和9年1月</option>
+                  <option value="2027-02">　令和9年2月</option>
+                </select>
+              </div>
+
+              <div class="filter-field" id="reports-f-pref-field" style="display: none;">
+                <div class="filter-field__label">県</div>
+                <select class="form-input form-input--compact is-placeholder" id="reports-f-pref" style="width: 108px;" data-fit-wired="1">
+                  <option value="">全都道府県</option>
+                  <option>北海道</option><option>青森県</option><option>岩手県</option>
+                  <option>宮城県</option><option>秋田県</option><option>山形県</option>
+                  <option>福島県</option><option>茨城県</option><option>栃木県</option>
+                  <option>群馬県</option><option>埼玉県</option><option>千葉県</option>
+                  <option>東京都</option><option>神奈川県</option><option>新潟県</option>
+                  <option>富山県</option><option>石川県</option><option>福井県</option>
+                  <option>山梨県</option><option>長野県</option><option>岐阜県</option>
+                  <option>静岡県</option><option>愛知県</option><option>三重県</option>
+                  <option>滋賀県</option><option>京都府</option><option>大阪府</option>
+                  <option>兵庫県</option><option>奈良県</option><option>和歌山県</option>
+                  <option>鳥取県</option><option>島根県</option><option>岡山県</option>
+                  <option>広島県</option><option>山口県</option><option>徳島県</option>
+                  <option>香川県</option><option>愛媛県</option><option>高知県</option>
+                  <option>福岡県</option><option>佐賀県</option><option>長崎県</option>
+                  <option>熊本県</option><option>大分県</option><option>宮崎県</option>
+                  <option>鹿児島県</option><option>沖縄県</option>
+                </select>
+              </div>
+
+              <div class="filter-field" id="reports-f-shokokai-field" style="display: none;">
+                <div class="filter-field__label">商工会</div>
+                <select class="form-input form-input--compact is-placeholder" id="reports-f-shokokai" style="width: 96px;" data-fit-wired="1">
+                  <option value="">全商工会</option>
+                  <option>北海道商工会連合会</option>
+                  <option>石狩北商工会</option>
+                  <option>北広島商工会</option>
+                  <option>当別町商工会</option>
+                  <option>新篠津村商工会</option>
+                  <option>函館東商工会</option>
+                  <option>函館市亀田商工会</option>
+                  <option>北斗市商工会</option>
+                  <option>松前商工会</option>
+                  <option>福島町商工会</option>
+                  <option>知内商工会</option>
+                  <option>木古内商工会</option>
+                  <option>七飯町商工会</option>
+                  <option>鹿部商工会</option>
+                  <option>森町さわら商工会</option>
+                  <option>八雲商工会</option>
+                  <option>長万部商工会</option>
+                  <option>江差商工会</option>
+                  <option>上ノ国町商工会</option>
+                  <option>厚沢部商工会</option>
+                  <option>乙部町商工会</option>
+                  <option>奥尻商工会</option>
+                  <option>今金町商工会</option>
+                  <option>せたな商工会</option>
+                  <option>島牧商工会</option>
+                  <option>寿都商工会</option>
+                  <option>黒松内町商工会</option>
+                  <option>蘭越町商工会</option>
+                  <option>ニセコ町商工会</option>
+                  <option>真狩村商工会</option>
+                  <option>留寿都商工会</option>
+                  <option>喜茂別町商工会</option>
+                  <option>京極町商工会</option>
+                  <option>共和町商工会</option>
+                  <option>泊村商工会</option>
+                  <option>神恵内村商工会</option>
+                  <option>積丹町商工会</option>
+                  <option>古平町商工会</option>
+                  <option>仁木町商工会</option>
+                  <option>赤井川村商工会</option>
+                  <option>いわみざわ商工会</option>
+                  <option>三笠市商工会</option>
+                  <option>江部乙商工会</option>
+                  <option>南幌町商工会</option>
+                  <option>奈井江町商工会</option>
+                  <option>由仁町商工会</option>
+                  <option>長沼町商工会</option>
+                  <option>月形商工会</option>
+                  <option>浦臼町商工会</option>
+                  <option>新十津川町商工会</option>
+                  <option>妹背牛商工会</option>
+                  <option>秩父別町商工会</option>
+                  <option>雨竜町商工会</option>
+                  <option>北竜町商工会</option>
+                  <option>沼田町商工会</option>
+                  <option>あさひかわ商工会</option>
+                  <option>山部商工会</option>
+                  <option>鷹栖町商工会</option>
+                  <option>東神楽町商工会</option>
+                  <option>当麻町商工会</option>
+                  <option>比布商工会</option>
+                  <option>愛別商工会</option>
+                  <option>上川町商工会</option>
+                  <option>東川町商工会</option>
+                  <option>美瑛町商工会</option>
+                  <option>上富良野町商工会</option>
+                  <option>中富良野町商工会</option>
+                  <option>南富良野町商工会</option>
+                  <option>占冠村商工会</option>
+                  <option>和寒町商工会</option>
+                  <option>剣渕商工会</option>
+                  <option>朝日商工会</option>
+                  <option>風連商工会</option>
+                  <option>下川町商工会</option>
+                  <option>美深町商工会</option>
+                  <option>音威子府村商工会</option>
+                  <option>中川町商工会</option>
+                  <option>幌加内町商工会</option>
+                  <option>増毛町商工会</option>
+                  <option>小平町商工会</option>
+                  <option>苫前町商工会</option>
+                  <option>羽幌町商工会</option>
+                  <option>初山別村商工会</option>
+                  <option>遠別商工会</option>
+                  <option>天塩商工会</option>
+                  <option>幌延町商工会</option>
+                  <option>猿払村商工会</option>
+                  <option>浜頓別町商工会</option>
+                  <option>中頓別町商工会</option>
+                  <option>枝幸町商工会</option>
+                  <option>豊富町商工会</option>
+                  <option>礼文町商工会</option>
+                  <option>利尻町商工会</option>
+                  <option>利尻富士町商工会</option>
+                  <option>きたみ市商工会</option>
+                  <option>津別町商工会</option>
+                  <option>斜里町商工会</option>
+                  <option>清里町商工会</option>
+                  <option>小清水町商工会</option>
+                  <option>訓子府町商工会</option>
+                  <option>置戸町商工会</option>
+                  <option>佐呂間町商工会</option>
+                  <option>えんがる商工会</option>
+                  <option>湧別町商工会</option>
+                  <option>滝上町商工会</option>
+                  <option>興部町商工会</option>
+                  <option>西興部村商工会</option>
+                  <option>雄武町商工会</option>
+                  <option>大空町商工会</option>
+                  <option>豊浦町商工会</option>
+                  <option>壮瞥町商工会</option>
+                  <option>白老町商工会</option>
+                  <option>厚真町商工会</option>
+                  <option>洞爺湖町商工会</option>
+                  <option>安平町商工会</option>
+                  <option>むかわ町商工会</option>
+                  <option>日高町商工会</option>
+                  <option>平取町商工会</option>
+                  <option>新冠町商工会</option>
+                  <option>様似町商工会</option>
+                  <option>えりも町商工会</option>
+                  <option>新ひだか町商工会</option>
+                  <option>音更町商工会</option>
+                  <option>士幌町商工会</option>
+                  <option>上士幌町商工会</option>
+                  <option>鹿追町商工会</option>
+                  <option>新得町商工会</option>
+                  <option>清水町商工会</option>
+                  <option>芽室町商工会</option>
+                  <option>中札内村商工会</option>
+                  <option>更別村商工会</option>
+                  <option>大樹町商工会</option>
+                  <option>広尾町商工会</option>
+                  <option>幕別町商工会</option>
+                  <option>池田町商工会</option>
+                  <option>豊頃町商工会</option>
+                  <option>本別町商工会</option>
+                  <option>足寄町商工会</option>
+                  <option>陸別町商工会</option>
+                  <option>浦幌町商工会</option>
+                  <option>釧路町商工会</option>
+                  <option>厚岸町商工会</option>
+                  <option>浜中町商工会</option>
+                  <option>標茶町商工会</option>
+                  <option>弟子屈町商工会</option>
+                  <option>阿寒町商工会</option>
+                  <option>鶴居村商工会</option>
+                  <option>白糠町商工会</option>
+                  <option>音別町商工会</option>
+                  <option>別海町商工会</option>
+                  <option>中標津町商工会</option>
+                  <option>標津町商工会</option>
+                  <option>羅臼町商工会</option>
+                </select>
+              </div>
+
+              <div class="filter-field">
+                <div class="filter-field__label">様式</div>
+
+                <select class="form-input form-input--compact" id="f-form" style="width: 135px;" data-fit-wired="1">
+                  <option value="全様式" selected="">全様式（F・G）</option>
+                  <option value="様式F">F 相談受付票</option>
+                  <option value="全様式G">様式G（全種類）</option>
+                  <option value="G-2">G-2 専門家相談員報告書</option>
+                  <option value="G-3">G-3 事業者向け講習会報告書</option>
+                  <option value="G-4">G-4 専門家派遣報告書</option>
+                  <option value="G-5">G-5 個人相談会報告書</option>
+                  <option value="G-6">G-6 指導員等研修会報告書</option>
+                  <option value="G-7">G-7 施策普及員報告書</option>
+                  <option value="G-8">G-8 研修会実績報告書</option>
+                </select>
+              </div>
+              <div class="filter-field">
+                <div class="filter-field__label">テーマ</div>
+
+                <select class="form-input form-input--compact is-placeholder" id="f-theme" style="width: 96px;" data-fit-wired="1">
+                  <option value="">全テーマ</option>
+                  <option>賃上げ・最低賃金引上げ</option>
+                  <option>省力化促進・人手不足</option>
+                  <option>エネルギー価格・物価の高騰</option>
+                  <option>デジタル化</option>
+                  <option>米国関税</option>
+                  <option>インボイス制度</option>
+                  <option>電子帳簿保存法</option>
+                  <option>新型コロナ</option>
+                  <option>事業実施に係る事務処理</option>
+                </select>
+              </div>
+              <div class="filter-field">
+                <div class="filter-field__label">キーワード</div>
+                <input type="text" class="form-input form-input--compact" placeholder="概要、担当者、内容で絞り込みができます" id="f-keyword" style="width: 256px;">
+              </div>
+
+              <div class="filter-field">
+                <div class="filter-field__label">&nbsp;</div>
+                <div class="flex items-center gap-md" style="height:var(--control-h);">
+                  <label class="flex items-center gap-xs" style="white-space:nowrap; cursor:pointer;">
+                    <input type="checkbox" id="f-include-draft"> 下書きだけ表示
+                  </label>
+                  <label class="flex items-center gap-xs" style="white-space:nowrap; cursor:pointer;">
+                    <input type="checkbox" id="f-unprinted-only"> 未印刷のみ表示
+                  </label>
+                </div>
+              </div>
+              <div class="filter-field" style="border-left:1px solid var(--gold-border); padding-left:var(--space-6); margin-left:auto;">
+                <div class="filter-field__label">&nbsp;</div>
+                <div class="flex items-center gap-md">
+                  <span class="count" id="reports-count-wrap"><span id="reports-count">全6件</span></span>
+                  <button type="button" class="btn btn-outline btn-sm" id="reports-csv-btn" style="background:var(--surface-hover)">⬇ 一覧をCSVに出力する</button>
+                </div>
+              </div>
+            </div>
+            </div>
+            <div class="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>様式</th><th>実施日</th><th>支援テーマ</th><th>内容</th><th>担当</th><th class="col-action"></th>
+                  </tr>
+                </thead>
+                <tbody id="reports-tbody">
+                  <tr data-yearmonth="2026-08" data-form="F" data-theme="省力化促進・人手不足" data-status="登録済" data-printed="true" data-search="省力化促進・人手不足の相談 佐藤／田中">
+                    <td><span class="badge" style="--badge-color:#a04020">F 相談受付</span></td>
+                    <td>2026-08-12</td>
+                    <td>省力化促進・人手不足</td>
+                    <td>省力化促進・人手不足の相談、従業員5名からの相談、設備導入補助金の活用について助言</td>
+                    <td>佐藤／田中</td>
+                    <td class="col-action"><a class="btn btn-primary btn-sm" href="#">閲覧</a></td>
+                  </tr>
+                  <tr data-yearmonth="2026-08" data-form="G-2" data-theme="賃上げ・最低賃金引上げ" data-status="登録済" data-printed="true" data-search="賃上げ・最低賃金引上げの相談 鈴木">
+                    <td><span class="badge" style="--badge-color:#1a6fa8">G-2 専門家相談員</span></td>
+                    <td>2026-08-09</td>
+                    <td>賃上げ・最低賃金引上げ</td>
+                    <td>賃上げ・最低賃金引上げの相談、従業員8名の事業者から相談、賃上げ促進税制の活用方法を助言</td>
+                    <td>鈴木</td>
+                    <td class="col-action"><a class="btn btn-primary btn-sm" href="#">閲覧</a></td>
+                  </tr>
+                  <tr data-yearmonth="2026-08" data-form="G-4" data-theme="デジタル化" data-status="登録済" data-printed="false" data-search="デジタル化に関する専門家相談 高橋">
+                    <td><span class="badge" style="--badge-color:#1a6fa8">G-4 専門家派遣</span></td>
+                    <td>2026-08-05</td>
+                    <td>デジタル化</td>
+                    <td>デジタル化に関する専門家相談、受発注管理システムの導入について、専門家1名を派遣し助言</td>
+                    <td>高橋</td>
+                    <td class="col-action"><a class="btn btn-primary btn-sm" href="#">閲覧</a></td>
+                  </tr>
+                  <tr data-yearmonth="2026-08" data-form="F" data-theme="インボイス制度" data-status="登録済" data-printed="true" data-search="インボイス制度に関する相談 伊藤">
+                    <td><span class="badge" style="--badge-color:#a04020">F 相談受付</span></td>
+                    <td>2026-08-01</td>
+                    <td>インボイス制度</td>
+                    <td>インボイス制度に関する相談、適格請求書発行事業者登録の手続きについて、必要書類の準備を助言</td>
+                    <td>伊藤</td>
+                    <td class="col-action"><a class="btn btn-primary btn-sm" href="#">閲覧</a></td>
+                  </tr>
+                  <tr data-yearmonth="2026-08" data-form="G-3" data-theme="インボイス制度" data-status="登録済" data-printed="true" data-search="インボイス制度に関する説明会 伊藤">
+                    <td><span class="badge" style="--badge-color:#1a6fa8">G-3 講習会</span></td>
+                    <td>2026-08-01</td>
+                    <td>インボイス制度</td>
+                    <td>インボイス制度に関する説明会、参加者30名、開催場所は〇〇会館の5階</td>
+                    <td>伊藤</td>
+                    <td class="col-action"><a class="btn btn-primary btn-sm" href="#">閲覧</a></td>
+                  </tr>
+                  <tr data-yearmonth="2026-08" data-form="G-7" data-theme="米国関税" data-status="下書き" data-printed="false" data-search="米国関税の影響に関する相談（下書き） 加藤">
+                    <td><span class="badge" style="--badge-color:#1a6fa8">G-7 施策普及員</span></td>
+                    <td>2026-08-18</td>
+                    <td>米国関税</td>
+                    <td><span class="badge badge-status-pending">下書き</span> 米国関税の影響に関する相談、輸出先の見直しについて対応方針を検討中</td>
+                    <td>加藤</td>
+                    <td class="col-action"><a class="btn btn-primary btn-sm" href="#">閲覧</a></td>
+                  </tr>
+                  <tr data-yearmonth="2026-07" data-form="G-6" data-theme="エネルギー価格・物価の高騰" data-status="登録済" data-printed="true" data-search="エネルギー価格高騰に関する相談 渡辺" style="display: none;">
+                    <td><span class="badge" style="--badge-color:#1a6fa8">G-6 研修会</span></td>
+                    <td>2026-07-28</td>
+                    <td>エネルギー価格・物価の高騰</td>
+                    <td>エネルギー価格高騰に関する相談、燃料費上昇による経営影響について、省エネ設備導入補助金を案内</td>
+                    <td>渡辺</td>
+                    <td class="col-action"><a class="btn btn-primary btn-sm" href="#">閲覧</a></td>
+                  </tr>
+                  <tr data-yearmonth="2026-07" data-form="F" data-theme="省力化促進・人手不足" data-status="下書き" data-printed="false" data-search="省力化促進の相談（下書き） 山本" style="display: none;">
+                    <td><span class="badge" style="--badge-color:#a04020">F 相談受付</span></td>
+                    <td>2026-07-22</td>
+                    <td>省力化促進・人手不足</td>
+                    <td><span class="badge badge-status-pending">下書き</span> 省力化促進の相談、人手不足による受注対応の遅れについて、対応方針を検討中</td>
+                    <td>山本</td>
+                    <td class="col-action"><a class="btn btn-primary btn-sm" href="#">閲覧</a></td>
+                  </tr>
+                  <tr data-yearmonth="2026-07" data-form="G-5" data-theme="賃上げ・最低賃金引上げ" data-status="登録済" data-printed="true" data-search="個人相談会での賃上げ相談 中村" style="display: none;">
+                    <td><span class="badge" style="--badge-color:#1a6fa8">G-5 個人相談会</span></td>
+                    <td>2026-07-18</td>
+                    <td>賃上げ・最低賃金引上げ</td>
+                    <td>個人相談会での賃上げ相談、最低賃金引き上げへの対応について、個別相談で助言</td>
+                    <td>中村</td>
+                    <td class="col-action"><a class="btn btn-primary btn-sm" href="#">閲覧</a></td>
+                  </tr>
+                  <tr data-yearmonth="2026-07" data-form="F" data-theme="デジタル化" data-status="登録済" data-printed="true" data-search="デジタル化に関する相談 小林" style="display: none;">
+                    <td><span class="badge" style="--badge-color:#a04020">F 相談受付</span></td>
+                    <td>2026-07-15</td>
+                    <td>デジタル化</td>
+                    <td>デジタル化に関する相談、会計ソフト導入について、補助金活用方法を助言</td>
+                    <td>小林</td>
+                    <td class="col-action"><a class="btn btn-primary btn-sm" href="#">閲覧</a></td>
+                  </tr>
+                  <tr data-yearmonth="2026-06" data-form="G-7" data-theme="事業実施に係る事務処理" data-status="下書き" data-printed="false" data-search="施策普及員報告（下書き） 加藤" style="display: none;">
+                    <td><span class="badge" style="--badge-color:#1a6fa8">G-7 施策普及員</span></td>
+                    <td>2026-06-30</td>
+                    <td>事業実施に係る事務処理</td>
+                    <td><span class="badge badge-status-pending">下書き</span> 施策普及員報告、地域内事業者への制度周知活動の実施状況を報告（入力途中）</td>
+                    <td>加藤</td>
+                    <td class="col-action"><a class="btn btn-primary btn-sm" href="#">閲覧</a></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div></div>

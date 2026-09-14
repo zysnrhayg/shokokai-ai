@@ -13,9 +13,9 @@ class LoginMapper :
 		def loginInitName(LOGINID,LOGINPASSWORD,USER_EFF,GROUPID,LOGINTABLEID,WHRLOGINID,WHRLOGINPASSWORD,USERID,USERNM2 ) :
 			return "SELECT "+LOGINID+" as loginid,"+LOGINPASSWORD+" as password,"+USER_EFF+" as user_eff,"+GROUPID+" as groupid,"+USERID+" as userid,"+USERNM2+" as usernm2 FROM "+ utils.config.user_tableid +" WHERE "+ utils.config.user_table_userid_fieldid +"=:WHRLOGINID AND "+ utils.config.user_table_userid_fieldid +"=:WHRLOGINPASSWORD"
 		def loginAdminInit(LOGINID,PASSWORD):
-			return "SELECT LOGINID,PASSWORD FROM ADMIN_USER_TBL WHERE LOGINID = :LOGINID AND PASSWORD = :PASSWORD"
+			return "SELECT user_id AS loginid, password FROM mst_user_account WHERE lower(user_id) = lower(:LOGINID) AND password = :PASSWORD AND deleted_at IS NULL AND status = 1"
 		def getAdminByUsername(LOGINID)  :
-			return "SELECT u.LOGINID as username, u.PASSWORD, g.GROUP_ID FROM ADMIN_USER_TBL u LEFT JOIN wf_group_user_tbl g ON u.loginid = g.USERID WHERE u.loginid = :LOGINID"
+			return "SELECT u.user_id AS username, u.password, u.permission_level AS group_id, u.status::text AS user_eff, u.shokuin_kj FROM mst_user_account u WHERE lower(u.user_id) = lower(:LOGINID) AND u.deleted_at IS NULL"
 		def getBusinessUserByUsername(LOGINID,LOGINPASSWORD,DEPARTID,LOGINTABLEID,WHRLOGINID) :
 			return "SELECT u.LOGINID as username, u.PASSWORD,g.GROUP_ID FROM ADMIN_USER_TBL u LEFT JOIN wf_group_user_tbl g ON u.LOGINID = g.USERID WHERE u.LOGINID = :LOGINID union all SELECT :WHRLOGINID},:LOGINPASSWORD,g.USER_VALUE1 as GROUP_ID FROM :LOGINTABLEID LEFT JOIN wf_user_value_rel_map_tbl g ON :LOGINTABLEID.:DEPARTID = g.USER_VALUE2 WHERE :WHRLOGINID = :LOGINID"
 		def getPageRightByGroup(GROUPID) :
@@ -25,5 +25,5 @@ class LoginMapper :
 		def updateUserPasswordAfterLogin(LOGINID, PASSWORD) :
 			return "UPDATE "+utils.config.user_tableid+" SET "+utils.config.user_table_password_fieldid+" = :PASSWORD WHERE "+utils.config.user_table_userid_fieldid+" = :LOGINID"
 		def updateAdminPasswordAfterLogin(LOGINID, PASSWORD) :
-			return "UPDATE ADMIN_USER_TBL SET PASSWORD = :PASSWORD WHERE LOGINID = :LOGINID"
+			return "UPDATE mst_user_account SET password = :PASSWORD, updated_at = TO_CHAR(NOW(), 'YYYYMMDDHH24MISS') WHERE lower(user_id) = lower(:LOGINID) AND deleted_at IS NULL"
 

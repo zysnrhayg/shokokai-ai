@@ -1,0 +1,77 @@
+<div class="app-view active" id="view-knowledge"><div id="knowledge-root">
+      <div class="screen-body screen-body--fill">
+        <div class="flow-steps">
+      
+      <a class="flow-step " data-tab="document">
+        <div class="flow-step__num">1</div>
+        <div class="flow-step__label">ファイル保管</div>
+      </a>
+    
+      <div class="flow-step__arrow">→</div>
+      <a class="flow-step " data-tab="entry">
+        <div class="flow-step__num">2</div>
+        <div class="flow-step__label">タグ付け・レビュー</div>
+      </a>
+    
+      <div class="flow-step__arrow">→</div>
+      <a class="flow-step is-active" data-tab="vector">
+        <div class="flow-step__num">3</div>
+        <div class="flow-step__label">ベクトル反映</div>
+      </a>
+    </div>
+        <div style="margin-top:var(--space-6)">
+      <div class="card" style="margin-bottom:var(--space-8)">
+        <div class="card-header"><div class="card-title">RAG設定</div></div>
+        <div class="card-body">
+          <div class="grid grid-2 grid-gap-md">
+            <div><div class="text-sm text-muted">埋め込みモデル</div><div class="font-bold">text-embedding-3-large</div></div>
+            <div><div class="text-sm text-muted">ベクトルDB</div><div class="font-bold">pgvector</div></div>
+            <div><div class="text-sm text-muted">チャンクサイズ</div><div class="font-bold">800</div></div>
+            <div><div class="text-sm text-muted">チャンクオーバーラップ</div><div class="font-bold">100</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card card--fill">
+        <div class="card-header">
+          <div class="card-title">ベクトルコレクション（最終同期: 2026-08-22 09:30）</div>
+          <div class="btn-group">
+            <button type="button" class="btn btn-primary btn-sm">再同期</button>
+            <button type="button" class="btn btn-accent btn-sm">＋ コレクションを登録</button>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>コレクション名</th><th class="num">ベクトル数</th><th>同期日</th><th>ステータス</th><th class="col-action"></th></tr></thead>
+            <tbody>
+              
+                <tr>
+                  <td>knowledge_national</td>
+                  <td class="num">1,284</td>
+                  <td>2026-08-22</td>
+                  <td><span class="badge badge-status-ok">同期済み</span></td>
+                  <td class="col-action"><button type="button" class="btn btn-primary btn-sm">詳細</button></td>
+                </tr>
+              
+                <tr>
+                  <td>knowledge_hokkaido</td>
+                  <td class="num">96</td>
+                  <td>2026-08-22</td>
+                  <td><span class="badge badge-status-ok">同期済み</span></td>
+                  <td class="col-action"><button type="button" class="btn btn-primary btn-sm">詳細</button></td>
+                </tr>
+              
+                <tr>
+                  <td>knowledge_hokkaido_pending</td>
+                  <td class="num">0</td>
+                  <td>未同期</td>
+                  <td><span class="badge badge-status-pending">未同期</span></td>
+                  <td class="col-action"><button type="button" class="btn btn-primary btn-sm">詳細</button></td>
+                </tr>
+              
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+      </div>
+    </div></div>

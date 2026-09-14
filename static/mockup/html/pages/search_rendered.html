@@ -1,0 +1,38 @@
+<div class="app-view active" id="view-ai-proposal"><div id="ap-root">
+      <div class="screen-body">
+        <div class="grid grid-form-result grid-gap-lg">
+          <div>
+            <div class="card">
+              <div class="card-header card-header--navy"><div class="card-title card-title--white">✏️ お困りのことやご相談内容をお聞かせください</div></div>
+              <div class="card-body">
+                <div class="form-grid" id="ap-form-grid">
+                  <div class="form-row">
+                    <textarea class="form-input" id="ap-summary" rows="6" placeholder="事業者の状況・相談内容を入力">最低賃金引き上げ対応で人件費が増加。売上は横ばいで財源確保に悩んでいる。価格転嫁も検討中。</textarea>
+                  </div>
+                  <div class="flex items-center gap-sm" style="justify-content:flex-end;">
+                    <button type="button" class="btn btn-outline btn-sm" id="ap-clear">✕ 入力内容をクリア</button>
+                    <button type="button" class="btn btn-primary--violet btn-sm" id="ap-generate">✨ AIに提案してもらう</button>
+                  </div>
+                  <div style="font-size:var(--fs-md);color:var(--text);margin-top:1.5em">ご希望や条件を詳しく教えていただくと、あなたに合った提案ができます。</div>
+                  <div class="form-row"><div class="form-label" style="white-space:nowrap">事業所名／業種</div>
+                    <div class="flex items-center gap-sm">
+                      <input type="text" class="form-input" id="ap-business-name" placeholder="事業所名を入力">
+                      <select class="form-input" id="ap-industry" style="max-width: 280px; width: 108px;" data-fit-wired="1"><option value="">業種を選択</option><option>卸売業、小売業</option><option>サービス業（他に分類されないもの）</option><option>建設業</option><option>宿泊業、飲食サービス業</option><option>医療、福祉</option><option>製造業</option><option>生活関連サービス業、娯楽業</option><option>不動産業、物品賃貸業</option><option>運輸業、郵便業</option><option>学術研究、専門・技術サービス業</option><option>教育、学習支援業</option><option>情報通信業</option><option>金融業、保険業</option><option>電気・ガス・熱供給・水道業</option><option>農業、林業</option><option>複合サービス事業</option><option>漁業</option><option>鉱業、採石業、砂利採取業</option><option>公務（他に分類されるものを除く）</option><option>分類不能の産業</option></select>
+                    </div>
+                  </div>
+                  <div class="form-row"><div class="form-label" style="white-space:nowrap">支援テーマ（複数選択可）</div>
+                    <div class="checkbox-grid"><label><input type="checkbox" class="ap-theme-checkbox" value="wage"> 賃上げ・最低賃金引上げ</label><label><input type="checkbox" class="ap-theme-checkbox" value="labor"> 省力化促進・人手不足</label><label><input type="checkbox" class="ap-theme-checkbox" value="energy"> エネルギー価格・物価の高騰</label><label><input type="checkbox" class="ap-theme-checkbox" value="digital"> デジタル化</label><label><input type="checkbox" class="ap-theme-checkbox" value="tariff"> 米国関税</label><label><input type="checkbox" class="ap-theme-checkbox" value="invoice"> インボイス制度</label><label><input type="checkbox" class="ap-theme-checkbox" value="ebooks"> 電子帳簿保存法</label><label><input type="checkbox" class="ap-theme-checkbox" value="covid"> 新型コロナ</label><label><input type="checkbox" class="ap-theme-checkbox" value="admin"> 事業実施に係る事務処理</label></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="card" id="ap-result-card">
+              <div class="card-header" id="ap-result-header"><div class="card-title" id="ap-result-title">こちらの提案内容はいかがでしょうか。</div></div>
+              <div class="flex-col gap-lg" style="padding:var(--space-5)" id="ap-result-body"><div style="font-size:var(--fs-md);color:var(--text)">まだAI提案は生成されていません。左のフォームを入力し「AI提案を生成」を押してください。</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div></div>

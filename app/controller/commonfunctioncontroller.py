@@ -10,9 +10,28 @@ from utils.exception_util import ValidationError, NotFoundError, DBError
 import resources.messages
 
 
+from app.service.entriesinitapi.entriesinitapi_service import EntriesinitapiService
+from app.service.entrydetailinitapi.entrydetailinitapi_service import EntrydetailinitapiService
+from app.service.entryforminitapi.entryforminitapi_service import EntryforminitapiService
+from app.service.entryformnewinitapi.entryformnewinitapi_service import EntryformnewinitapiService
+from app.service.entrysaveapi.entrysaveapi_service import EntrysaveapiService
 from app.service.entryupdateapi.entryupdateapi_service import EntryupdateapiService
 from app.service.dashboardinitapi.dashboardinitapi_service import DashboardinitapiService
+from app.service.loginapi.loginapi_service import LoginapiService
+from app.service.logininitapi.logininitapi_service import LogininitapiService
+from app.service.logoutapi.logoutapi_service import LogoutapiService
 from app.service.verify2faapi.verify2faapi_service import Verify2faapiService
+from app.dto.entriesinitapi.entriesinitapi_dto import EntriesinitapiDto
+from app.dto.entrydetailinitapi.entrydetailinitapi_dto import EntrydetailinitapiDto
+from app.dto.entryforminitapi.entryforminitapi_dto import EntryforminitapiDto
+from app.dto.entryformnewinitapi.entryformnewinitapi_dto import EntryformnewinitapiDto
+from app.dto.entrysaveapi.entrysaveapi_dto import EntrysaveapiDto
+from app.dto.entryupdateapi.entryupdateapi_dto import EntryupdateapiDto
+from app.dto.dashboardinitapi.dashboardinitapi_dto import DashboardinitapiDto
+from app.dto.loginapi.loginapi_dto import LoginapiDto
+from app.dto.logininitapi.logininitapi_dto import LogininitapiDto
+from app.dto.logoutapi.logoutapi_dto import LogoutapiDto
+from app.dto.verify2faapi.verify2faapi_dto import Verify2faapiDto
 from app.service.vectordetailinitapi.vectordetailinitapi_service import VectordetailinitapiService
 from app.service.vectorforminitapi.vectorforminitapi_service import VectorforminitapiService
 from app.service.vectorformnewinitapi.vectorformnewinitapi_service import VectorformnewinitapiService
@@ -295,7 +314,7 @@ def dashboardinitapi() :
 def loginapi() :
 	"""loginapi - ログイン画面ログインボタン - サーバー関数"""
 
-	data = request.get_json()
+	data = request.get_json(silent=True) or {}
 	jsonObj = JSONWFCObject()
 
 	# validate parameter 371
@@ -324,7 +343,7 @@ def loginapi() :
 def logininitapi() :
 	"""logininitapi - ログイン画面 - サーバー関数"""
 
-	data = request.get_json()
+	data = request.get_json(silent=True) or {}
 	jsonObj = JSONWFCObject()
 
 	# validate parameter 371
@@ -382,7 +401,7 @@ def logoutapi() :
 def verify2faapi() :
 	"""verify2faapi - 二要素認証画面認証ボタン - サーバー関数"""
 
-	data = request.get_json()
+	data = request.get_json(silent=True) or {}
 	jsonObj = JSONWFCObject()
 
 	# validate parameter 371

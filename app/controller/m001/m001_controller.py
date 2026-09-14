@@ -31,7 +31,7 @@ m001_route = Blueprint('m001_route', __name__)
 def m001_page():
 	if session.get(utils.session_constant.USER_ID, "") == "":
 		return redirect(url_for("index"))
-	return render_template("M001.html")
+	return redirect("/#home")
 
 
 #

@@ -1,0 +1,2955 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>商工会AIシステムのモックアップ（統合版：ホーム／相談を受ける・報告書を作る・専門家の報告を取り込む／報告書を見る／月次帳票を出力する を1ファイルに統合、CSS/JS完全内蔵） — ナレッジを検索する</title>
+<link rel="stylesheet" href="/static/mockup/css/mockup.css">
+</head>
+<body>
+<div id="app-shell">
+  <button type="button" class="nav-toggle-fixed" id="nav-toggle-btn" aria-label="メニューを開く">☰</button>
+  <div class="sidebar-scrim" id="sidebar-scrim"></div>
+  <div class="page active">
+    <div class="sidebar">
+      <div class="sidebar-brand-group">
+        <div class="sidebar-brand">
+          <div>商工会<span>AI</span>システム</div>
+        </div>
+        <div class="sidebar-header sidebar-header--shokokai">
+
+          <div class="sidebar-header__top">
+            <select id="org-role-select" style="max-width:100px; font-size:11px; padding:2px 4px; border-radius:4px; border:1px solid rgba(255,255,255,0.4); background:rgba(255,255,255,0.12); color:white;">
+              <option value="national">全国連</option>
+              <option value="pref">県連</option>
+              <option value="shokokai" selected>商工会</option>
+            </select>
+            <div><div class="org-name" id="org-name-display">札幌商工会連合会</div></div>
+          </div>
+          <div class="user-info">012：小島 直樹</div>
+        </div>
+      </div>
+      <div class="nav-section" id="nav-section-home">
+        <div class="nav-section-label">ホーム</div>
+        <a class="nav-item" href="#home" data-route="home"><span class="icon">🏠</span> ホーム</a>
+      </div>
+      <div class="nav-section" id="nav-section-entry">
+        <div class="nav-section-label">受付／報告書を作成する</div>
+        <a class="nav-item" href="#ai-input" data-route="ai-input"><span class="icon">🗣️</span> 相談を受ける</a>
+        <a class="nav-item" href="#manual-input" data-route="manual-input"><span class="icon">✍️</span> 報告書を作る</a>
+        <a class="nav-item" href="#expert-import" data-route="expert-import"><span class="icon">📥</span> 専門家の報告を取り込む</a>
+      </div>
+      <div class="nav-section" id="nav-section-reports">
+        <div class="nav-section-label">報告書を見る</div>
+        <a class="nav-item" href="#reports" data-route="reports"><span class="icon">📋</span> 報告書を見る</a>
+      </div>
+      <div class="nav-section" id="nav-section-monthly">
+        <div class="nav-section-label">実績確認・帳票出力</div>
+        <a class="nav-item" href="#monthly" data-route="monthly"><span class="icon">📈</span>実績確認・帳票出力</a>
+      </div>
+      <div class="nav-section" id="nav-section-ai">
+        <div class="nav-section-label">AI支援提案</div>
+        <a class="nav-item" href="#ai-proposal" data-route="ai-proposal"><span class="icon">🧑‍💻💭</span>AIと一緒に考える</a>
+        <a class="nav-item" href="#knowledge-search" data-route="knowledge-search"><span class="icon">🔍</span>ナレッジを検索する</a>
+      </div>
+      <div class="nav-section" id="nav-section-admin">
+        <div class="nav-section-label">管理</div>
+        <a class="nav-item" href="#accounts" data-route="accounts"><span class="icon">⚙️</span>アカウント管理</a>
+
+        <a class="nav-item" href="#knowledge" data-route="knowledge" id="nav-item-knowledge"><span class="icon">📚</span>ナレッジ管理</a>
+      </div>
+
+    </div>
+    <div class="main">
+      <div class="top-bar">
+        <div class="top-bar__heading-actions">
+          <div class="top-bar__heading">
+            <div class="top-bar__title" id="app-title">ホーム</div>
+            <div class="top-bar__subtitle" id="app-subtitle">事業環境変化対応型支援事業</div>
+          </div>
+          <div class="top-bar__actions">
+            <a class="top-bar-btn" id="app-back-btn" href="#home" style="display:none">← 戻る</a>
+            <a class="top-bar-btn" href="help_center.html" target="shokokai-help-center" rel="noopener">❓ 困ったときは</a>
+            <a class="top-bar-btn" href="#login">🚪 ログアウト</a>
+          </div>
+        </div>
+      </div>
+      <div id="main-mount">
+<div class="app-view " id="view-home"><div class="screen-body">
+
+        <div id="home-shokokai-content">
+          <div class="cat-lbl">📢 お知らせ</div>
+          <div class="card notice-card">
+            <div class="notice-panel">
+              <div class="kpi-notice-list">
+                <div class="notice-item">2026年7月分の月次報告の提出締め切りは2026年8月25日です</div>
+                <div class="notice-item"><a href="#reports" class="notice-item-link">下書きのまま保存されている報告書が3件あります</a></div>
+              </div>
+              <div style="border-left:1px solid var(--gold-border); padding-left:var(--space-7);">
+                <div class="notice-stat__main">今月の支援件数<span class="value">127件</span><span class="notice-stat__change">▲前月比 +12件</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cat-lbl">🎯 することをえらんでください</div>
+          <div class="dash-actions-panel" style="background:var(--gold-bg); border-radius:var(--radius-lg); padding:var(--space-8);">
+          <div id="dash-quick-actions">
+            <div class="qa-primary-row">
+              <a class="action-card" href="#ai-input"><div class="action-card__icon">🗣️</div><div class="action-card__title" style="font-size:var(--fs-base)">相談を受ける</div></a>
+              <a class="action-card" href="#manual-input"><div class="action-card__icon">✍️</div><div class="action-card__title" style="font-size:var(--fs-base)">報告書を作る</div></a>
+            </div>
+            <div class="qa-secondary-col">
+              <div class="qa-secondary-row">
+                <a class="action-card" href="#expert-import"><div class="action-card__icon">📥</div><div class="action-card__title" style="font-size:var(--fs-base)">専門家の報告を取り込む</div></a>
+                <a class="action-card" href="#reports"><div class="action-card__icon">📋</div><div class="action-card__title" style="font-size:var(--fs-base)">報告書を見る</div></a>
+                <a class="action-card" href="#ai-proposal"><div class="action-card__icon">🧑‍💻💭</div><div class="action-card__title" style="font-size:var(--fs-base)">AIと一緒に考える</div></a>
+                <a class="action-card" href="#knowledge-search"><div class="action-card__icon">🔍</div><div class="action-card__title" style="font-size:var(--fs-base)">ナレッジを検索する</div></a>
+              </div>
+            </div>
+          </div>
+          </div>
+
+          <div style="margin-top:20px">
+            <div class="cat-lbl">📋 最近登録した報告（直近4件）</div>
+            <div class="card recent-reports-card">
+              <div class="table-scroll">
+                <table>
+                  <thead><tr><th>様式</th><th>実施日</th><th>支援テーマ</th><th>内容</th><th>担当</th><th class="col-action"></th></tr></thead>
+                  <tbody>
+                    <tr data-business="株式会社北海道フーズ" data-time-start="10:00" data-time-end="10:45"><td><span class="badge" style="--badge-color:#1a6fa8">G-2 専門家相談員</span></td><td>2026-08-14</td><td>賃上げ・最低賃金引上げ</td><td>業務改善助成金の活用相談</td><td>小島 直樹</td><td class="col-action"><span class="btn btn-primary btn-sm">閲覧</span></td></tr>
+                    <tr data-business="有限会社さっぽろ工務店" data-time-start="13:30" data-time-end="15:00"><td><span class="badge" style="--badge-color:#1a6fa8">G-3 講習会</span></td><td>2026-08-13</td><td>省力化促進・人手不足</td><td>省力化投資に関する講習会</td><td>小島 直樹／高橋 恵美</td><td class="col-action"><span class="btn btn-primary btn-sm">閲覧</span></td></tr>
+                    <tr data-business="道央運送株式会社" data-time-start="09:15" data-time-end="09:45"><td><span class="badge" style="--badge-color:#a04020">F 相談受付</span></td><td>2026-08-15</td><td>賃上げ・最低賃金引上げ</td><td>賃上げ実施時期の相談</td><td>小島 直樹</td><td class="col-action"><span class="btn btn-primary btn-sm">閲覧</span></td></tr>
+                    <tr data-business="北見電機株式会社" data-time-start="14:00" data-time-end="15:30"><td><span class="badge" style="--badge-color:#1a6fa8">G-4 専門家派遣</span></td><td>2026-08-11</td><td>エネルギー価格・物価の高騰</td><td>省エネ設備導入の専門家派遣</td><td>小島 直樹</td><td class="col-action"><span class="btn btn-primary btn-sm">閲覧</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="home-federation-content" style="display:none"></div>
+        </div></div>
+<div class="app-view" id="view-entry"><div class="screen-body"><form method="post" action="#" id="mi-entry-form">
+            <input type="hidden" name="csrf_token" value="mock-token">
+
+              <div class="mi-detail-grid">
+
+                <div class="mi-detail-left-wrap">
+                  <div class="mi-hint-text" id="mi-required-note"><span class="detail-row__required">※</span> は必須項目です</div>
+                  <div class="card" id="mi-detail-card">
+                  <div class="card-header card-header--navy">
+                    <div class="card-title card-title--white">相談内容登録</div>
+                    <button type="button" class="btn btn-outline btn-sm" id="mi-form-export-btn">📊 帳票を出力する</button>
+                  </div>
+                  <div class="card-body">
+
+                    <div class="mi-detail-col">
+
+                  <div class="detail-row">
+                    <div class="detail-row__label">帳票／担当<span class="detail-row__required">※</span></div>
+                    <div class="detail-row__value">
+                      <select class="form-input" id="mi-form" name="form_code" style="max-width:300px">
+                        <option value="">帳票を選択してください</option>
+                        <option value="F" data-screens="ai-input">F 相談受付票</option>
+                        <option value="G-2" data-screens="manual-input">G-2 専門家相談員報告書</option>
+                        <option value="G-3" data-screens="manual-input">G-3 事業者向け講習会報告書</option>
+                        <option value="G-4" data-screens="expert-import">G-4 専門家派遣報告書</option>
+                        <option value="G-5" data-screens="expert-import">G-5 個人相談会報告書</option>
+                        <option value="G-6" data-screens="manual-input">G-6 指導員等研修会報告書</option>
+                        <option value="G-7" data-screens="manual-input">G-7 施策普及員報告書</option>
+                        <option value="G-8" data-screens="manual-input">G-8 研修会実績報告書</option>
+                      </select>
+
+                      <select class="form-input" id="mi-staff-main" name="staff_main_code">
+                        <option value="">主担当</option>
+                        <option value="012" selected>小島 直樹</option>
+                        <option value="011">北海道一般</option>
+                      </select>
+                      <select class="form-input" id="mi-staff-sub" name="staff_sub_code">
+                        <option value="">副担当なし</option>
+                        <option value="012">小島 直樹</option>
+                        <option value="011">北海道一般</option>
+                      </select>
+
+                    </div>
+                  </div>
+
+                  <div class="detail-row">
+                    <div class="detail-row__label">対応日時<span class="detail-row__required">※</span></div>
+                    <div class="detail-row__value">
+                      <input type="date" class="form-input" id="mi-date" name="report_date" value="2026-08-18">
+                      <input type="time" class="form-input" id="mi-time-start" name="time_start">
+                      <span class="text-muted">〜</span>
+                      <input type="time" class="form-input" id="mi-time-end" name="time_end">
+                      <span class="mi-hint-text" id="mi-date-prev-month-notice" style="width:100%; color:var(--red); display:none;">前月の実績は締め切られているため、この報告は当月の実績としてカウントされます</span>
+                    </div>
+                  </div>
+
+                  <div class="detail-row mi-row--label-center-input">
+                    <div class="detail-row__label">事業所／業種<span class="detail-row__required">※</span></div>
+                    <div class="detail-row__value">
+
+                      <div class="mi-autocomplete">
+                        <input type="text" class="form-input" id="mi-jigyosho" name="business_name" placeholder="事業所を入力" autocomplete="off">
+                        <div class="mi-autocomplete__dropdown" id="mi-jigyosho-dropdown"></div>
+                      </div>
+
+                      <select class="form-input" id="mi-industry" name="industry_code" style="max-width:280px">
+                        <option value="">業種を選択</option>
+                        <option value="I">卸売業、小売業</option>
+                        <option value="R">サービス業（他に分類されないもの）</option>
+                        <option value="D">建設業</option>
+                        <option value="M">宿泊業、飲食サービス業</option>
+                        <option value="P">医療、福祉</option>
+                        <option value="E">製造業</option>
+                        <option value="N">生活関連サービス業、娯楽業</option>
+                        <option value="K">不動産業、物品賃貸業</option>
+                        <option value="H">運輸業、郵便業</option>
+                        <option value="L">学術研究、専門・技術サービス業</option>
+                        <option value="O">教育、学習支援業</option>
+                        <option value="G">情報通信業</option>
+                        <option value="J">金融業、保険業</option>
+                        <option value="F">電気・ガス・熱供給・水道業</option>
+                        <option value="A">農業、林業</option>
+                        <option value="Q">複合サービス事業</option>
+                        <option value="B">漁業</option>
+                        <option value="C">鉱業、採石業、砂利採取業</option>
+                        <option value="S">公務（他に分類されるものを除く）</option>
+                        <option value="T">分類不能の産業</option>
+                      </select>
+
+                      <span class="mi-hint-text" style="width:100%">入力すると、過去に登録した事業所名の候補が表示されます</span>
+                    </div>
+                  </div>
+
+                  <div class="detail-row mi-row--top-align">
+                    <div class="detail-row__label">支援テーマ<span class="detail-row__required">※</span></div>
+                    <div class="detail-row__value">
+                      <div class="checkbox-grid">
+                        <label><input type="checkbox" class="mi-theme-checkbox" name="theme_codes" value="wage" data-label="賃上げ・最低賃金引上げ"> 賃上げ・最低賃金引上げ</label>
+                        <label><input type="checkbox" class="mi-theme-checkbox" name="theme_codes" value="labor" data-label="省力化促進・人手不足"> 省力化促進・人手不足</label>
+                        <label><input type="checkbox" class="mi-theme-checkbox" name="theme_codes" value="energy" data-label="エネルギー価格・物価の高騰"> エネルギー価格・物価の高騰</label>
+                        <label><input type="checkbox" class="mi-theme-checkbox" name="theme_codes" value="digital" data-label="デジタル化"> デジタル化</label>
+                        <label><input type="checkbox" class="mi-theme-checkbox" name="theme_codes" value="tariff" data-label="米国関税"> 米国関税</label>
+                        <label><input type="checkbox" class="mi-theme-checkbox" name="theme_codes" value="invoice" data-label="インボイス制度"> インボイス制度</label>
+                        <label><input type="checkbox" class="mi-theme-checkbox" name="theme_codes" value="ebooks" data-label="電子帳簿保存法"> 電子帳簿保存法</label>
+                        <label><input type="checkbox" class="mi-theme-checkbox" name="theme_codes" value="covid" data-label="新型コロナ"> 新型コロナ</label>
+                        <label><input type="checkbox" class="mi-theme-checkbox" name="theme_codes" value="admin" data-label="事業実施に係る事務処理"> 事業実施に係る事務処理</label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="detail-row mi-row--top-align">
+                    <div class="detail-row__label">内容<span class="detail-row__required">※</span></div>
+
+                    <div class="detail-row__value" style="flex-direction:column; align-items:flex-start;">
+
+                      <textarea class="form-input" id="mi-content" name="content" rows="5" placeholder="内容を入力"></textarea>
+
+                      <div class="flex items-center gap-sm" style="margin-top:var(--space-3); flex-wrap:wrap;">
+                        <button type="button" class="btn btn-outline btn-sm" id="mi-content-ai-format">内容を整形する</button>
+                        <span class="mi-hint-text">登録した内容を、伝わりやすい文章に自動で整えます</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center" id="mi-form-actions" style="justify-content:space-between; margin-top:var(--space-5); flex-wrap:wrap; gap:var(--space-3);">
+                    <div class="flex items-center gap-sm" style="flex-wrap:wrap;">
+                      <label class="btn btn-outline btn-sm" for="mi-attachments" style="cursor:pointer;">📎 ファイルを選択</label>
+                      <input type="file" id="mi-attachments" multiple style="display:none">
+                      <span class="mi-hint-text" id="mi-attachments-list"></span>
+                    </div>
+                    <div class="flex items-center gap-sm">
+                      <button type="submit" name="action" value="draft" class="btn btn-outline btn-sm" id="mi-draft">下書き保存</button>
+                      <button type="submit" name="action" value="submit" class="btn btn-primary btn-sm" id="mi-submit">登録する</button>
+                    </div>
+                  </div>
+                  </div>
+                </div>
+                </div>
+                </div>
+
+                <div class="mi-detail-col mi-detail-col--utility">
+                  <div class="mi-hint-text mi-utility-label" id="mi-utility-label" style="margin-bottom:var(--space-3)">便利機能</div>
+
+                  <details class="mi-dropdown mi-panel-tall" name="mi-right-col-accordion" id="mi-voice-card" data-default-minutes="30" data-start-maximized="false" open>
+                    <summary>
+                      <span class="flex items-center gap-sm">
+                        <span>🎤 話した内容を録音し、文字にして記録する</span>
+                      </span>
+                    </summary>
+
+                      <div class="flex gap-md" style="flex-wrap:wrap; margin-top:var(--space-3)">
+                        <button type="button" class="btn btn-primary mi-voice-btn-square" id="mi-voice-btn" disabled>
+                          <span class="mi-voice-btn-square__icon">🎤</span>
+                          <span class="mi-voice-btn-square__label">録音をする</span>
+                        </button>
+                        <div style="display:flex; flex-direction:column; gap:var(--space-3);">
+                          <label class="mi-consent-bar" for="mi-voice-consent">
+                            <input type="checkbox" id="mi-voice-consent"> <span>音声入力にあたり事業者に許可を確認しています<br>チェックを入れると「録音をする」ボタンが押せます</span>
+                          </label>
+
+                          <div class="flex items-center gap-md" style="flex-wrap:wrap; padding-left:var(--space-4); margin-top:auto;">
+                            <span class="mi-timer" id="mi-timer-display">残り時間 30:00</span>
+                            <button type="button" class="btn btn-outline btn-sm" id="mi-extend-btn" disabled>＋30分延長</button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-row" style="margin-top:var(--space-4)">
+
+                        <textarea class="form-input" id="mi-transcript-display" rows="16" placeholder="録音を開始すると音声入力をもとに文字を実施します。" readonly></textarea>
+                      </div>
+
+                      <div class="flex items-center gap-md" style="flex-wrap:wrap; margin-top:var(--space-3)">
+                        <button type="button" class="btn btn-outline btn-sm" id="mi-play-btn" disabled>▶ 再生</button>
+                        <label class="btn btn-outline btn-sm" for="mi-audio-upload" id="mi-upload-label" style="opacity:0.4;pointer-events:none;">📁 アップロード</label>
+                        <input type="file" accept="audio/*" id="mi-audio-upload" style="display:none" disabled>
+                        <button type="button" class="btn btn-outline btn-sm" id="mi-transcript-apply-btn" disabled>内容に転記する</button>
+                      </div>
+
+                      <div class="mi-hint-text" style="margin-top:var(--space-3)" id="mi-voice-expiry-note"></div>
+                      <audio id="mi-audio-player" style="display:none"></audio>
+                  </details>
+
+                  <div id="mi-expert-import-panels" style="display:none;">
+
+                    <div class="card mi-expert-steps">
+
+                      <div class="card-body" id="mi-expert-steps-card-body">
+
+                        <div id="mi-import-steps-content">
+
+                          <div class="mi-expert-steps__list">
+                            <div class="mi-expert-step">
+                              <div class="flow-step is- mi-expert-step__num"><div class="flow-step__num">①</div><div class="flow-step__label">ファイルを取得</div></div>
+                              <div class="mi-expert-step__icon">📄</div>
+                              <div class="mi-expert-step__title" style="font-size:var(--fs-lg);">取り込みするExcelファイル（様式G-4／G-5）を、専門家から取得してください。</div>
+                            </div>
+                            <div class="flow-step__arrow">→</div>
+                            <div class="mi-expert-step">
+                              <div class="flow-step is-active mi-expert-step__num"><div class="flow-step__num">②</div><div class="flow-step__label">アップロード</div></div>
+                              <div class="mi-expert-step__icon">📤</div>
+                              <div class="mi-expert-step__title" style="font-size:var(--fs-lg);">下記のアップロード画面から「ファイルのアップロード」ボタンを押すか、ファイルをドラッグ＆ドロップしてアップロードしてください。</div>
+                            </div>
+                            <div class="flow-step__arrow">→</div>
+                            <div class="mi-expert-step">
+                              <div class="flow-step is-active mi-expert-step__num"><div class="flow-step__num">③</div><div class="flow-step__label">結果を確認</div></div>
+                              <div class="mi-expert-step__icon">🔍</div>
+                              <div class="mi-expert-step__title" style="font-size:var(--fs-lg);">アップロード後、取り込み結果が表示されますので、内容をご確認ください。</div>
+                            </div>
+                          </div>
+                          <div class="mi-expert-import-panels">
+                            <div class="mi-expert-panel mi-expert-panel--g4">
+                              <div class="mi-expert-panel__header">🗂️ 様式G-4 専門家派遣報告書</div>
+                              <label class="mi-expert-panel__dropzone" for="mi-g4-file" id="mi-g4-dropzone">
+                                <div class="mi-expert-panel__icon">📊</div>
+                                <span class="btn btn-outline btn-sm">ファイルをアップロード</span>
+                                <div class="mi-expert-panel__title">ドラッグ&ドロップ可能</div>
+                              </label>
+                              <input type="file" accept=".xlsx,.xls" id="mi-g4-file" style="display:none">
+                            </div>
+                            <div class="mi-expert-panel mi-expert-panel--g5">
+                              <div class="mi-expert-panel__header">🗂️ 様式G-5 個別相談会報告書</div>
+                              <label class="mi-expert-panel__dropzone" for="mi-g5-file" id="mi-g5-dropzone">
+                                <div class="mi-expert-panel__icon">📊</div>
+                                <span class="btn btn-outline btn-sm">ファイルをアップロード</span>
+                                <div class="mi-expert-panel__title">ドラッグ&ドロップ可能</div>
+                              </label>
+                              <input type="file" accept=".xlsx,.xls" id="mi-g5-file" style="display:none">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <details class="mi-dropdown" name="mi-right-col-accordion" id="mi-import-steps-dropdown" style="display:none;" open>
+                    <summary>
+                      <span class="flex items-center gap-sm">
+                        <span>📋 取り込みをやり直す場合は、再度アップロードできます。</span>
+                      </span>
+                    </summary>
+                    <div id="mi-import-steps-panel"></div>
+                  </details>
+
+                  <details class="mi-dropdown mi-history-dropdown" name="mi-right-col-accordion" id="mi-history-dropdown">
+                    <summary>
+                      <span class="flex items-center gap-sm">
+                        <span id="mi-history-label">🕘 事業所に紐づく過去の相談履歴を表示します</span>
+                      </span>
+                    </summary>
+
+                      <div class="mi-hint-text" id="mi-history-empty" style="display:none;"></div>
+                      <div class="mi-history-strip" id="mi-history-strip">
+                        <div class="mi-history-item">
+                          <div class="mi-history-item__top">
+                            <span class="mi-history-item__date">2026-07-02</span>
+                            <span class="mi-history-item__theme">賃上げ・最低賃金引上げ</span>
+                            <span class="badge" style="--badge-color:#a04020">F 相談受付</span>
+                          </div>
+                          <div class="mi-history-item__summary">賃上げ実施時期の相談</div>
+                        </div>
+                        <div class="mi-history-item">
+                          <div class="mi-history-item__top">
+                            <span class="mi-history-item__date">2026-05-14</span>
+                            <span class="mi-history-item__theme">デジタル化</span>
+                            <span class="badge" style="--badge-color:#1a6fa8">G-2 専門家相談員</span>
+                          </div>
+                          <div class="mi-history-item__summary">ITツール導入の相談</div>
+                        </div>
+                        <div class="mi-history-item">
+                          <div class="mi-history-item__top">
+                            <span class="mi-history-item__date">2026-03-08</span>
+                            <span class="mi-history-item__theme">省力化促進・人手不足</span>
+                            <span class="badge" style="--badge-color:#a04020">F 相談受付</span>
+                          </div>
+                          <div class="mi-history-item__summary">人手不足に関する相談</div>
+                        </div>
+                        <div class="mi-history-item">
+                          <div class="mi-history-item__top">
+                            <span class="mi-history-item__date">2026-01-20</span>
+                            <span class="mi-history-item__theme">エネルギー価格・物価の高騰</span>
+                            <span class="badge" style="--badge-color:#a04020">F 相談受付</span>
+                          </div>
+                          <div class="mi-history-item__summary">燃料費高騰への対応の相談</div>
+                        </div>
+                        <div class="mi-history-item">
+                          <div class="mi-history-item__top">
+                            <span class="mi-history-item__date">2025-11-11</span>
+                            <span class="mi-history-item__theme">インボイス制度</span>
+                            <span class="badge" style="--badge-color:#1a6fa8">G-2 専門家相談員</span>
+                          </div>
+                          <div class="mi-history-item__summary">インボイス対応の相談</div>
+                        </div>
+                        <div class="mi-history-item">
+                          <div class="mi-history-item__top">
+                            <span class="mi-history-item__date">2025-09-03</span>
+                            <span class="mi-history-item__theme">賃上げ・最低賃金引上げ</span>
+                            <span class="badge" style="--badge-color:#a04020">F 相談受付</span>
+                          </div>
+                          <div class="mi-history-item__summary">最低賃金改定に伴う相談</div>
+                        </div>
+                      </div>
+                  </details>
+
+                  <details class="mi-dropdown" name="mi-right-col-accordion" id="mi-detail-info-dropdown">
+                    <summary>
+                      <span class="flex items-center gap-sm">
+                        <span>📄 事業所に紐づく詳細情報を表示します</span>
+                      </span>
+                    </summary>
+
+                    <div class="mi-hint-text" id="mi-detail-info-dropdown__body" style="font-size:var(--fs-md);">来年度構築予定</div>
+                  </details>
+                </div>
+              </div>
+
+          </form>
+
+          <div class="modal-overlay" id="ei-import-modal">
+            <div class="modal-box" style="width:360px">
+              <div class="modal-box__header">
+                <div class="modal-box__title">📥 専門家報告書の取り込み</div>
+                <button type="button" class="modal-box__close" id="ei-modal-close">✕</button>
+              </div>
+              <div class="modal-box__body">
+                <div class="form-row">
+                  <div class="form-label">Excelファイル <span class="req">*</span></div>
+                  <label class="import-zone import-zone--lg" for="ei-file" id="ei-drop-zone">
+                    <div class="import-icon">📁</div>
+                    <div class="import-text">ファイルを選択またはドラッグ＆ドロップ</div>
+                    <div class="import-sub" id="ei-filename">未選択（様式はファイル名から自動判定します）</div>
+                  </label>
+                  <input type="file" accept=".xlsx,.xls" id="ei-file" style="display:none">
+                  <button type="button" class="btn btn-primary btn-block mt-md" id="ei-submit">取り込む</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div></div>
+<div class="app-view" id="view-reports"><div class="screen-body screen-body--fill">
+
+          <div class="cat-lbl">🔍 条件を入力すると一覧を絞り込みできます</div>
+
+          <div class="card card--fill" id="reports-filter-card">
+            <div class="card-header" id="reports-filter-header">
+            <div class="filter-row">
+              <div class="filter-field">
+                <div class="filter-field__label">実施年月</div>
+
+                <select class="form-input form-input--compact" id="f-yearmonth">
+                  <option value="FY:R8">令和8年度</option>
+                  <option value="2026-02">　令和8年2月</option>
+                  <option value="2026-03">　令和8年3月</option>
+                  <option value="2026-04">　令和8年4月</option>
+                  <option value="2026-05">　令和8年5月</option>
+                  <option value="2026-06">　令和8年6月</option>
+                  <option value="2026-07">　令和8年7月</option>
+                  <option value="2026-08" selected>　令和8年8月</option>
+                  <option value="2026-09">　令和8年9月</option>
+                  <option value="2026-10">　令和8年10月</option>
+                  <option value="2026-11">　令和8年11月</option>
+                  <option value="2026-12">　令和8年12月</option>
+                  <option value="2027-01">　令和9年1月</option>
+                  <option value="2027-02">　令和9年2月</option>
+                </select>
+              </div>
+
+              <div class="filter-field" id="reports-f-pref-field" style="display:none;">
+                <div class="filter-field__label">県</div>
+                <select class="form-input form-input--compact" id="reports-f-pref">
+                  <option value="">全都道府県</option>
+                  <option>北海道</option><option>青森県</option><option>岩手県</option>
+                  <option>宮城県</option><option>秋田県</option><option>山形県</option>
+                  <option>福島県</option><option>茨城県</option><option>栃木県</option>
+                  <option>群馬県</option><option>埼玉県</option><option>千葉県</option>
+                  <option>東京都</option><option>神奈川県</option><option>新潟県</option>
+                  <option>富山県</option><option>石川県</option><option>福井県</option>
+                  <option>山梨県</option><option>長野県</option><option>岐阜県</option>
+                  <option>静岡県</option><option>愛知県</option><option>三重県</option>
+                  <option>滋賀県</option><option>京都府</option><option>大阪府</option>
+                  <option>兵庫県</option><option>奈良県</option><option>和歌山県</option>
+                  <option>鳥取県</option><option>島根県</option><option>岡山県</option>
+                  <option>広島県</option><option>山口県</option><option>徳島県</option>
+                  <option>香川県</option><option>愛媛県</option><option>高知県</option>
+                  <option>福岡県</option><option>佐賀県</option><option>長崎県</option>
+                  <option>熊本県</option><option>大分県</option><option>宮崎県</option>
+                  <option>鹿児島県</option><option>沖縄県</option>
+                </select>
+              </div>
+
+              <div class="filter-field" id="reports-f-shokokai-field" style="display:none;">
+                <div class="filter-field__label">商工会</div>
+                <select class="form-input form-input--compact" id="reports-f-shokokai">
+                  <option value="">全商工会</option>
+                  <option>北海道商工会連合会</option>
+                  <option>石狩北商工会</option>
+                  <option>北広島商工会</option>
+                  <option>当別町商工会</option>
+                  <option>新篠津村商工会</option>
+                  <option>函館東商工会</option>
+                  <option>函館市亀田商工会</option>
+                  <option>北斗市商工会</option>
+                  <option>松前商工会</option>
+                  <option>福島町商工会</option>
+                  <option>知内商工会</option>
+                  <option>木古内商工会</option>
+                  <option>七飯町商工会</option>
+                  <option>鹿部商工会</option>
+                  <option>森町さわら商工会</option>
+                  <option>八雲商工会</option>
+                  <option>長万部商工会</option>
+                  <option>江差商工会</option>
+                  <option>上ノ国町商工会</option>
+                  <option>厚沢部商工会</option>
+                  <option>乙部町商工会</option>
+                  <option>奥尻商工会</option>
+                  <option>今金町商工会</option>
+                  <option>せたな商工会</option>
+                  <option>島牧商工会</option>
+                  <option>寿都商工会</option>
+                  <option>黒松内町商工会</option>
+                  <option>蘭越町商工会</option>
+                  <option>ニセコ町商工会</option>
+                  <option>真狩村商工会</option>
+                  <option>留寿都商工会</option>
+                  <option>喜茂別町商工会</option>
+                  <option>京極町商工会</option>
+                  <option>共和町商工会</option>
+                  <option>泊村商工会</option>
+                  <option>神恵内村商工会</option>
+                  <option>積丹町商工会</option>
+                  <option>古平町商工会</option>
+                  <option>仁木町商工会</option>
+                  <option>赤井川村商工会</option>
+                  <option>いわみざわ商工会</option>
+                  <option>三笠市商工会</option>
+                  <option>江部乙商工会</option>
+                  <option>南幌町商工会</option>
+                  <option>奈井江町商工会</option>
+                  <option>由仁町商工会</option>
+                  <option>長沼町商工会</option>
+                  <option>月形商工会</option>
+                  <option>浦臼町商工会</option>
+                  <option>新十津川町商工会</option>
+                  <option>妹背牛商工会</option>
+                  <option>秩父別町商工会</option>
+                  <option>雨竜町商工会</option>
+                  <option>北竜町商工会</option>
+                  <option>沼田町商工会</option>
+                  <option>あさひかわ商工会</option>
+                  <option>山部商工会</option>
+                  <option>鷹栖町商工会</option>
+                  <option>東神楽町商工会</option>
+                  <option>当麻町商工会</option>
+                  <option>比布商工会</option>
+                  <option>愛別商工会</option>
+                  <option>上川町商工会</option>
+                  <option>東川町商工会</option>
+                  <option>美瑛町商工会</option>
+                  <option>上富良野町商工会</option>
+                  <option>中富良野町商工会</option>
+                  <option>南富良野町商工会</option>
+                  <option>占冠村商工会</option>
+                  <option>和寒町商工会</option>
+                  <option>剣渕商工会</option>
+                  <option>朝日商工会</option>
+                  <option>風連商工会</option>
+                  <option>下川町商工会</option>
+                  <option>美深町商工会</option>
+                  <option>音威子府村商工会</option>
+                  <option>中川町商工会</option>
+                  <option>幌加内町商工会</option>
+                  <option>増毛町商工会</option>
+                  <option>小平町商工会</option>
+                  <option>苫前町商工会</option>
+                  <option>羽幌町商工会</option>
+                  <option>初山別村商工会</option>
+                  <option>遠別商工会</option>
+                  <option>天塩商工会</option>
+                  <option>幌延町商工会</option>
+                  <option>猿払村商工会</option>
+                  <option>浜頓別町商工会</option>
+                  <option>中頓別町商工会</option>
+                  <option>枝幸町商工会</option>
+                  <option>豊富町商工会</option>
+                  <option>礼文町商工会</option>
+                  <option>利尻町商工会</option>
+                  <option>利尻富士町商工会</option>
+                  <option>きたみ市商工会</option>
+                  <option>津別町商工会</option>
+                  <option>斜里町商工会</option>
+                  <option>清里町商工会</option>
+                  <option>小清水町商工会</option>
+                  <option>訓子府町商工会</option>
+                  <option>置戸町商工会</option>
+                  <option>佐呂間町商工会</option>
+                  <option>えんがる商工会</option>
+                  <option>湧別町商工会</option>
+                  <option>滝上町商工会</option>
+                  <option>興部町商工会</option>
+                  <option>西興部村商工会</option>
+                  <option>雄武町商工会</option>
+                  <option>大空町商工会</option>
+                  <option>豊浦町商工会</option>
+                  <option>壮瞥町商工会</option>
+                  <option>白老町商工会</option>
+                  <option>厚真町商工会</option>
+                  <option>洞爺湖町商工会</option>
+                  <option>安平町商工会</option>
+                  <option>むかわ町商工会</option>
+                  <option>日高町商工会</option>
+                  <option>平取町商工会</option>
+                  <option>新冠町商工会</option>
+                  <option>様似町商工会</option>
+                  <option>えりも町商工会</option>
+                  <option>新ひだか町商工会</option>
+                  <option>音更町商工会</option>
+                  <option>士幌町商工会</option>
+                  <option>上士幌町商工会</option>
+                  <option>鹿追町商工会</option>
+                  <option>新得町商工会</option>
+                  <option>清水町商工会</option>
+                  <option>芽室町商工会</option>
+                  <option>中札内村商工会</option>
+                  <option>更別村商工会</option>
+                  <option>大樹町商工会</option>
+                  <option>広尾町商工会</option>
+                  <option>幕別町商工会</option>
+                  <option>池田町商工会</option>
+                  <option>豊頃町商工会</option>
+                  <option>本別町商工会</option>
+                  <option>足寄町商工会</option>
+                  <option>陸別町商工会</option>
+                  <option>浦幌町商工会</option>
+                  <option>釧路町商工会</option>
+                  <option>厚岸町商工会</option>
+                  <option>浜中町商工会</option>
+                  <option>標茶町商工会</option>
+                  <option>弟子屈町商工会</option>
+                  <option>阿寒町商工会</option>
+                  <option>鶴居村商工会</option>
+                  <option>白糠町商工会</option>
+                  <option>音別町商工会</option>
+                  <option>別海町商工会</option>
+                  <option>中標津町商工会</option>
+                  <option>標津町商工会</option>
+                  <option>羅臼町商工会</option>
+                </select>
+              </div>
+
+              <div class="filter-field">
+                <div class="filter-field__label">様式</div>
+
+                <select class="form-input form-input--compact" id="f-form">
+                  <option value="全様式" selected>全様式（F・G）</option>
+                  <option value="様式F">F 相談受付票</option>
+                  <option value="全様式G">様式G（全種類）</option>
+                  <option value="G-2">G-2 専門家相談員報告書</option>
+                  <option value="G-3">G-3 事業者向け講習会報告書</option>
+                  <option value="G-4">G-4 専門家派遣報告書</option>
+                  <option value="G-5">G-5 個人相談会報告書</option>
+                  <option value="G-6">G-6 指導員等研修会報告書</option>
+                  <option value="G-7">G-7 施策普及員報告書</option>
+                  <option value="G-8">G-8 研修会実績報告書</option>
+                </select>
+              </div>
+              <div class="filter-field">
+                <div class="filter-field__label">テーマ</div>
+
+                <select class="form-input form-input--compact" id="f-theme">
+                  <option value="">全テーマ</option>
+                  <option>賃上げ・最低賃金引上げ</option>
+                  <option>省力化促進・人手不足</option>
+                  <option>エネルギー価格・物価の高騰</option>
+                  <option>デジタル化</option>
+                  <option>米国関税</option>
+                  <option>インボイス制度</option>
+                  <option>電子帳簿保存法</option>
+                  <option>新型コロナ</option>
+                  <option>事業実施に係る事務処理</option>
+                </select>
+              </div>
+              <div class="filter-field">
+                <div class="filter-field__label">キーワード</div>
+                <input type="text" class="form-input form-input--compact" placeholder="概要、担当者、内容で絞り込みができます" id="f-keyword">
+              </div>
+
+              <div class="filter-field">
+                <div class="filter-field__label">&nbsp;</div>
+                <div class="flex items-center gap-md" style="height:var(--control-h);">
+                  <label class="flex items-center gap-xs" style="white-space:nowrap; cursor:pointer;">
+                    <input type="checkbox" id="f-include-draft"> 下書きだけ表示
+                  </label>
+                  <label class="flex items-center gap-xs" style="white-space:nowrap; cursor:pointer;">
+                    <input type="checkbox" id="f-unprinted-only"> 未印刷のみ表示
+                  </label>
+                </div>
+              </div>
+              <div class="filter-field" style="border-left:1px solid var(--gold-border); padding-left:var(--space-6); margin-left:auto;">
+                <div class="filter-field__label">&nbsp;</div>
+                <div class="flex items-center gap-md">
+                  <span class="count" id="reports-count-wrap"><span id="reports-count">全8件</span></span>
+                  <button type="button" class="btn btn-outline btn-sm" id="reports-csv-btn" style="background:var(--surface-hover)">⬇ 一覧をCSVに出力する</button>
+                </div>
+              </div>
+            </div>
+            </div>
+            <div class="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>様式</th><th>実施日</th><th>支援テーマ</th><th>内容</th><th>担当</th><th class="col-action"></th>
+                  </tr>
+                </thead>
+                <tbody id="reports-tbody">
+                  <tr data-yearmonth="2026-08" data-form="F" data-theme="省力化促進・人手不足" data-status="登録済" data-printed="true" data-search="省力化促進・人手不足の相談 佐藤／田中">
+                    <td><span class="badge" style="--badge-color:#a04020">F 相談受付</span></td>
+                    <td>2026-08-12</td>
+                    <td>省力化促進・人手不足</td>
+                    <td>省力化促進・人手不足の相談、従業員5名からの相談、設備導入補助金の活用について助言</td>
+                    <td>佐藤／田中</td>
+                    <td class="col-action"><a class="btn btn-primary btn-sm" href="#">閲覧</a></td>
+                  </tr>
+                  <tr data-yearmonth="2026-08" data-form="G-2" data-theme="賃上げ・最低賃金引上げ" data-status="登録済" data-printed="true" data-search="賃上げ・最低賃金引上げの相談 鈴木">
+                    <td><span class="badge" style="--badge-color:#1a6fa8">G-2 専門家相談員</span></td>
+                    <td>2026-08-09</td>
+                    <td>賃上げ・最低賃金引上げ</td>
+                    <td>賃上げ・最低賃金引上げの相談、従業員8名の事業者から相談、賃上げ促進税制の活用方法を助言</td>
+                    <td>鈴木</td>
+                    <td class="col-action"><a class="btn btn-primary btn-sm" href="#">閲覧</a></td>
+                  </tr>
+                  <tr data-yearmonth="2026-08" data-form="G-4" data-theme="デジタル化" data-status="登録済" data-printed="false" data-search="デジタル化に関する専門家相談 高橋">
+                    <td><span class="badge" style="--badge-color:#1a6fa8">G-4 専門家派遣</span></td>
+                    <td>2026-08-05</td>
+                    <td>デジタル化</td>
+                    <td>デジタル化に関する専門家相談、受発注管理システムの導入について、専門家1名を派遣し助言</td>
+                    <td>高橋</td>
+                    <td class="col-action"><a class="btn btn-primary btn-sm" href="#">閲覧</a></td>
+                  </tr>
+                  <tr data-yearmonth="2026-08" data-form="F" data-theme="インボイス制度" data-status="登録済" data-printed="true" data-search="インボイス制度に関する相談 伊藤">
+                    <td><span class="badge" style="--badge-color:#a04020">F 相談受付</span></td>
+                    <td>2026-08-01</td>
+                    <td>インボイス制度</td>
+                    <td>インボイス制度に関する相談、適格請求書発行事業者登録の手続きについて、必要書類の準備を助言</td>
+                    <td>伊藤</td>
+                    <td class="col-action"><a class="btn btn-primary btn-sm" href="#">閲覧</a></td>
+                  </tr>
+                  <tr data-yearmonth="2026-08" data-form="G-3" data-theme="インボイス制度" data-status="登録済" data-printed="true" data-search="インボイス制度に関する説明会 伊藤">
+                    <td><span class="badge" style="--badge-color:#1a6fa8">G-3 講習会</span></td>
+                    <td>2026-08-01</td>
+                    <td>インボイス制度</td>
+                    <td>インボイス制度に関する説明会、参加者30名、開催場所は〇〇会館の5階</td>
+                    <td>伊藤</td>
+                    <td class="col-action"><a class="btn btn-primary btn-sm" href="#">閲覧</a></td>
+                  </tr>
+                  <tr data-yearmonth="2026-08" data-form="G-7" data-theme="米国関税" data-status="下書き" data-printed="false" data-search="米国関税の影響に関する相談（下書き） 加藤">
+                    <td><span class="badge" style="--badge-color:#1a6fa8">G-7 施策普及員</span></td>
+                    <td>2026-08-18</td>
+                    <td>米国関税</td>
+                    <td><span class="badge badge-status-pending">下書き</span> 米国関税の影響に関する相談、輸出先の見直しについて対応方針を検討中</td>
+                    <td>加藤</td>
+                    <td class="col-action"><a class="btn btn-primary btn-sm" href="#">閲覧</a></td>
+                  </tr>
+                  <tr data-yearmonth="2026-07" data-form="G-6" data-theme="エネルギー価格・物価の高騰" data-status="登録済" data-printed="true" data-search="エネルギー価格高騰に関する相談 渡辺">
+                    <td><span class="badge" style="--badge-color:#1a6fa8">G-6 研修会</span></td>
+                    <td>2026-07-28</td>
+                    <td>エネルギー価格・物価の高騰</td>
+                    <td>エネルギー価格高騰に関する相談、燃料費上昇による経営影響について、省エネ設備導入補助金を案内</td>
+                    <td>渡辺</td>
+                    <td class="col-action"><a class="btn btn-primary btn-sm" href="#">閲覧</a></td>
+                  </tr>
+                  <tr data-yearmonth="2026-07" data-form="F" data-theme="省力化促進・人手不足" data-status="下書き" data-printed="false" data-search="省力化促進の相談（下書き） 山本">
+                    <td><span class="badge" style="--badge-color:#a04020">F 相談受付</span></td>
+                    <td>2026-07-22</td>
+                    <td>省力化促進・人手不足</td>
+                    <td><span class="badge badge-status-pending">下書き</span> 省力化促進の相談、人手不足による受注対応の遅れについて、対応方針を検討中</td>
+                    <td>山本</td>
+                    <td class="col-action"><a class="btn btn-primary btn-sm" href="#">閲覧</a></td>
+                  </tr>
+                  <tr data-yearmonth="2026-07" data-form="G-5" data-theme="賃上げ・最低賃金引上げ" data-status="登録済" data-printed="true" data-search="個人相談会での賃上げ相談 中村">
+                    <td><span class="badge" style="--badge-color:#1a6fa8">G-5 個人相談会</span></td>
+                    <td>2026-07-18</td>
+                    <td>賃上げ・最低賃金引上げ</td>
+                    <td>個人相談会での賃上げ相談、最低賃金引き上げへの対応について、個別相談で助言</td>
+                    <td>中村</td>
+                    <td class="col-action"><a class="btn btn-primary btn-sm" href="#">閲覧</a></td>
+                  </tr>
+                  <tr data-yearmonth="2026-07" data-form="F" data-theme="デジタル化" data-status="登録済" data-printed="true" data-search="デジタル化に関する相談 小林">
+                    <td><span class="badge" style="--badge-color:#a04020">F 相談受付</span></td>
+                    <td>2026-07-15</td>
+                    <td>デジタル化</td>
+                    <td>デジタル化に関する相談、会計ソフト導入について、補助金活用方法を助言</td>
+                    <td>小林</td>
+                    <td class="col-action"><a class="btn btn-primary btn-sm" href="#">閲覧</a></td>
+                  </tr>
+                  <tr data-yearmonth="2026-06" data-form="G-7" data-theme="事業実施に係る事務処理" data-status="下書き" data-printed="false" data-search="施策普及員報告（下書き） 加藤">
+                    <td><span class="badge" style="--badge-color:#1a6fa8">G-7 施策普及員</span></td>
+                    <td>2026-06-30</td>
+                    <td>事業実施に係る事務処理</td>
+                    <td><span class="badge badge-status-pending">下書き</span> 施策普及員報告、地域内事業者への制度周知活動の実施状況を報告（入力途中）</td>
+                    <td>加藤</td>
+                    <td class="col-action"><a class="btn btn-primary btn-sm" href="#">閲覧</a></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div></div>
+<div class="app-view" id="view-ai-proposal"><div id="ap-root"></div></div>
+<div class="app-view" id="view-monthly"><div id="monthly-root"></div></div>
+<div class="app-view" id="view-accounts"><div id="accounts-root"></div></div>
+<div class="app-view" id="view-knowledge"><div id="knowledge-root"></div></div>
+<div class="app-view active" id="view-knowledge-search"><div id="knowledge-search-root"></div></div>
+</div>
+    </div>
+  </div>
+</div>
+<div class="app-view" id="view-login" style="display:none;">
+  <div class="login-screen">
+    <div class="login-card">
+      <div class="login-brand">商工会<span>AI</span>システム</div>
+
+      <div class="login-step-title">ログイン</div>
+      <div class="login-error" id="login-error" style="display:none">⚠ 入力内容をご確認ください</div>
+
+      <form id="login-form">
+        <div class="login-field">
+          <label class="login-label" for="login-prefecture">県</label>
+          <select class="form-input" id="login-prefecture">
+            <option>北海道</option>
+          </select>
+        </div>
+        <div class="login-field">
+          <label class="login-label" for="login-user-id">ユーザID</label>
+          <input class="form-input" id="login-user-id" placeholder="ユーザID" autocomplete="username">
+        </div>
+        <div class="login-field">
+          <label class="login-label" for="login-password">パスワード</label>
+          <input class="form-input" type="password" id="login-password" placeholder="パスワード" autocomplete="current-password">
+        </div>
+        <div class="login-checkbox-field">
+          <label><input type="checkbox"> ログイン状態を保持する</label>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">ログイン</button>
+      </form>
+
+      <div class="login-notice">
+        <div class="login-notice__title">📢 お知らせ</div>
+        <div class="login-notice__item">2026年7月分の月次報告の提出締め切りは2026年8月25日です</div>
+      </div>
+    </div>
+    <div class="login-footnote">© 全国商工会連合会</div>
+  </div>
+</div>
+<div class="app-view" id="view-verify-2fa" style="display:none;">
+  <div class="login-screen">
+    <div class="login-card">
+      <div class="login-brand">商工会<span>AI</span>システム</div>
+
+      <div class="login-step-title">2段階認証</div>
+      <div class="login-error" id="mfa-error" style="display:none">⚠ 確認コードが正しくありません</div>
+      <div class="login-mfa-desc">登録済み認証アプリの確認コードを入力してください。</div>
+
+      <form id="mfa-form">
+        <div class="login-field">
+          <label class="login-label">確認コード</label>
+          <div class="login-otp-row" id="login-otp-row">
+            <input type="text" class="form-input login-otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code">
+            <input type="text" class="form-input login-otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+            <input type="text" class="form-input login-otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+            <input type="text" class="form-input login-otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+            <input type="text" class="form-input login-otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+            <input type="text" class="form-input login-otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+          </div>
+          <input type="hidden" id="login-otp-hidden">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">認証してログイン</button>
+      </form>
+
+      <a class="login-back" href="#login">← ログイン画面に戻る</a>
+    </div>
+    <div class="login-footnote">© 全国商工会連合会</div>
+  </div>
+</div>
+</div></div>
+</div>
+    </div>
+<script src="/static/mockup/js/login_otp_input.js"></script>
+<script src="/static/mockup/js/toast.js"></script>
+<script src="/static/mockup/js/select_width.js"></script>
+<script src="/static/mockup/js/dom_utils.js"></script>
+<script src="/static/mockup/js/nav_toggle.js"></script>
+<script src="/static/mockup/js/role_accent.js"></script>
+<script src="/static/mockup/js/org_role_switcher.js"></script>
+<script src="/static/mockup/js/dashboard.js"></script>
+<script src="/static/mockup/js/layout_sync.js"></script>
+<script id="monthly-data" type="application/json">
+{
+  "title": "月次実績を確認・報告書を出力する",
+  "subtitle": "月次・年次の実績確認と帳票を出力できます",
+  "current_fiscal_year_code": "R8",
+  "fiscal_years": [
+    {
+      "fiscal_year_code": "R6",
+      "label": "令和6年度",
+      "start_month": "2024-02",
+      "end_month": "2025-02"
+    },
+    {
+      "fiscal_year_code": "R7",
+      "label": "令和7年度",
+      "start_month": "2025-02",
+      "end_month": "2026-02"
+    },
+    {
+      "fiscal_year_code": "R8",
+      "label": "令和8年度",
+      "start_month": "2026-02",
+      "end_month": "2027-02"
+    }
+  ],
+  "themes_by_year": {
+    "R6": [],
+    "R7": [],
+    "R8": [
+      {
+        "theme_id": 1,
+        "label": "賃上げ・最低賃金引上げ"
+      },
+      {
+        "theme_id": 2,
+        "label": "省力化促進・人手不足"
+      },
+      {
+        "theme_id": 3,
+        "label": "エネルギー価格・物価の高騰"
+      },
+      {
+        "theme_id": 4,
+        "label": "デジタル化"
+      },
+      {
+        "theme_id": 5,
+        "label": "米国関税"
+      },
+      {
+        "theme_id": 6,
+        "label": "インボイス制度"
+      },
+      {
+        "theme_id": 7,
+        "label": "電子帳簿保存法"
+      },
+      {
+        "theme_id": 8,
+        "label": "新型コロナ"
+      },
+      {
+        "theme_id": 9,
+        "label": "事業実施に係る事務処理"
+      }
+    ]
+  },
+  "_comment_data": "2026-08-25：各月2〜3桁・累計は4桁になる数字に作り直す指示のため、R6〜R8の全月×全テーマ分を用意する（以前は数件だけのスカスカなデータだった）。",
+  "detail_rows": [
+    {
+      "theme_id": 1,
+      "year_month": "2024-02",
+      "support_count": 89
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2024-02",
+      "support_count": 126
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2024-02",
+      "support_count": 163
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2024-02",
+      "support_count": 200
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2024-02",
+      "support_count": 237
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2024-02",
+      "support_count": 274
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2024-02",
+      "support_count": 31
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2024-02",
+      "support_count": 68
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2024-02",
+      "support_count": 105
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2024-03",
+      "support_count": 102
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2024-03",
+      "support_count": 139
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2024-03",
+      "support_count": 176
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2024-03",
+      "support_count": 213
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2024-03",
+      "support_count": 250
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2024-03",
+      "support_count": 287
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2024-03",
+      "support_count": 44
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2024-03",
+      "support_count": 81
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2024-03",
+      "support_count": 118
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2024-04",
+      "support_count": 115
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2024-04",
+      "support_count": 152
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2024-04",
+      "support_count": 189
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2024-04",
+      "support_count": 226
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2024-04",
+      "support_count": 263
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2024-04",
+      "support_count": 20
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2024-04",
+      "support_count": 57
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2024-04",
+      "support_count": 94
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2024-04",
+      "support_count": 131
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2024-05",
+      "support_count": 128
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2024-05",
+      "support_count": 165
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2024-05",
+      "support_count": 202
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2024-05",
+      "support_count": 239
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2024-05",
+      "support_count": 276
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2024-05",
+      "support_count": 33
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2024-05",
+      "support_count": 70
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2024-05",
+      "support_count": 107
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2024-05",
+      "support_count": 144
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2024-06",
+      "support_count": 141
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2024-06",
+      "support_count": 178
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2024-06",
+      "support_count": 215
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2024-06",
+      "support_count": 252
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2024-06",
+      "support_count": 289
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2024-06",
+      "support_count": 46
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2024-06",
+      "support_count": 83
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2024-06",
+      "support_count": 120
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2024-06",
+      "support_count": 157
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2024-07",
+      "support_count": 154
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2024-07",
+      "support_count": 191
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2024-07",
+      "support_count": 228
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2024-07",
+      "support_count": 265
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2024-07",
+      "support_count": 22
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2024-07",
+      "support_count": 59
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2024-07",
+      "support_count": 96
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2024-07",
+      "support_count": 133
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2024-07",
+      "support_count": 170
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2024-08",
+      "support_count": 167
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2024-08",
+      "support_count": 204
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2024-08",
+      "support_count": 241
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2024-08",
+      "support_count": 278
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2024-08",
+      "support_count": 35
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2024-08",
+      "support_count": 72
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2024-08",
+      "support_count": 109
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2024-08",
+      "support_count": 146
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2024-08",
+      "support_count": 183
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2024-09",
+      "support_count": 180
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2024-09",
+      "support_count": 217
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2024-09",
+      "support_count": 254
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2024-09",
+      "support_count": 291
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2024-09",
+      "support_count": 48
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2024-09",
+      "support_count": 85
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2024-09",
+      "support_count": 122
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2024-09",
+      "support_count": 159
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2024-09",
+      "support_count": 196
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2024-10",
+      "support_count": 193
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2024-10",
+      "support_count": 230
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2024-10",
+      "support_count": 267
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2024-10",
+      "support_count": 24
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2024-10",
+      "support_count": 61
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2024-10",
+      "support_count": 98
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2024-10",
+      "support_count": 135
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2024-10",
+      "support_count": 172
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2024-10",
+      "support_count": 209
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2024-11",
+      "support_count": 206
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2024-11",
+      "support_count": 243
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2024-11",
+      "support_count": 280
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2024-11",
+      "support_count": 37
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2024-11",
+      "support_count": 74
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2024-11",
+      "support_count": 111
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2024-11",
+      "support_count": 148
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2024-11",
+      "support_count": 185
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2024-11",
+      "support_count": 222
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2024-12",
+      "support_count": 219
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2024-12",
+      "support_count": 256
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2024-12",
+      "support_count": 293
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2024-12",
+      "support_count": 50
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2024-12",
+      "support_count": 87
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2024-12",
+      "support_count": 124
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2024-12",
+      "support_count": 161
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2024-12",
+      "support_count": 198
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2024-12",
+      "support_count": 235
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2025-01",
+      "support_count": 232
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2025-01",
+      "support_count": 269
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2025-01",
+      "support_count": 26
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2025-01",
+      "support_count": 63
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2025-01",
+      "support_count": 100
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2025-01",
+      "support_count": 137
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2025-01",
+      "support_count": 174
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2025-01",
+      "support_count": 211
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2025-01",
+      "support_count": 248
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2025-02",
+      "support_count": 245
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2025-02",
+      "support_count": 282
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2025-02",
+      "support_count": 39
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2025-02",
+      "support_count": 76
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2025-02",
+      "support_count": 113
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2025-02",
+      "support_count": 150
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2025-02",
+      "support_count": 187
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2025-02",
+      "support_count": 224
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2025-02",
+      "support_count": 261
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2025-02",
+      "support_count": 110
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2025-02",
+      "support_count": 147
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2025-02",
+      "support_count": 184
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2025-02",
+      "support_count": 221
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2025-02",
+      "support_count": 258
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2025-02",
+      "support_count": 295
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2025-02",
+      "support_count": 52
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2025-02",
+      "support_count": 89
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2025-02",
+      "support_count": 126
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2025-03",
+      "support_count": 123
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2025-03",
+      "support_count": 160
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2025-03",
+      "support_count": 197
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2025-03",
+      "support_count": 234
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2025-03",
+      "support_count": 271
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2025-03",
+      "support_count": 28
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2025-03",
+      "support_count": 65
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2025-03",
+      "support_count": 102
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2025-03",
+      "support_count": 139
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2025-04",
+      "support_count": 136
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2025-04",
+      "support_count": 173
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2025-04",
+      "support_count": 210
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2025-04",
+      "support_count": 247
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2025-04",
+      "support_count": 284
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2025-04",
+      "support_count": 41
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2025-04",
+      "support_count": 78
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2025-04",
+      "support_count": 115
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2025-04",
+      "support_count": 152
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2025-05",
+      "support_count": 149
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2025-05",
+      "support_count": 186
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2025-05",
+      "support_count": 223
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2025-05",
+      "support_count": 260
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2025-05",
+      "support_count": 297
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2025-05",
+      "support_count": 54
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2025-05",
+      "support_count": 91
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2025-05",
+      "support_count": 128
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2025-05",
+      "support_count": 165
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2025-06",
+      "support_count": 162
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2025-06",
+      "support_count": 199
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2025-06",
+      "support_count": 236
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2025-06",
+      "support_count": 273
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2025-06",
+      "support_count": 30
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2025-06",
+      "support_count": 67
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2025-06",
+      "support_count": 104
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2025-06",
+      "support_count": 141
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2025-06",
+      "support_count": 178
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2025-07",
+      "support_count": 175
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2025-07",
+      "support_count": 212
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2025-07",
+      "support_count": 249
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2025-07",
+      "support_count": 286
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2025-07",
+      "support_count": 43
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2025-07",
+      "support_count": 80
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2025-07",
+      "support_count": 117
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2025-07",
+      "support_count": 154
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2025-07",
+      "support_count": 191
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2025-08",
+      "support_count": 188
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2025-08",
+      "support_count": 225
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2025-08",
+      "support_count": 262
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2025-08",
+      "support_count": 299
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2025-08",
+      "support_count": 56
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2025-08",
+      "support_count": 93
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2025-08",
+      "support_count": 130
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2025-08",
+      "support_count": 167
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2025-08",
+      "support_count": 204
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2025-09",
+      "support_count": 201
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2025-09",
+      "support_count": 238
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2025-09",
+      "support_count": 275
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2025-09",
+      "support_count": 32
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2025-09",
+      "support_count": 69
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2025-09",
+      "support_count": 106
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2025-09",
+      "support_count": 143
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2025-09",
+      "support_count": 180
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2025-09",
+      "support_count": 217
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2025-10",
+      "support_count": 214
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2025-10",
+      "support_count": 251
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2025-10",
+      "support_count": 288
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2025-10",
+      "support_count": 45
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2025-10",
+      "support_count": 82
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2025-10",
+      "support_count": 119
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2025-10",
+      "support_count": 156
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2025-10",
+      "support_count": 193
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2025-10",
+      "support_count": 230
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2025-11",
+      "support_count": 227
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2025-11",
+      "support_count": 264
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2025-11",
+      "support_count": 21
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2025-11",
+      "support_count": 58
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2025-11",
+      "support_count": 95
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2025-11",
+      "support_count": 132
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2025-11",
+      "support_count": 169
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2025-11",
+      "support_count": 206
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2025-11",
+      "support_count": 243
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2025-12",
+      "support_count": 240
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2025-12",
+      "support_count": 277
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2025-12",
+      "support_count": 34
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2025-12",
+      "support_count": 71
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2025-12",
+      "support_count": 108
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2025-12",
+      "support_count": 145
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2025-12",
+      "support_count": 182
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2025-12",
+      "support_count": 219
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2025-12",
+      "support_count": 256
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2026-01",
+      "support_count": 253
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2026-01",
+      "support_count": 290
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2026-01",
+      "support_count": 47
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2026-01",
+      "support_count": 84
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2026-01",
+      "support_count": 121
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2026-01",
+      "support_count": 158
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2026-01",
+      "support_count": 195
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2026-01",
+      "support_count": 232
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2026-01",
+      "support_count": 269
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2026-02",
+      "support_count": 266
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2026-02",
+      "support_count": 23
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2026-02",
+      "support_count": 60
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2026-02",
+      "support_count": 97
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2026-02",
+      "support_count": 134
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2026-02",
+      "support_count": 171
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2026-02",
+      "support_count": 208
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2026-02",
+      "support_count": 245
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2026-02",
+      "support_count": 282
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2026-02",
+      "support_count": 127
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2026-02",
+      "support_count": 164
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2026-02",
+      "support_count": 201
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2026-02",
+      "support_count": 238
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2026-02",
+      "support_count": 275
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2026-02",
+      "support_count": 32
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2026-02",
+      "support_count": 69
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2026-02",
+      "support_count": 106
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2026-02",
+      "support_count": 143
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2026-03",
+      "support_count": 140
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2026-03",
+      "support_count": 177
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2026-03",
+      "support_count": 214
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2026-03",
+      "support_count": 251
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2026-03",
+      "support_count": 288
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2026-03",
+      "support_count": 45
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2026-03",
+      "support_count": 82
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2026-03",
+      "support_count": 119
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2026-03",
+      "support_count": 156
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2026-04",
+      "support_count": 153
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2026-04",
+      "support_count": 190
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2026-04",
+      "support_count": 227
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2026-04",
+      "support_count": 264
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2026-04",
+      "support_count": 21
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2026-04",
+      "support_count": 58
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2026-04",
+      "support_count": 95
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2026-04",
+      "support_count": 132
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2026-04",
+      "support_count": 169
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2026-05",
+      "support_count": 166
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2026-05",
+      "support_count": 203
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2026-05",
+      "support_count": 240
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2026-05",
+      "support_count": 277
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2026-05",
+      "support_count": 34
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2026-05",
+      "support_count": 71
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2026-05",
+      "support_count": 108
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2026-05",
+      "support_count": 145
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2026-05",
+      "support_count": 182
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2026-06",
+      "support_count": 179
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2026-06",
+      "support_count": 216
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2026-06",
+      "support_count": 253
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2026-06",
+      "support_count": 290
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2026-06",
+      "support_count": 47
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2026-06",
+      "support_count": 84
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2026-06",
+      "support_count": 121
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2026-06",
+      "support_count": 158
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2026-06",
+      "support_count": 195
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2026-07",
+      "support_count": 192
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2026-07",
+      "support_count": 229
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2026-07",
+      "support_count": 266
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2026-07",
+      "support_count": 23
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2026-07",
+      "support_count": 60
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2026-07",
+      "support_count": 97
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2026-07",
+      "support_count": 134
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2026-07",
+      "support_count": 171
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2026-07",
+      "support_count": 208
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2026-08",
+      "support_count": 205
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2026-08",
+      "support_count": 242
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2026-08",
+      "support_count": 279
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2026-08",
+      "support_count": 36
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2026-08",
+      "support_count": 73
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2026-08",
+      "support_count": 110
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2026-08",
+      "support_count": 147
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2026-08",
+      "support_count": 184
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2026-08",
+      "support_count": 221
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2026-09",
+      "support_count": 218
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2026-09",
+      "support_count": 255
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2026-09",
+      "support_count": 292
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2026-09",
+      "support_count": 49
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2026-09",
+      "support_count": 86
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2026-09",
+      "support_count": 123
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2026-09",
+      "support_count": 160
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2026-09",
+      "support_count": 197
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2026-09",
+      "support_count": 234
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2026-10",
+      "support_count": 231
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2026-10",
+      "support_count": 268
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2026-10",
+      "support_count": 25
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2026-10",
+      "support_count": 62
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2026-10",
+      "support_count": 99
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2026-10",
+      "support_count": 136
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2026-10",
+      "support_count": 173
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2026-10",
+      "support_count": 210
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2026-10",
+      "support_count": 247
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2026-11",
+      "support_count": 244
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2026-11",
+      "support_count": 281
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2026-11",
+      "support_count": 38
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2026-11",
+      "support_count": 75
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2026-11",
+      "support_count": 112
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2026-11",
+      "support_count": 149
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2026-11",
+      "support_count": 186
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2026-11",
+      "support_count": 223
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2026-11",
+      "support_count": 260
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2026-12",
+      "support_count": 257
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2026-12",
+      "support_count": 294
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2026-12",
+      "support_count": 51
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2026-12",
+      "support_count": 88
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2026-12",
+      "support_count": 125
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2026-12",
+      "support_count": 162
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2026-12",
+      "support_count": 199
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2026-12",
+      "support_count": 236
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2026-12",
+      "support_count": 273
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2027-01",
+      "support_count": 270
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2027-01",
+      "support_count": 27
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2027-01",
+      "support_count": 64
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2027-01",
+      "support_count": 101
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2027-01",
+      "support_count": 138
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2027-01",
+      "support_count": 175
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2027-01",
+      "support_count": 212
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2027-01",
+      "support_count": 249
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2027-01",
+      "support_count": 286
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2027-02",
+      "support_count": 283
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2027-02",
+      "support_count": 40
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2027-02",
+      "support_count": 77
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2027-02",
+      "support_count": 114
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2027-02",
+      "support_count": 151
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2027-02",
+      "support_count": 188
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2027-02",
+      "support_count": 225
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2027-02",
+      "support_count": 262
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2027-02",
+      "support_count": 299
+    }
+  ],
+  "total_rows": [
+    {
+      "year_month": "2024-02",
+      "support_count": 1293
+    },
+    {
+      "year_month": "2024-03",
+      "support_count": 1410
+    },
+    {
+      "year_month": "2024-04",
+      "support_count": 1247
+    },
+    {
+      "year_month": "2024-05",
+      "support_count": 1364
+    },
+    {
+      "year_month": "2024-06",
+      "support_count": 1481
+    },
+    {
+      "year_month": "2024-07",
+      "support_count": 1318
+    },
+    {
+      "year_month": "2024-08",
+      "support_count": 1435
+    },
+    {
+      "year_month": "2024-09",
+      "support_count": 1552
+    },
+    {
+      "year_month": "2024-10",
+      "support_count": 1389
+    },
+    {
+      "year_month": "2024-11",
+      "support_count": 1506
+    },
+    {
+      "year_month": "2024-12",
+      "support_count": 1623
+    },
+    {
+      "year_month": "2025-01",
+      "support_count": 1460
+    },
+    {
+      "year_month": "2025-02",
+      "support_count": 1577
+    },
+    {
+      "year_month": "2025-02",
+      "support_count": 1482
+    },
+    {
+      "year_month": "2025-03",
+      "support_count": 1319
+    },
+    {
+      "year_month": "2025-04",
+      "support_count": 1436
+    },
+    {
+      "year_month": "2025-05",
+      "support_count": 1553
+    },
+    {
+      "year_month": "2025-06",
+      "support_count": 1390
+    },
+    {
+      "year_month": "2025-07",
+      "support_count": 1507
+    },
+    {
+      "year_month": "2025-08",
+      "support_count": 1624
+    },
+    {
+      "year_month": "2025-09",
+      "support_count": 1461
+    },
+    {
+      "year_month": "2025-10",
+      "support_count": 1578
+    },
+    {
+      "year_month": "2025-11",
+      "support_count": 1415
+    },
+    {
+      "year_month": "2025-12",
+      "support_count": 1532
+    },
+    {
+      "year_month": "2026-01",
+      "support_count": 1649
+    },
+    {
+      "year_month": "2026-02",
+      "support_count": 1486
+    },
+    {
+      "year_month": "2026-02",
+      "support_count": 1355
+    },
+    {
+      "year_month": "2026-03",
+      "support_count": 1472
+    },
+    {
+      "year_month": "2026-04",
+      "support_count": 1309
+    },
+    {
+      "year_month": "2026-05",
+      "support_count": 1426
+    },
+    {
+      "year_month": "2026-06",
+      "support_count": 1543
+    },
+    {
+      "year_month": "2026-07",
+      "support_count": 1380
+    },
+    {
+      "year_month": "2026-08",
+      "support_count": 1497
+    },
+    {
+      "year_month": "2026-09",
+      "support_count": 1614
+    },
+    {
+      "year_month": "2026-10",
+      "support_count": 1451
+    },
+    {
+      "year_month": "2026-11",
+      "support_count": 1568
+    },
+    {
+      "year_month": "2026-12",
+      "support_count": 1685
+    },
+    {
+      "year_month": "2027-01",
+      "support_count": 1522
+    },
+    {
+      "year_month": "2027-02",
+      "support_count": 1639
+    }
+  ],
+  "export_forms": [
+    {
+      "form_code": "H",
+      "short_label": "H 月次総支援件数",
+      "full_label": "H 月次実績報告総支援件数"
+    },
+    {
+      "form_code": "I-1",
+      "short_label": "I-1 相談員等配置状況",
+      "full_label": "I-1 月次実績報告相談員等配置状況"
+    },
+    {
+      "form_code": "I-2",
+      "short_label": "I-2 月次相談員（人件費、雑役務費）",
+      "full_label": "I-2 月次実績報告相談員（人件費、雑役務費）"
+    },
+    {
+      "form_code": "I-3",
+      "short_label": "I-3 月次相談員（謝金）",
+      "full_label": "I-3 月次実績報告相談員（謝金）支援状況"
+    },
+    {
+      "form_code": "I-6",
+      "short_label": "I-6 月次講習会状況",
+      "full_label": "I-6 月次実績報告事業者向け講習会実施状況"
+    }
+  ]
+}
+</script>
+<script src="/static/mockup/js/entry_form_wiring.js"></script>
+<script src="/static/mockup/js/expert_import_modal.js"></script>
+<script src="/static/mockup/js/ai_proposal.js"></script>
+<script src="/static/mockup/js/monthly.js"></script>
+<script src="/static/mockup/js/reports_annual_csv.js"></script>
+<script src="/static/mockup/js/entry_screen.js"></script>
+<script src="/static/mockup/js/expert_import_wire.js"></script>
+<script src="/static/mockup/js/reports_list.js"></script>
+<script src="/static/mockup/js/entry_history.js"></script>
+<script src="/static/mockup/js/entry_jigyosho_autocomplete.js"></script>
+<script src="/static/mockup/js/accounts.js"></script>
+<script src="/static/mockup/js/knowledge.js"></script>
+<script src="/static/mockup/js/knowledge_search.js"></script>
+<script src="/static/mockup/js/router.js"></script>
+<script>if (!location.hash) location.hash = "knowledge-search";</script>
+</body>
+</html>

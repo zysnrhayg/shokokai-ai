@@ -1,0 +1,2083 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>商工会AIシステムのモックアップ（統合版：ホーム／相談を受ける・報告書を作る・専門家の報告を取り込む／報告書を見る／月次帳票を出力する を1ファイルに統合、CSS/JS完全内蔵） — ログイン画面</title>
+<link rel="stylesheet" href="/static/mockup/css/mockup.css">
+</head>
+<body>
+<div class="app-view" id="view-login" style="display:block;">
+  <div class="login-screen">
+    <div class="login-card">
+      <div class="login-brand">商工会<span>AI</span>システム</div>
+
+      <div class="login-step-title">ログイン</div>
+      <div class="login-error" id="login-error" style="display:block">⚠ 入力内容をご確認ください</div>
+
+      <form id="login-form">
+        <div class="login-field">
+          <label class="login-label" for="login-prefecture">県</label>
+          <select class="form-input" id="login-prefecture">
+            <option>北海道</option>
+          </select>
+        </div>
+        <div class="login-field">
+          <label class="login-label" for="login-user-id">ユーザID</label>
+          <input class="form-input" id="login-user-id" placeholder="ユーザID" autocomplete="username">
+        </div>
+        <div class="login-field">
+          <label class="login-label" for="login-password">パスワード</label>
+          <input class="form-input" type="password" id="login-password" placeholder="パスワード" autocomplete="current-password">
+        </div>
+        <div class="login-checkbox-field">
+          <label><input type="checkbox"> ログイン状態を保持する</label>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">ログイン</button>
+      </form>
+
+      <div class="login-notice">
+        <div class="login-notice__title">📢 お知らせ</div>
+        <div class="login-notice__item">2026年7月分の月次報告の提出締め切りは2026年8月25日です</div>
+      </div>
+    </div>
+    <div class="login-footnote">© 全国商工会連合会</div>
+  </div>
+</div>
+<script src="/static/mockup/js/login_otp_input.js"></script>
+<script src="/static/mockup/js/toast.js"></script>
+<script src="/static/mockup/js/select_width.js"></script>
+<script src="/static/mockup/js/dom_utils.js"></script>
+<script src="/static/mockup/js/nav_toggle.js"></script>
+<script src="/static/mockup/js/role_accent.js"></script>
+<script src="/static/mockup/js/org_role_switcher.js"></script>
+<script src="/static/mockup/js/dashboard.js"></script>
+<script src="/static/mockup/js/layout_sync.js"></script>
+<script id="monthly-data" type="application/json">
+{
+  "title": "月次実績を確認・報告書を出力する",
+  "subtitle": "月次・年次の実績確認と帳票を出力できます",
+  "current_fiscal_year_code": "R8",
+  "fiscal_years": [
+    {
+      "fiscal_year_code": "R6",
+      "label": "令和6年度",
+      "start_month": "2024-02",
+      "end_month": "2025-02"
+    },
+    {
+      "fiscal_year_code": "R7",
+      "label": "令和7年度",
+      "start_month": "2025-02",
+      "end_month": "2026-02"
+    },
+    {
+      "fiscal_year_code": "R8",
+      "label": "令和8年度",
+      "start_month": "2026-02",
+      "end_month": "2027-02"
+    }
+  ],
+  "themes_by_year": {
+    "R6": [],
+    "R7": [],
+    "R8": [
+      {
+        "theme_id": 1,
+        "label": "賃上げ・最低賃金引上げ"
+      },
+      {
+        "theme_id": 2,
+        "label": "省力化促進・人手不足"
+      },
+      {
+        "theme_id": 3,
+        "label": "エネルギー価格・物価の高騰"
+      },
+      {
+        "theme_id": 4,
+        "label": "デジタル化"
+      },
+      {
+        "theme_id": 5,
+        "label": "米国関税"
+      },
+      {
+        "theme_id": 6,
+        "label": "インボイス制度"
+      },
+      {
+        "theme_id": 7,
+        "label": "電子帳簿保存法"
+      },
+      {
+        "theme_id": 8,
+        "label": "新型コロナ"
+      },
+      {
+        "theme_id": 9,
+        "label": "事業実施に係る事務処理"
+      }
+    ]
+  },
+  "_comment_data": "2026-08-25：各月2〜3桁・累計は4桁になる数字に作り直す指示のため、R6〜R8の全月×全テーマ分を用意する（以前は数件だけのスカスカなデータだった）。",
+  "detail_rows": [
+    {
+      "theme_id": 1,
+      "year_month": "2024-02",
+      "support_count": 89
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2024-02",
+      "support_count": 126
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2024-02",
+      "support_count": 163
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2024-02",
+      "support_count": 200
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2024-02",
+      "support_count": 237
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2024-02",
+      "support_count": 274
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2024-02",
+      "support_count": 31
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2024-02",
+      "support_count": 68
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2024-02",
+      "support_count": 105
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2024-03",
+      "support_count": 102
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2024-03",
+      "support_count": 139
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2024-03",
+      "support_count": 176
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2024-03",
+      "support_count": 213
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2024-03",
+      "support_count": 250
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2024-03",
+      "support_count": 287
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2024-03",
+      "support_count": 44
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2024-03",
+      "support_count": 81
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2024-03",
+      "support_count": 118
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2024-04",
+      "support_count": 115
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2024-04",
+      "support_count": 152
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2024-04",
+      "support_count": 189
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2024-04",
+      "support_count": 226
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2024-04",
+      "support_count": 263
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2024-04",
+      "support_count": 20
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2024-04",
+      "support_count": 57
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2024-04",
+      "support_count": 94
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2024-04",
+      "support_count": 131
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2024-05",
+      "support_count": 128
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2024-05",
+      "support_count": 165
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2024-05",
+      "support_count": 202
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2024-05",
+      "support_count": 239
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2024-05",
+      "support_count": 276
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2024-05",
+      "support_count": 33
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2024-05",
+      "support_count": 70
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2024-05",
+      "support_count": 107
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2024-05",
+      "support_count": 144
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2024-06",
+      "support_count": 141
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2024-06",
+      "support_count": 178
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2024-06",
+      "support_count": 215
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2024-06",
+      "support_count": 252
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2024-06",
+      "support_count": 289
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2024-06",
+      "support_count": 46
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2024-06",
+      "support_count": 83
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2024-06",
+      "support_count": 120
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2024-06",
+      "support_count": 157
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2024-07",
+      "support_count": 154
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2024-07",
+      "support_count": 191
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2024-07",
+      "support_count": 228
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2024-07",
+      "support_count": 265
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2024-07",
+      "support_count": 22
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2024-07",
+      "support_count": 59
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2024-07",
+      "support_count": 96
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2024-07",
+      "support_count": 133
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2024-07",
+      "support_count": 170
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2024-08",
+      "support_count": 167
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2024-08",
+      "support_count": 204
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2024-08",
+      "support_count": 241
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2024-08",
+      "support_count": 278
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2024-08",
+      "support_count": 35
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2024-08",
+      "support_count": 72
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2024-08",
+      "support_count": 109
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2024-08",
+      "support_count": 146
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2024-08",
+      "support_count": 183
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2024-09",
+      "support_count": 180
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2024-09",
+      "support_count": 217
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2024-09",
+      "support_count": 254
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2024-09",
+      "support_count": 291
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2024-09",
+      "support_count": 48
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2024-09",
+      "support_count": 85
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2024-09",
+      "support_count": 122
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2024-09",
+      "support_count": 159
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2024-09",
+      "support_count": 196
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2024-10",
+      "support_count": 193
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2024-10",
+      "support_count": 230
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2024-10",
+      "support_count": 267
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2024-10",
+      "support_count": 24
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2024-10",
+      "support_count": 61
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2024-10",
+      "support_count": 98
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2024-10",
+      "support_count": 135
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2024-10",
+      "support_count": 172
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2024-10",
+      "support_count": 209
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2024-11",
+      "support_count": 206
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2024-11",
+      "support_count": 243
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2024-11",
+      "support_count": 280
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2024-11",
+      "support_count": 37
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2024-11",
+      "support_count": 74
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2024-11",
+      "support_count": 111
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2024-11",
+      "support_count": 148
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2024-11",
+      "support_count": 185
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2024-11",
+      "support_count": 222
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2024-12",
+      "support_count": 219
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2024-12",
+      "support_count": 256
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2024-12",
+      "support_count": 293
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2024-12",
+      "support_count": 50
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2024-12",
+      "support_count": 87
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2024-12",
+      "support_count": 124
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2024-12",
+      "support_count": 161
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2024-12",
+      "support_count": 198
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2024-12",
+      "support_count": 235
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2025-01",
+      "support_count": 232
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2025-01",
+      "support_count": 269
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2025-01",
+      "support_count": 26
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2025-01",
+      "support_count": 63
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2025-01",
+      "support_count": 100
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2025-01",
+      "support_count": 137
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2025-01",
+      "support_count": 174
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2025-01",
+      "support_count": 211
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2025-01",
+      "support_count": 248
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2025-02",
+      "support_count": 245
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2025-02",
+      "support_count": 282
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2025-02",
+      "support_count": 39
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2025-02",
+      "support_count": 76
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2025-02",
+      "support_count": 113
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2025-02",
+      "support_count": 150
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2025-02",
+      "support_count": 187
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2025-02",
+      "support_count": 224
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2025-02",
+      "support_count": 261
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2025-02",
+      "support_count": 110
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2025-02",
+      "support_count": 147
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2025-02",
+      "support_count": 184
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2025-02",
+      "support_count": 221
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2025-02",
+      "support_count": 258
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2025-02",
+      "support_count": 295
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2025-02",
+      "support_count": 52
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2025-02",
+      "support_count": 89
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2025-02",
+      "support_count": 126
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2025-03",
+      "support_count": 123
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2025-03",
+      "support_count": 160
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2025-03",
+      "support_count": 197
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2025-03",
+      "support_count": 234
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2025-03",
+      "support_count": 271
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2025-03",
+      "support_count": 28
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2025-03",
+      "support_count": 65
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2025-03",
+      "support_count": 102
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2025-03",
+      "support_count": 139
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2025-04",
+      "support_count": 136
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2025-04",
+      "support_count": 173
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2025-04",
+      "support_count": 210
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2025-04",
+      "support_count": 247
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2025-04",
+      "support_count": 284
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2025-04",
+      "support_count": 41
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2025-04",
+      "support_count": 78
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2025-04",
+      "support_count": 115
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2025-04",
+      "support_count": 152
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2025-05",
+      "support_count": 149
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2025-05",
+      "support_count": 186
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2025-05",
+      "support_count": 223
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2025-05",
+      "support_count": 260
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2025-05",
+      "support_count": 297
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2025-05",
+      "support_count": 54
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2025-05",
+      "support_count": 91
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2025-05",
+      "support_count": 128
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2025-05",
+      "support_count": 165
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2025-06",
+      "support_count": 162
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2025-06",
+      "support_count": 199
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2025-06",
+      "support_count": 236
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2025-06",
+      "support_count": 273
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2025-06",
+      "support_count": 30
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2025-06",
+      "support_count": 67
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2025-06",
+      "support_count": 104
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2025-06",
+      "support_count": 141
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2025-06",
+      "support_count": 178
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2025-07",
+      "support_count": 175
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2025-07",
+      "support_count": 212
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2025-07",
+      "support_count": 249
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2025-07",
+      "support_count": 286
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2025-07",
+      "support_count": 43
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2025-07",
+      "support_count": 80
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2025-07",
+      "support_count": 117
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2025-07",
+      "support_count": 154
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2025-07",
+      "support_count": 191
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2025-08",
+      "support_count": 188
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2025-08",
+      "support_count": 225
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2025-08",
+      "support_count": 262
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2025-08",
+      "support_count": 299
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2025-08",
+      "support_count": 56
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2025-08",
+      "support_count": 93
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2025-08",
+      "support_count": 130
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2025-08",
+      "support_count": 167
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2025-08",
+      "support_count": 204
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2025-09",
+      "support_count": 201
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2025-09",
+      "support_count": 238
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2025-09",
+      "support_count": 275
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2025-09",
+      "support_count": 32
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2025-09",
+      "support_count": 69
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2025-09",
+      "support_count": 106
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2025-09",
+      "support_count": 143
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2025-09",
+      "support_count": 180
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2025-09",
+      "support_count": 217
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2025-10",
+      "support_count": 214
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2025-10",
+      "support_count": 251
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2025-10",
+      "support_count": 288
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2025-10",
+      "support_count": 45
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2025-10",
+      "support_count": 82
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2025-10",
+      "support_count": 119
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2025-10",
+      "support_count": 156
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2025-10",
+      "support_count": 193
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2025-10",
+      "support_count": 230
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2025-11",
+      "support_count": 227
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2025-11",
+      "support_count": 264
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2025-11",
+      "support_count": 21
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2025-11",
+      "support_count": 58
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2025-11",
+      "support_count": 95
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2025-11",
+      "support_count": 132
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2025-11",
+      "support_count": 169
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2025-11",
+      "support_count": 206
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2025-11",
+      "support_count": 243
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2025-12",
+      "support_count": 240
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2025-12",
+      "support_count": 277
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2025-12",
+      "support_count": 34
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2025-12",
+      "support_count": 71
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2025-12",
+      "support_count": 108
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2025-12",
+      "support_count": 145
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2025-12",
+      "support_count": 182
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2025-12",
+      "support_count": 219
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2025-12",
+      "support_count": 256
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2026-01",
+      "support_count": 253
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2026-01",
+      "support_count": 290
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2026-01",
+      "support_count": 47
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2026-01",
+      "support_count": 84
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2026-01",
+      "support_count": 121
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2026-01",
+      "support_count": 158
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2026-01",
+      "support_count": 195
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2026-01",
+      "support_count": 232
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2026-01",
+      "support_count": 269
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2026-02",
+      "support_count": 266
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2026-02",
+      "support_count": 23
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2026-02",
+      "support_count": 60
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2026-02",
+      "support_count": 97
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2026-02",
+      "support_count": 134
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2026-02",
+      "support_count": 171
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2026-02",
+      "support_count": 208
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2026-02",
+      "support_count": 245
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2026-02",
+      "support_count": 282
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2026-02",
+      "support_count": 127
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2026-02",
+      "support_count": 164
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2026-02",
+      "support_count": 201
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2026-02",
+      "support_count": 238
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2026-02",
+      "support_count": 275
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2026-02",
+      "support_count": 32
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2026-02",
+      "support_count": 69
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2026-02",
+      "support_count": 106
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2026-02",
+      "support_count": 143
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2026-03",
+      "support_count": 140
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2026-03",
+      "support_count": 177
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2026-03",
+      "support_count": 214
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2026-03",
+      "support_count": 251
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2026-03",
+      "support_count": 288
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2026-03",
+      "support_count": 45
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2026-03",
+      "support_count": 82
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2026-03",
+      "support_count": 119
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2026-03",
+      "support_count": 156
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2026-04",
+      "support_count": 153
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2026-04",
+      "support_count": 190
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2026-04",
+      "support_count": 227
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2026-04",
+      "support_count": 264
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2026-04",
+      "support_count": 21
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2026-04",
+      "support_count": 58
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2026-04",
+      "support_count": 95
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2026-04",
+      "support_count": 132
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2026-04",
+      "support_count": 169
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2026-05",
+      "support_count": 166
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2026-05",
+      "support_count": 203
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2026-05",
+      "support_count": 240
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2026-05",
+      "support_count": 277
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2026-05",
+      "support_count": 34
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2026-05",
+      "support_count": 71
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2026-05",
+      "support_count": 108
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2026-05",
+      "support_count": 145
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2026-05",
+      "support_count": 182
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2026-06",
+      "support_count": 179
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2026-06",
+      "support_count": 216
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2026-06",
+      "support_count": 253
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2026-06",
+      "support_count": 290
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2026-06",
+      "support_count": 47
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2026-06",
+      "support_count": 84
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2026-06",
+      "support_count": 121
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2026-06",
+      "support_count": 158
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2026-06",
+      "support_count": 195
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2026-07",
+      "support_count": 192
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2026-07",
+      "support_count": 229
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2026-07",
+      "support_count": 266
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2026-07",
+      "support_count": 23
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2026-07",
+      "support_count": 60
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2026-07",
+      "support_count": 97
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2026-07",
+      "support_count": 134
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2026-07",
+      "support_count": 171
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2026-07",
+      "support_count": 208
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2026-08",
+      "support_count": 205
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2026-08",
+      "support_count": 242
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2026-08",
+      "support_count": 279
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2026-08",
+      "support_count": 36
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2026-08",
+      "support_count": 73
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2026-08",
+      "support_count": 110
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2026-08",
+      "support_count": 147
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2026-08",
+      "support_count": 184
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2026-08",
+      "support_count": 221
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2026-09",
+      "support_count": 218
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2026-09",
+      "support_count": 255
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2026-09",
+      "support_count": 292
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2026-09",
+      "support_count": 49
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2026-09",
+      "support_count": 86
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2026-09",
+      "support_count": 123
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2026-09",
+      "support_count": 160
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2026-09",
+      "support_count": 197
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2026-09",
+      "support_count": 234
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2026-10",
+      "support_count": 231
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2026-10",
+      "support_count": 268
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2026-10",
+      "support_count": 25
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2026-10",
+      "support_count": 62
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2026-10",
+      "support_count": 99
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2026-10",
+      "support_count": 136
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2026-10",
+      "support_count": 173
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2026-10",
+      "support_count": 210
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2026-10",
+      "support_count": 247
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2026-11",
+      "support_count": 244
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2026-11",
+      "support_count": 281
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2026-11",
+      "support_count": 38
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2026-11",
+      "support_count": 75
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2026-11",
+      "support_count": 112
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2026-11",
+      "support_count": 149
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2026-11",
+      "support_count": 186
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2026-11",
+      "support_count": 223
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2026-11",
+      "support_count": 260
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2026-12",
+      "support_count": 257
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2026-12",
+      "support_count": 294
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2026-12",
+      "support_count": 51
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2026-12",
+      "support_count": 88
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2026-12",
+      "support_count": 125
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2026-12",
+      "support_count": 162
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2026-12",
+      "support_count": 199
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2026-12",
+      "support_count": 236
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2026-12",
+      "support_count": 273
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2027-01",
+      "support_count": 270
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2027-01",
+      "support_count": 27
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2027-01",
+      "support_count": 64
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2027-01",
+      "support_count": 101
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2027-01",
+      "support_count": 138
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2027-01",
+      "support_count": 175
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2027-01",
+      "support_count": 212
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2027-01",
+      "support_count": 249
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2027-01",
+      "support_count": 286
+    },
+    {
+      "theme_id": 1,
+      "year_month": "2027-02",
+      "support_count": 283
+    },
+    {
+      "theme_id": 2,
+      "year_month": "2027-02",
+      "support_count": 40
+    },
+    {
+      "theme_id": 3,
+      "year_month": "2027-02",
+      "support_count": 77
+    },
+    {
+      "theme_id": 4,
+      "year_month": "2027-02",
+      "support_count": 114
+    },
+    {
+      "theme_id": 5,
+      "year_month": "2027-02",
+      "support_count": 151
+    },
+    {
+      "theme_id": 6,
+      "year_month": "2027-02",
+      "support_count": 188
+    },
+    {
+      "theme_id": 7,
+      "year_month": "2027-02",
+      "support_count": 225
+    },
+    {
+      "theme_id": 8,
+      "year_month": "2027-02",
+      "support_count": 262
+    },
+    {
+      "theme_id": 9,
+      "year_month": "2027-02",
+      "support_count": 299
+    }
+  ],
+  "total_rows": [
+    {
+      "year_month": "2024-02",
+      "support_count": 1293
+    },
+    {
+      "year_month": "2024-03",
+      "support_count": 1410
+    },
+    {
+      "year_month": "2024-04",
+      "support_count": 1247
+    },
+    {
+      "year_month": "2024-05",
+      "support_count": 1364
+    },
+    {
+      "year_month": "2024-06",
+      "support_count": 1481
+    },
+    {
+      "year_month": "2024-07",
+      "support_count": 1318
+    },
+    {
+      "year_month": "2024-08",
+      "support_count": 1435
+    },
+    {
+      "year_month": "2024-09",
+      "support_count": 1552
+    },
+    {
+      "year_month": "2024-10",
+      "support_count": 1389
+    },
+    {
+      "year_month": "2024-11",
+      "support_count": 1506
+    },
+    {
+      "year_month": "2024-12",
+      "support_count": 1623
+    },
+    {
+      "year_month": "2025-01",
+      "support_count": 1460
+    },
+    {
+      "year_month": "2025-02",
+      "support_count": 1577
+    },
+    {
+      "year_month": "2025-02",
+      "support_count": 1482
+    },
+    {
+      "year_month": "2025-03",
+      "support_count": 1319
+    },
+    {
+      "year_month": "2025-04",
+      "support_count": 1436
+    },
+    {
+      "year_month": "2025-05",
+      "support_count": 1553
+    },
+    {
+      "year_month": "2025-06",
+      "support_count": 1390
+    },
+    {
+      "year_month": "2025-07",
+      "support_count": 1507
+    },
+    {
+      "year_month": "2025-08",
+      "support_count": 1624
+    },
+    {
+      "year_month": "2025-09",
+      "support_count": 1461
+    },
+    {
+      "year_month": "2025-10",
+      "support_count": 1578
+    },
+    {
+      "year_month": "2025-11",
+      "support_count": 1415
+    },
+    {
+      "year_month": "2025-12",
+      "support_count": 1532
+    },
+    {
+      "year_month": "2026-01",
+      "support_count": 1649
+    },
+    {
+      "year_month": "2026-02",
+      "support_count": 1486
+    },
+    {
+      "year_month": "2026-02",
+      "support_count": 1355
+    },
+    {
+      "year_month": "2026-03",
+      "support_count": 1472
+    },
+    {
+      "year_month": "2026-04",
+      "support_count": 1309
+    },
+    {
+      "year_month": "2026-05",
+      "support_count": 1426
+    },
+    {
+      "year_month": "2026-06",
+      "support_count": 1543
+    },
+    {
+      "year_month": "2026-07",
+      "support_count": 1380
+    },
+    {
+      "year_month": "2026-08",
+      "support_count": 1497
+    },
+    {
+      "year_month": "2026-09",
+      "support_count": 1614
+    },
+    {
+      "year_month": "2026-10",
+      "support_count": 1451
+    },
+    {
+      "year_month": "2026-11",
+      "support_count": 1568
+    },
+    {
+      "year_month": "2026-12",
+      "support_count": 1685
+    },
+    {
+      "year_month": "2027-01",
+      "support_count": 1522
+    },
+    {
+      "year_month": "2027-02",
+      "support_count": 1639
+    }
+  ],
+  "export_forms": [
+    {
+      "form_code": "H",
+      "short_label": "H 月次総支援件数",
+      "full_label": "H 月次実績報告総支援件数"
+    },
+    {
+      "form_code": "I-1",
+      "short_label": "I-1 相談員等配置状況",
+      "full_label": "I-1 月次実績報告相談員等配置状況"
+    },
+    {
+      "form_code": "I-2",
+      "short_label": "I-2 月次相談員（人件費、雑役務費）",
+      "full_label": "I-2 月次実績報告相談員（人件費、雑役務費）"
+    },
+    {
+      "form_code": "I-3",
+      "short_label": "I-3 月次相談員（謝金）",
+      "full_label": "I-3 月次実績報告相談員（謝金）支援状況"
+    },
+    {
+      "form_code": "I-6",
+      "short_label": "I-6 月次講習会状況",
+      "full_label": "I-6 月次実績報告事業者向け講習会実施状況"
+    }
+  ]
+}
+</script>
+<script src="/static/mockup/js/entry_form_wiring.js"></script>
+<script src="/static/mockup/js/expert_import_modal.js"></script>
+<script src="/static/mockup/js/ai_proposal.js"></script>
+<script src="/static/mockup/js/monthly.js"></script>
+<script src="/static/mockup/js/reports_annual_csv.js"></script>
+<script src="/static/mockup/js/entry_screen.js"></script>
+<script src="/static/mockup/js/expert_import_wire.js"></script>
+<script src="/static/mockup/js/reports_list.js"></script>
+<script src="/static/mockup/js/entry_history.js"></script>
+<script src="/static/mockup/js/entry_jigyosho_autocomplete.js"></script>
+<script src="/static/mockup/js/accounts.js"></script>
+<script src="/static/mockup/js/knowledge.js"></script>
+<script src="/static/mockup/js/knowledge_search.js"></script>
+<script src="/static/mockup/js/router.js"></script>
+</body>
+</html>

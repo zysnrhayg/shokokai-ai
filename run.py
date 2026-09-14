@@ -54,6 +54,7 @@ except ImportError:
     def getMessageById(msgid):
         return _res_msg.getMessageById(msgid)
 import initdatabase_mysql
+import initdatabase_postgres
 from flask import session
 from app.controller.m001 import m001_controller
 # Log the application startup information
@@ -93,11 +94,23 @@ try:
 except OSError:
     pass
 
+# 対象 DB が無ければ作成し、ddl_define.sql でテーブルを投入する。
+if (DB_DRIVER or "").lower() in ("postgresql", "postgres", "pgsql"):
+    try:
+        _pg_init = initdatabase_postgres.ensure_database()
+        utils.config.global_log.info("PostgreSQL database init: %s", _pg_init)
+    except Exception as _pg_err:
+        utils.config.global_log.warning("PostgreSQL database init failed: %s", _pg_err)
 # DB init: only when RUN_DB_INIT=true at runtime. Production: run DB init via separate script/CI, not on app startup.
 if os.getenv("RUN_DB_INIT", "false").lower() == "true":
     initdatabase_mysql.installDb()
 # Initialize each plugin
 dynaconf = FlaskDynaconf(app, dynaconf_instance=settings)  # Load settings with Dynaconf
+# settings.toml の空 SECRET_KEY で上書きされないよう、環境変数を優先する
+_secret_key = (os.environ.get("SECRET_KEY") or app.secret_key or "").strip()
+if _secret_key:
+    app.secret_key = _secret_key
+    app.config["SECRET_KEY"] = _secret_key
 babel.init_app(app, default_locale="ja")  # Initialize internationalization and localization
 app.config['SQLALCHEMY_DATABASE_URI'] = get_database_uri()
 # Validate DB connection at startup to avoid Unknown database errors only when logging in or querying
@@ -139,7 +152,14 @@ def session_interceptor():
     ok, out = csrf_protect.check_csrf(app, request, session, getMessageById)
     if not ok:
         return out[0], out[1]
-    allowed_routes = ['login_route.pythonLogin', '/','index']
+    allowed_routes = [
+        'login_route.pythonLogin',
+        '/',
+        'index',
+        'commonfunction_route.logininitapi',
+        'commonfunction_route.loginapi',
+        'commonfunction_route.verify2faapi',
+    ]
     if request.endpoint != None :
         if request.endpoint not in allowed_routes and 'APP_USER_ID' not in session:
             if request.path.endswith('.do') == False:
@@ -164,16 +184,38 @@ def session_interceptor():
             jsonObj.setScript(utils.json_constant.JSONID_RUN_SCRIPT, "location.href='./'")
             return jsonObj.toJsonString()
 
+_MONTHLY_DATA_PATH = os.path.join(_run_dir, "static", "mockup", "data", "monthly-data.json")
+
+def _load_monthly_data():
+    try:
+        with open(_MONTHLY_DATA_PATH, encoding="utf-8") as fh:
+            return fh.read()
+    except OSError:
+        return "{}"
+
+def render_frontend():
+    """Render the mockup SPA (login + app shell)."""
+    logged_in = bool(session.get(utils.session_constant.USER_ID) or session.get("APP_USER_ID"))
+    return render_template(
+        "app.html",
+        monthly_data=_load_monthly_data(),
+        logged_in=logged_in,
+    )
+
 @app.route("/")
 def index():
     """Homepage of the website"""
-    return render_template("login.html")
+    return render_frontend()
+
+@app.route("/favicon.ico")
+def favicon():
+    return "", 204
 
 def require_login(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         if session.get(utils.session_constant.USER_ID,'') == '':
-           return render_template("login.html")
+           return render_frontend()
         return func(*args, **kwargs)
     return wrapper
 
@@ -186,7 +228,9 @@ def error_500():
 @app.route("/logout")
 def logout():
    session[utils.session_constant.USER_ID] = ""
-   return render_template("login.html")
+   session.pop("APP_USER_ID", None)
+   session.pop("LOGIN_USER_ID", None)
+   return redirect(url_for("index"))
 
 @app.route("/error/400")
 def error_400():
