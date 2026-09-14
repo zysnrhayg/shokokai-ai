@@ -63,6 +63,21 @@ from app.dto.documentupdateapi.documentupdateapi_dto import DocumentupdateapiDto
 from app.dto.documentversiondownloadapi.documentversiondownloadapi_dto import DocumentversiondownloadapiDto
 from app.dto.documentversionnewapi.documentversionnewapi_dto import DocumentversionnewapiDto
 
+from app.dto.accounteditinitapi.accounteditinitapi_dto import AccounteditinitapiDto
+from app.dto.accountforminitapi.accountforminitapi_dto import AccountforminitapiDto
+from app.dto.accountsaveapi.accountsaveapi_dto import AccountsaveapiDto
+from app.dto.accountsdetailapi.accountsdetailapi_dto import AccountsdetailapiDto
+from app.dto.accountsfilterapi.accountsfilterapi_dto import AccountsfilterapiDto
+from app.dto.accountsinitapi.accountsinitapi_dto import AccountsinitapiDto
+from app.dto.accountupdateapi.accountupdateapi_dto import AccountupdateapiDto
+from app.service.accounteditinitapi.accounteditinitapi_service import AccounteditinitapiService
+from app.service.accountforminitapi.accountforminitapi_service import AccountforminitapiService
+from app.service.accountsaveapi.accountsaveapi_service import AccountsaveapiService
+from app.service.accountsdetailapi.accountsdetailapi_service import AccountsdetailapiService
+from app.service.accountsfilterapi.accountsfilterapi_service import AccountsfilterapiService
+from app.service.accountsinitapi.accountsinitapi_service import AccountsinitapiService
+from app.service.accountupdateapi.accountupdateapi_service import AccountupdateapiService
+
 commonfunction_route = Blueprint('commonfunction_route', __name__)
 
 #
@@ -585,6 +600,169 @@ def vectorupdateapi() :
 
 	return jsonObj.toJsonString()
 
+# accounteditinitapi - アカウント編集画面初期表示 - サーバー関数
+# @param accounteditinitapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/accounteditinitapi.do", methods=['POST'])
+
+def accounteditinitapi() :
+	"""accounteditinitapi - アカウント編集画面初期表示 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+	
+#UnitedControllerBuilder 963
+
+	accounteditinitapi_dto = AccounteditinitapiDto.dict_to_json(data)
+	accounteditinitapiVar_service = AccounteditinitapiService()
+
+	accounteditinitapiVar_service.accounteditinitapi(accounteditinitapi_dto, jsonObj)
+	
+	return jsonObj.toJsonString()
+
+
+
+#
+# accountforminitapi - アカウント新規画面初期表示 - サーバー関数
+# @param accountforminitapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/accountforminitapi.do", methods=['POST'])
+
+def accountforminitapi() :
+	"""accountforminitapi - アカウント新規画面初期表示 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+	
+#UnitedControllerBuilder 963
+
+	accountforminitapi_dto = AccountforminitapiDto.dict_to_json(data)
+	accountforminitapiVar_service = AccountforminitapiService()
+
+	accountforminitapiVar_service.accountforminitapi(accountforminitapi_dto, jsonObj)
+	
+	return jsonObj.toJsonString()
+
+
+
+#
+# accountsaveapi - アカウント新規画面登録ボタン - サーバー関数
+# @param accountsaveapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/accountsaveapi.do", methods=['POST'])
+
+def accountsaveapi() :
+	"""accountsaveapi - アカウント新規画面登録ボタン - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+	
+#UnitedControllerBuilder 963
+
+	accountsaveapi_dto = AccountsaveapiDto.dict_to_json(data)
+	accountsaveapiVar_service = AccountsaveapiService()
+
+	accountsaveapiVar_service.accountsaveapi(accountsaveapi_dto, jsonObj)
+	
+	return jsonObj.toJsonString()
+
+
+
+#
+# accountsdetailapi - アカウント一覧画面詳細ボタン - サーバー関数
+# @param accountsdetailapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/accountsdetailapi.do", methods=['POST'])
+
+def accountsdetailapi() :
+	"""accountsdetailapi - アカウント一覧画面詳細ボタン - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+	
+#UnitedControllerBuilder 963
+
+	accountsdetailapi_dto = AccountsdetailapiDto.dict_to_json(data)
+	accountsdetailapiVar_service = AccountsdetailapiService()
+
+	accountsdetailapiVar_service.accountsdetailapi(accountsdetailapi_dto, jsonObj)
+	
+	return jsonObj.toJsonString()
+
+
+
+#
+# accountsfilterapi - アカウント一覧一覧絞込（県/商工会/権限/検索） - サーバー関数
+# @param accountsfilterapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/accountsfilterapi.do", methods=['POST'])
+
+def accountsfilterapi() :
+	"""accountsfilterapi - アカウント一覧一覧絞込（県/商工会/権限/検索） - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+	
+#UnitedControllerBuilder 963
+
+	accountsfilterapi_dto = AccountsfilterapiDto.dict_to_json(data)
+	accountsfilterapiVar_service = AccountsfilterapiService()
+
+	accountsfilterapiVar_service.accountsfilterapi(accountsfilterapi_dto, jsonObj)
+	
+	return jsonObj.toJsonString()
+
+
+
+#
+# accountsinitapi - アカウント一覧画面初期表示 - サーバー関数
+# @param accountsinitapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/accountsinitapi.do", methods=['POST'])
+
+def accountsinitapi() :
+	"""accountsinitapi - アカウント一覧画面初期表示 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+	
+#UnitedControllerBuilder 963
 
 
 #
