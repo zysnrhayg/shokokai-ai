@@ -20,7 +20,7 @@ import utils.string_util
 class VoicerecordapiService :
 
 	#	# 
-	# 傾聴内容変換AI音声録音 開始／停止
+	# 報告書編集音声録音 開始／停止
 	# @param Entity
 	# @param jsonObj
 	# @throws Exception
@@ -28,12 +28,12 @@ class VoicerecordapiService :
 	def voicerecordapi(self,voicerecordapi_dto,jsonObj) :
 			
 		#GeniusClientScript 1315
-		ACTION = voicerecordapi_dto.action#start|stop #GeninusClientScript 1318
-		REPORT_ID = voicerecordapi_dto.report_id#GeninusClientScript 1318
+		ACTION = voicerecordapi_dto.action  # =START|STOP GeninusClientScript 1318
+		REPORT_ID = voicerecordapi_dto.reportid  # 任意 GeninusClientScript 1318
 		#UltimateGeniuBean 115
 		utils.config.global_log.debug(str(threading.current_thread().native_id)+ ": start")
 		try :
-			#傾聴内容変換AI音声録音 開始／停止_VOICERECORDAPI_(API)
+			#報告書編集音声録音 開始／停止_VOICERECORDAPI_(API)
 			
 			#「項目処理」（共通関数:VOICERECORDAPI）,パラメータは（action=start|stop,report_id任意）
 			

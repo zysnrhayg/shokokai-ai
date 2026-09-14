@@ -20,7 +20,7 @@ import utils.string_util
 class AiformatapiService :
 
 	#	# 
-	# 傾聴内容変換AI文字起こし AI整形
+	# 報告書編集文字起こし AI整形
 	# @param Entity
 	# @param jsonObj
 	# @throws Exception
@@ -28,11 +28,11 @@ class AiformatapiService :
 	def aiformatapi(self,aiformatapi_dto,jsonObj) :
 			
 		#GeniusClientScript 1315
-		TRANSCRIPT_ONSEIPANERU = aiformatapi_dto.transcript_onseipaneru#GeninusClientScript 1318
+		TRANSCRIPT = aiformatapi_dto.transcript  # ONSEIPANERU GeninusClientScript 1318
 		#UltimateGeniuBean 115
 		utils.config.global_log.debug(str(threading.current_thread().native_id)+ ": start")
 		try :
-			#傾聴内容変換AI文字起こし AI整形_AIFORMATAPI_(API)
+			#報告書編集文字起こし AI整形_AIFORMATAPI_(API)
 			
 			#「項目処理」（共通関数:AIFORMATAPI）,パラメータは（transcript（音声パネル））
 			

@@ -1137,3 +1137,264 @@ def knowledgeinitapi() :
 	return jsonObj.toJsonString()
 
 
+
+#
+# aisummarizeapi - 報告書編集内容 AI要約→概要反映 - サーバー関数
+# @param aisummarizeapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/aisummarizeapi.do", methods=['POST'])
+
+def aisummarizeapi() :
+	"""aisummarizeapi - 報告書編集内容 AI要約→概要反映 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	aisummarizeapi_dto = AisummarizeapiDto.dict_to_json(data)
+	aisummarizeapiVar_service = AisummarizeapiService()
+
+	aisummarizeapiVar_service.aisummarizeapi(aisummarizeapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# formeditinitapi - 報告書編集画面初期表示 - サーバー関数
+# @param formeditinitapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/formeditinitapi.do", methods=['POST'])
+
+def formeditinitapi() :
+	"""formeditinitapi - 報告書編集画面初期表示 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	formeditinitapi_dto = FormeditinitapiDto.dict_to_json(data)
+	formeditinitapiVar_service = FormeditinitapiService()
+
+	formeditinitapiVar_service.formeditinitapi(formeditinitapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# formeditsaveapi - 報告書編集画面登録ボタン - サーバー関数
+# @param formeditsaveapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/formeditsaveapi.do", methods=['POST'])
+
+def formeditsaveapi() :
+	"""formeditsaveapi - 報告書編集画面登録ボタン - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	formeditsaveapi_dto = FormeditsaveapiDto.dict_to_json(data)
+	formeditsaveapiVar_service = FormeditsaveapiService()
+
+	formeditsaveapiVar_service.formeditsaveapi(formeditsaveapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# formnewinitapi - 報告書新規画面初期表示 - サーバー関数
+# @param formnewinitapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/formnewinitapi.do", methods=['POST'])
+
+def formnewinitapi() :
+	"""formnewinitapi - 報告書新規画面初期表示 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	formnewinitapi_dto = FormnewinitapiDto.dict_to_json(data)
+	formnewinitapiVar_service = FormnewinitapiService()
+
+	formnewinitapiVar_service.formnewinitapi(formnewinitapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# formnewsaveapi - 報告書新規画面登録ボタン - サーバー関数
+# @param formnewsaveapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/formnewsaveapi.do", methods=['POST'])
+
+def formnewsaveapi() :
+	"""formnewsaveapi - 報告書新規画面登録ボタン - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	formnewsaveapi_dto = FormnewsaveapiDto.dict_to_json(data)
+	formnewsaveapiVar_service = FormnewsaveapiService()
+
+	formnewsaveapiVar_service.formnewsaveapi(formnewsaveapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# reportdetailinitapi - 報告書詳細画面初期表示 - サーバー関数
+# @param reportdetailinitapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/reportdetailinitapi.do", methods=['POST'])
+
+def reportdetailinitapi() :
+	"""reportdetailinitapi - 報告書詳細画面初期表示 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	reportdetailinitapi_dto = ReportdetailinitapiDto.dict_to_json(data)
+	reportdetailinitapiVar_service = ReportdetailinitapiService()
+
+	reportdetailinitapiVar_service.reportdetailinitapi(reportdetailinitapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# reportscsvexportapi - 報告書一覧（様式F）CSV出力 - サーバー関数
+# @param reportscsvexportapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/reportscsvexportapi.do", methods=['POST'])
+
+def reportscsvexportapi() :
+	"""reportscsvexportapi - 報告書一覧（様式F）CSV出力 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	reportscsvexportapi_dto = ReportscsvexportapiDto.dict_to_json(data)
+	reportscsvexportapiVar_service = ReportscsvexportapiService()
+
+	reportscsvexportapiVar_service.reportscsvexportapi(reportscsvexportapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# reportsinitapi - 報告書一覧画面初期表示 - サーバー関数
+# @param reportsinitapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/reportsinitapi.do", methods=['POST'])
+
+def reportsinitapi() :
+	"""reportsinitapi - 報告書一覧画面初期表示 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	reportsinitapi_dto = ReportsinitapiDto.dict_to_json(data)
+	reportsinitapiVar_service = ReportsinitapiService()
+
+	reportsinitapiVar_service.reportsinitapi(reportsinitapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# reportssearchapi - 報告書一覧画面検索 - サーバー関数
+# @param reportssearchapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/reportssearchapi.do", methods=['POST'])
+
+def reportssearchapi() :
+	"""reportssearchapi - 報告書一覧画面検索 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+
+#UnitedControllerBuilder 963
+
+	reportssearchapi_dto = ReportssearchapiDto.dict_to_json(data)
+	reportssearchapiVar_service = ReportssearchapiService()
+
+	reportssearchapiVar_service.reportssearchapi(reportssearchapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+

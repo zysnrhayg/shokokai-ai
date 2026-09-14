@@ -20,7 +20,7 @@ import utils.string_util
 class VoiceuploadapiService :
 
 	#	# 
-	# 傾聴内容変換AI音声ファイル アップロード
+	# 報告書編集音声ファイル アップロード
 	# @param Entity
 	# @param jsonObj
 	# @throws Exception
@@ -28,11 +28,11 @@ class VoiceuploadapiService :
 	def voiceuploadapi(self,voiceuploadapi_dto,jsonObj) :
 			
 		#GeniusClientScript 1315
-		AUDIO_FILE_MULTIPART = voiceuploadapi_dto.audio_file_multipart#GeninusClientScript 1318
+		AUDIO_FILE = voiceuploadapi_dto.audiofile  # (MULTIPART) GeninusClientScript 1318
 		#UltimateGeniuBean 115
 		utils.config.global_log.debug(str(threading.current_thread().native_id)+ ": start")
 		try :
-			#傾聴内容変換AI音声ファイル アップロード_VOICEUPLOADAPI_(API)
+			#報告書編集音声ファイル アップロード_VOICEUPLOADAPI_(API)
 			
 			#「項目処理」（共通関数:VOICEUPLOADAPI）,パラメータは（audio_file(multipart),report_id任意）
 			
