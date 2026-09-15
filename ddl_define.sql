@@ -5716,3 +5716,18 @@ ALTER TABLE ONLY public.trn_vector_collection
 
 \unrestrict wNVyToERoDIahowuGxGgQLqqfDZ3xQ0ZuahAV4064jqJNN3a1Zf2VHew2Axdx0a
 
+DROP TABLE IF EXISTS wf_sys_recfld_auto_tbl;
+
+CREATE TABLE wf_sys_recfld_auto_tbl (
+    business_unit   VARCHAR(30) NOT NULL DEFAULT '',
+    record_id       VARCHAR(30) NOT NULL,
+    field_id        VARCHAR(30) NOT NULL DEFAULT '',
+    num_var         VARCHAR(50),
+    first_reg_dtm   TIMESTAMP,
+    first_reg_id    VARCHAR(50),
+    last_update_dtm TIMESTAMP,
+    last_update_id  VARCHAR(50),
+
+    CONSTRAINT pk_wf_sys_recfld_auto_tbl
+        PRIMARY KEY (business_unit, record_id, field_id)
+);
