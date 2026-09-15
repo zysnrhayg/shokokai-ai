@@ -1,7 +1,20 @@
 from utils.base_entity import BaseEntity
 
 class AccountsfilterapiDto(BaseEntity):
-    def __init__(self, mode, actflg, triggerid, row, prefecturecode, shokokaicd, permissionlevel, status, corelinked, keyword):
+    def __init__(
+        self,
+        mode,
+        actflg,
+        triggerid,
+        row,
+        prefecturecode,
+        shokokaicd,
+        permissionlevel,
+        status,
+        corelinked,
+        keyword,
+        rolecode="",
+    ):
         super().__init__(mode, actflg, triggerid, row)
         self.prefecturecode = prefecturecode
         self.shokokaicd = shokokaicd
@@ -9,6 +22,7 @@ class AccountsfilterapiDto(BaseEntity):
         self.status = status
         self.corelinked = corelinked
         self.keyword = keyword
+        self.rolecode = rolecode
 
     @staticmethod
     def dict_to_json(d):
@@ -24,4 +38,6 @@ class AccountsfilterapiDto(BaseEntity):
             d.get("permissionlevel", d.get("permission_level", "")),
             d.get("status", ""),
             d.get("corelinked", d.get("core_linked", "")),
-            d.get("keyword", ""))
+            d.get("keyword", ""),
+            d.get("rolecode", d.get("role_code", "")),
+        )

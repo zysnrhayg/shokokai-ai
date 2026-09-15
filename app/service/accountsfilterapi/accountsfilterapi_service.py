@@ -45,11 +45,16 @@ class AccountsfilterapiService :
 		#UltimateGeniuBean 115
 		utils.config.global_log.debug(str(threading.current_thread().native_id)+ ": start")
 		try :
-			# 県未指定時はログイン session を使う（空のまま全件にならないように）
+			# 県/商工会未指定時はログイン session を使う（商工会ロールで全件になってしまうのを防ぐ）
 			PREFECTURE_CODE = utils.string_util.changeNullToBlank(PREFECTURE_CODE)
 			SHOKOKAI_CD = utils.string_util.changeNullToBlank(SHOKOKAI_CD)
+			ROLE_CODE = utils.string_util.changeNullToBlank(
+				getattr(accountsfilterapi_dto, "rolecode", "")
+			)
 			if not PREFECTURE_CODE:
 				PREFECTURE_CODE = utils.string_util.changeNullToBlank(session.get("PREFECTURE_CODE"))
+			if not SHOKOKAI_CD and ROLE_CODE == "shokokai":
+				SHOKOKAI_CD = utils.string_util.changeNullToBlank(session.get("SHOKOKAI_CD"))
 			#アカウント一覧一覧絞込（県/商工会/権限/検索）_AccountsFilterAPI_(API)
 			
 			#「項目処理」（共通関数:AccountsFilterAPI）,パラメータは（prefecture_code,shokokai_cd,permission_level,status,core_linked,keyword）
