@@ -96,7 +96,6 @@ from app.service.accountsdetailapi.accountsdetailapi_service import Accountsdeta
 from app.service.accountsfilterapi.accountsfilterapi_service import AccountsfilterapiService
 from app.service.accountsinitapi.accountsinitapi_service import AccountsinitapiService
 from app.service.accountupdateapi.accountupdateapi_service import AccountupdateapiService
-<<<<<<< HEAD
 from app.dto.aiproposalgenerateapi.aiproposalgenerateapi_dto import AiproposalgenerateapiDto
 from app.service.aiproposalgenerateapi.aiproposalgenerateapi_service import AiproposalgenerateapiService
 from app.dto.aiproposalinitapi.aiproposalinitapi_dto import AiproposalinitapiDto
@@ -120,8 +119,6 @@ from app.service.jigyoshomeinokohokakonosodanrirekinamesapi.jigyoshomeinokohokak
 from app.dto.verify2fainitapi.verify2fainitapi_dto import Verify2fainitapiDto
 from app.service.verify2fainitapi.verify2fainitapi_service import Verify2fainitapiService
 
-=======
->>>>>>> parent of 6422c7a (AI提案)
 
 commonfunction_route = Blueprint('commonfunction_route', __name__)
 
@@ -1620,7 +1617,6 @@ def reportssearchapi() :
 
 	return jsonObj.toJsonString()
 
-<<<<<<< HEAD
 @commonfunction_route.route("/aiproposalgenerateapi.do", methods=['POST'])
 
 def aiproposalgenerateapi() :
@@ -1923,6 +1919,4 @@ def verify2fainitapi() :
 
 
 
-=======
->>>>>>> parent of 6422c7a (AI提案)
 
