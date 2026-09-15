@@ -17,6 +17,7 @@ from app.dto.accounteditinitapi.accounteditinitapi_dto import Accounteditinitapi
 from app.dto.api100_getprefecturenames.api100_getprefecturenames_dto import Api100GetprefecturenamesDto
 from app.dto.api102_getshokokai.api102_getshokokai_dto import Api102GetshokokaiDto
 from app.dto.api103_getaccountdetail.api103_getaccountdetail_dto import Api103GetaccountdetailDto
+from app.common.account_json import put_account_on_json
 from utils.save_data_check_utils import SaveDataCheckUtil
 import utils.string_util
 
@@ -64,6 +65,8 @@ class AccounteditinitapiService :
 		api102_getshokokai = Api102GetshokokaiDto.dict_to_json({}) #CommonFunction 110
 		api102_getshokokaiList = None #ResultGenerator 72
 		#_dto api102_getshokokai_dto = None #ResultGenerator 119
+		ONLY_FEDERATION = ""
+		EXCLUDE_FEDERATION = ""
 		#UltimateGeniuBean 115
 		utils.config.global_log.debug(str(threading.current_thread().native_id)+ ": start")
 		try :
@@ -125,7 +128,11 @@ class AccounteditinitapiService :
 				
 				SHOKOKAINAME = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "shokokai_name")) # ResultGenerator 385
 				# ResultGenerator 385
-				
+				put_account_on_json(jsonObj, rec)
+				account_prefecture_code = PREFECTURECODE
+			else:
+				jsonObj.setValue(utils.json_constant.JSONID_ERR, "アカウントが見つかりません")
+				account_prefecture_code = ""
 			#関数「API100_GetPrefectureNames」の「db_API100_GetPrefectureNames」メソッドを行う,パラメータは「」,戻り値設定は「<prefecture_code>=prefecture_code,<name>=name,<short_name>=short_name,<region>=region,<sort_order>=sort_order,<is_pseudo>=is_pseudo」を設定する。
 			
 			#ReulstGenerator 87
@@ -139,9 +146,6 @@ class AccounteditinitapiService :
 			# --LINE114 retrieved first value
 			if api100_getprefecturenameslistVar != None and len(api100_getprefecturenameslistVar) > 0 :
 				rec = api100_getprefecturenameslistVar[0]
-				PREFECTURECODE = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "prefecture_code")) # ResultGenerator 385
-				# ResultGenerator 385
-				
 				NAME = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "name")) # ResultGenerator 385
 				# ResultGenerator 385
 				
@@ -160,7 +164,7 @@ class AccounteditinitapiService :
 			#関数「API102_GetShokokai」の「db_API102_GetShokokai」メソッドを行う,パラメータは「prefecture_code,only_federation,exclude_federation」,戻り値設定は「<prefecture_code>=prefecture_code,<shokokai_cd>=shokokai_cd,<name>=name」を設定する。
 			
 			# prefecture_code
-			api102_getshokokai.prefecturecode = PREFECTURECODE #ArgumentGenerator 274
+			api102_getshokokai.prefecturecode = account_prefecture_code #ArgumentGenerator 274
 			#ArgumentGenerator 274
 			
 			# only_federation
@@ -182,12 +186,6 @@ class AccounteditinitapiService :
 			# --LINE114 retrieved first value
 			if api102_getshokokailistVar != None and len(api102_getshokokailistVar) > 0 :
 				rec = api102_getshokokailistVar[0]
-				PREFECTURECODE = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "prefecture_code")) # ResultGenerator 385
-				# ResultGenerator 385
-				
-				SHOKOKAICD = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "shokokai_cd")) # ResultGenerator 385
-				# ResultGenerator 385
-				
 				NAME = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "name")) # ResultGenerator 385
 				# ResultGenerator 385
 				

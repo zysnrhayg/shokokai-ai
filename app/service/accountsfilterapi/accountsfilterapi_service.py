@@ -1,4 +1,4 @@
-﻿#BasicService.vm
+#BasicService.vm
 #make Service templete
 import json
 import utils.config
@@ -13,6 +13,7 @@ import resources.messages
 from app.dao.api_ichiranteburushiborikomi.api_ichiranteburushiborikomi_dao import ApiIchiranteburushiborikomiDao
 from app.dto.accountsfilterapi.accountsfilterapi_dto import AccountsfilterapiDto
 from app.dto.api_ichiranteburushiborikomi.api_ichiranteburushiborikomi_dto import ApiIchiranteburushiborikomiDto
+from app.common.account_list_row import account_row_to_selmap
 from utils.save_data_check_utils import SaveDataCheckUtil
 import utils.string_util
 
@@ -87,8 +88,26 @@ class AccountsfilterapiService :
 				for i in range(0, len(api_ichiranteburushiborikomilistVar)): #GeniusGrid 652
 				#GeniusGrid 652
 					entity = api_ichiranteburushiborikomilistVar[i]
-					selMap ={} #GeniusGrid681
+					selMap = account_row_to_selmap(entity) #GeniusGrid681
 					#GeniusGrid681
+					# 追加の絞込（権限 / ステータス / 基幹連携 / キーワード）
+					if PERMISSION_LEVEL not in (None, "") and str(selMap.get("permission_level", "")) != str(PERMISSION_LEVEL):
+						continue
+					if STATUS not in (None, "") and str(selMap.get("status", "")) != str(STATUS):
+						continue
+					if CORE_LINKED not in (None, ""):
+						want = str(CORE_LINKED).lower() in ("1", "true", "t", "yes", "あり")
+						if bool(selMap.get("core_linked")) != want:
+							continue
+					if KEYWORD not in (None, ""):
+						kw = str(KEYWORD).lower()
+						hay = " ".join([
+							str(selMap.get("user_id", "")),
+							str(selMap.get("shokuin_kj", "")),
+							str(selMap.get("email", "")),
+						]).lower()
+						if kw not in hay:
+							continue
 					mapList.insert(len(mapList),selMap)
 			result = json.dumps(mapList, ensure_ascii=False)
 			jsonObj.setHtml("dragB", result) #GeniusGrid748

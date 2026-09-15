@@ -53,7 +53,6 @@ except ImportError:
     import resources.messages as _res_msg
     def getMessageById(msgid):
         return _res_msg.getMessageById(msgid)
-import initdatabase_mysql
 import initdatabase_postgres
 from flask import session
 from app.controller.m001 import m001_controller
@@ -103,6 +102,7 @@ if (DB_DRIVER or "").lower() in ("postgresql", "postgres", "pgsql"):
         utils.config.global_log.warning("PostgreSQL database init failed: %s", _pg_err)
 # DB init: only when RUN_DB_INIT=true at runtime. Production: run DB init via separate script/CI, not on app startup.
 if os.getenv("RUN_DB_INIT", "false").lower() == "true":
+    import initdatabase_mysql
     initdatabase_mysql.installDb()
 # Initialize each plugin
 dynaconf = FlaskDynaconf(app, dynaconf_instance=settings)  # Load settings with Dynaconf
@@ -200,6 +200,7 @@ def render_frontend():
         "app.html",
         monthly_data=_load_monthly_data(),
         logged_in=logged_in,
+        csrf_token=csrf_protect.get_csrf_token(session),
     )
 
 @app.route("/")

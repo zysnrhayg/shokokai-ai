@@ -8,6 +8,7 @@
 <script>window.__IS_LOGGED_IN = {{ 'true' if logged_in else 'false' }};</script>
 </head>
 <body>
+<div id="toast-container" class="toast-container" aria-live="polite"></div>
 <div id="app-shell" style="display:none;">
   <button type="button" class="nav-toggle-fixed" id="nav-toggle-btn" aria-label="メニューを開く">☰</button>
   <div class="sidebar-scrim" id="sidebar-scrim"></div>
@@ -130,7 +131,7 @@
         <div id="home-federation-content" style="display:none"></div>
         </div></div>
 <div class="app-view" id="view-entry"><div class="screen-body"><form method="post" action="#" id="mi-entry-form">
-            <input type="hidden" name="csrf_token" value="mock-token">
+            <input type="hidden" name="csrf_token" id="csrf_token" value="{{ csrf_token }}">
 
               <div class="mi-detail-grid">
 
@@ -915,7 +916,7 @@
 </div>
     </div>
 <script src="{{ url_for('static', filename='mockup/js/login_otp_input.js') }}"></script>
-<script src="{{ url_for('static', filename='mockup/js/toast.js') }}"></script>
+<script src="{{ url_for('static', filename='mockup/js/toast.js') }}?v=2"></script>
 <script src="{{ url_for('static', filename='mockup/js/select_width.js') }}"></script>
 <script src="{{ url_for('static', filename='mockup/js/dom_utils.js') }}"></script>
 <script src="{{ url_for('static', filename='mockup/js/nav_toggle.js') }}"></script>
@@ -934,7 +935,7 @@
 <script src="{{ url_for('static', filename='mockup/js/reports_list.js') }}"></script>
 <script src="{{ url_for('static', filename='mockup/js/entry_history.js') }}"></script>
 <script src="{{ url_for('static', filename='mockup/js/entry_jigyosho_autocomplete.js') }}"></script>
-<script src="{{ url_for('static', filename='mockup/js/accounts.js') }}"></script>
+<script src="{{ url_for('static', filename='mockup/js/accounts.js') }}?v=6"></script>
 <script src="{{ url_for('static', filename='mockup/js/knowledge.js') }}"></script>
 <script src="{{ url_for('static', filename='mockup/js/knowledge_search.js') }}"></script>
 <script src="{{ url_for('static', filename='mockup/js/router.js') }}?v=5"></script>

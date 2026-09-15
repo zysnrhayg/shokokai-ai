@@ -1,8 +1,21 @@
 const Toast = {
 
+  _container() {
+    var container = document.getElementById('toast-container');
+    if (container) return container;
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.className = 'toast-container';
+    document.body.appendChild(container);
+    return container;
+  },
+
   show(message, type) {
-    const container = document.getElementById('toast-container');
-    if (!container) return;
+    const container = this._container();
+    if (!container) {
+      window.alert(message || '');
+      return;
+    }
 
     const el = document.createElement('div');
     el.className = 'toast toast--' + (type || 'success');

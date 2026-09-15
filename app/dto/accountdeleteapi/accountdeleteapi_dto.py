@@ -1,6 +1,6 @@
 from utils.base_entity import BaseEntity
 
-class AccountsdetailapiDto(BaseEntity):
+class AccountdeleteapiDto(BaseEntity):
     def __init__(self, mode, actflg, triggerid, row, useraccountid):
         super().__init__(mode, actflg, triggerid, row)
         self.useraccountid = useraccountid
@@ -9,7 +9,7 @@ class AccountsdetailapiDto(BaseEntity):
     def dict_to_json(d):
         if d is None:
             d = {}
-        return AccountsdetailapiDto(
+        return AccountdeleteapiDto(
             d.get("mode", ""),
             d.get("actflg", ""),
             d.get("triggerid", ""),

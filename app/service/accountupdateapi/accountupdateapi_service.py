@@ -15,6 +15,7 @@ from app.dto.accountupdateapi.accountupdateapi_dto import AccountupdateapiDto
 from app.dto.api132_updateaccount.api132_updateaccount_dto import Api132UpdateaccountDto
 from utils.save_data_check_utils import SaveDataCheckUtil
 import utils.string_util
+from utils.encrypt import encrypt_for_storage
 
 
 
@@ -73,32 +74,39 @@ class AccountupdateapiService :
 			#ArgumentGenerator 274
 			
 			# status
-			api132_updateaccount.status = STATUS #ArgumentGenerator 274
+			api132_updateaccount.status = STATUS if STATUS not in (None, "") else 1 #ArgumentGenerator 274
 			#ArgumentGenerator 274
 			
 			# permission_level
 			api132_updateaccount.permissionlevel = PERMISSION_LEVEL #ArgumentGenerator 274
 			#ArgumentGenerator 274
 			
-			# password
-			api132_updateaccount.password = PASSWORD #ArgumentGenerator 274
+			# password（空欄なら変更しない）
+			if PASSWORD not in (None, ""):
+				api132_updateaccount.password = encrypt_for_storage(PASSWORD)
+			else:
+				api132_updateaccount.password = ""
 			#ArgumentGenerator 274
 			
 			# user_account_id
 			api132_updateaccount.useraccountid = USER_ACCOUNT_ID #ArgumentGenerator 274
 			#ArgumentGenerator 274
 			
-			Api132UpdateaccountDao().api132_updateaccount(api132_updateaccount) #ResultGenerator 104
+			api132_updateaccountlistVar = Api132UpdateaccountDao().api132_updateaccount(api132_updateaccount) #ResultGenerator 104
 			#ResultGenerator 104
+			if api132_updateaccountlistVar != None and len(api132_updateaccountlistVar) > 0 :
+				KOUSHINKENSUU = "1"
 			#<更新件数>が"1"の場合,以下の処理を行う。
 			#GeniusClientScript 983
 			if KOUSHINKENSUU.replace(" ", "") == "1" : #GeniusContion 823
 				#GeniusContion 823
 				#「更新しました」メッセージを表示する。
-				jsonObj.setScript(utils.json_constant.JSONID_MSG, "更新しました")
+				jsonObj.setValue(utils.json_constant.JSONID_MSG, "更新しました")
 				#処理終了。
 				pass
 				#GeniusClientScript 1207
+			else:
+				jsonObj.setValue(utils.json_constant.JSONID_ERR, "更新に失敗しました")
 			#処理終了。
 			
 		except Exception as e:
@@ -107,5 +115,4 @@ class AccountupdateapiService :
 		utils.config.global_log.debug(str(threading.current_thread().native_id)+ ": end") 
 		
 			
-	
 	

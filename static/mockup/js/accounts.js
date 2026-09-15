@@ -1,4 +1,4 @@
-(function () {
+﻿(function () {
   const root = document.getElementById('accounts-root');
   if (!root) return;
 
@@ -7,16 +7,162 @@
     { code: 'labor_consultant', label: '社会保険労務士' },
   ];
   const PERMISSION_LEVELS = ['管理者', '一般職員'];
-  const ORG_NAME = '北海道商工会連合会';
+  let ORG_NAME = '—';
 
-  const CURRENT_USER_ACCOUNT_ID = 1;
+  const CURRENT_USER_ACCOUNT_ID = Number(
+    (typeof localStorage !== 'undefined' && localStorage.getItem('user_account_id')) || 0
+  ) || null;
 
-  let ACCOUNTS = [
-    { user_account_id: 1, user_id: '012', shokuin_kj: '小島 直樹', email: 'kojima@hokkaido-shokoren.example.jp', permission_level: '管理者', status: 1, core_linked: true, qualification_codes: ['sme_consultant'], last_login_at: '2026/08/22 09:12:03' },
-    { user_account_id: 2, user_id: '011', shokuin_kj: '北海道一般', email: 'ippan@hokkaido-shokoren.example.jp', permission_level: '一般職員', status: 1, core_linked: false, qualification_codes: [], last_login_at: '2026/08/20 17:40:11' },
-    { user_account_id: 3, user_id: '013', shokuin_kj: '佐藤 恵子', email: 'sato@hokkaido-shokoren.example.jp', permission_level: '一般職員', status: 0, core_linked: false, qualification_codes: ['labor_consultant'], last_login_at: null },
-  ];
-  let nextAccountId = 4;
+  let ACCOUNTS = [];
+  let nextAccountId = 1;
+  let loadingAccounts = false;
+
+  function getCsrfToken() {
+    const el = document.querySelector('input[name="csrf_token"]');
+    return el ? el.value : '';
+  }
+
+  function postAccountsApi(url, body) {
+    return fetch(url, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCsrfToken(),
+      },
+      body: JSON.stringify(body || {}),
+    }).then(function (response) {
+      return response.text().then(function (text) {
+        var data = null;
+        try { data = text ? JSON.parse(text) : {}; } catch (e) { data = { e: text }; }
+        // セッション切れ（サーバーが r にスクリプトを返す）
+        if (data && data.r && !data.dragB && !data.account && !data.useraccountid) {
+          data.e = data.e || 'セッションが切れました。再ログインしてください';
+        }
+        if (response.status === 403) {
+          data = data || {};
+          data.e = data.e || data.message || 'CSRFエラーです。ページを再読み込み（Ctrl+F5）してから再ログインしてください';
+        }
+        return { ok: response.ok, status: response.status, data: data || {} };
+      });
+    });
+  }
+
+  function toastError(msg) {
+    try {
+      if (typeof Toast !== 'undefined' && Toast.error) Toast.error(msg);
+      else window.alert(msg);
+    } catch (e) {
+      window.alert(msg);
+    }
+  }
+
+  function toastOk(msg) {
+    try {
+      if (typeof Toast !== 'undefined' && Toast.success) Toast.success(msg);
+      else window.alert(msg);
+    } catch (e) {
+      window.alert(msg);
+    }
+  }
+
+  function parseDragB(data) {
+    var raw = data && data.dragB;
+    if (raw == null || raw === '') return [];
+    if (Array.isArray(raw)) return raw;
+    if (typeof raw === 'string') {
+      try { return JSON.parse(raw); } catch (e) { return []; }
+    }
+    return [];
+  }
+
+  function normalizeAccountRow(r) {
+    var quals = r.qualification_codes;
+    if (!Array.isArray(quals)) quals = [];
+    return {
+      user_account_id: Number(r.user_account_id),
+      prefecture_code: r.prefecture_code || '',
+      shokokai_cd: r.shokokai_cd || '',
+      user_id: r.user_id || '',
+      shokuin_kj: r.shokuin_kj || '',
+      email: r.email || '',
+      permission_level: r.permission_level || '',
+      status: Number(r.status) === 1 ? 1 : 0,
+      core_linked: !!r.core_linked,
+      qualification_codes: quals,
+      last_login_at: r.last_login_at || null,
+      prefecture_name: r.prefecture_name || '',
+      shokokai_name: r.shokokai_name || '',
+    };
+  }
+
+  function buildFilterPayload() {
+    var roleEl = root.querySelector('#f-role');
+    var statusEl = root.querySelector('#f-status');
+    var searchEl = root.querySelector('#f-search');
+    var prefEl = root.querySelector('#accounts-f-pref');
+    var shokokaiEl = root.querySelector('#accounts-f-shokokai');
+
+    var permissionlevel = '';
+    if (roleEl && roleEl.value && roleEl.value !== '全ロール') {
+      permissionlevel = roleEl.value;
+    }
+    var status = '';
+    if (statusEl && statusEl.value === '利用中') status = '1';
+    else if (statusEl && statusEl.value === '利用停止') status = '0';
+
+    return {
+      prefecturecode: prefEl ? (prefEl.value || '') : '',
+      shokokaicd: shokokaiEl ? (shokokaiEl.value || '') : '',
+      permissionlevel: permissionlevel,
+      status: status,
+      corelinked: '',
+      keyword: searchEl ? searchEl.value.trim() : '',
+    };
+  }
+
+  function applyAccounts(rows) {
+    ACCOUNTS = (rows || []).map(normalizeAccountRow);
+    var maxId = 0;
+    ACCOUNTS.forEach(function (a) {
+      if (a.user_account_id > maxId) maxId = a.user_account_id;
+      if ((!ORG_NAME || ORG_NAME === '—') && a.shokokai_name) {
+        ORG_NAME = a.shokokai_name;
+      }
+    });
+    nextAccountId = maxId + 1;
+  }
+
+  function loadAccountsFromApi(done) {
+    if (loadingAccounts) return;
+    loadingAccounts = true;
+    var tbody = root.querySelector('#accounts-tbody');
+    if (tbody) {
+      tbody.innerHTML = '<tr><td colspan="8" class="text-muted">読み込み中...</td></tr>';
+    }
+    postAccountsApi('./accountsfilterapi.do', buildFilterPayload())
+      .then(function (result) {
+        loadingAccounts = false;
+        if (result.data && result.data.e) {
+          toastError(String(result.data.e).trim());
+          applyAccounts([]);
+        } else if (!result.ok) {
+          toastError('アカウント一覧の取得に失敗しました');
+          applyAccounts([]);
+        } else {
+          applyAccounts(parseDragB(result.data));
+        }
+        if (typeof done === 'function') done();
+        else renderRows();
+      })
+      .catch(function () {
+        loadingAccounts = false;
+        toastError('アカウント一覧の取得に失敗しました');
+        applyAccounts([]);
+        if (typeof done === 'function') done();
+        else renderRows();
+      });
+  }
 
   function joinRow(r) {
     return Object.assign({}, r, {
@@ -25,7 +171,7 @@
       core_linked_label: r.core_linked ? 'あり' : 'なし',
       core_linked_badge: r.core_linked ? 'badge-status-pending' : 'badge-status-new',
       last_login_label: r.last_login_at || '未ログイン',
-      qualification_labels: QUALIFICATIONS.filter(q => r.qualification_codes.includes(q.code)).map(q => q.label).join('、') || '（未登録）',
+      qualification_labels: QUALIFICATIONS.filter(q => (r.qualification_codes || []).includes(q.code)).map(q => q.label).join('、') || '（未登録）',
     });
   }
 
@@ -106,14 +252,11 @@
     if (typeof SelectWidth !== 'undefined') {
       SelectWidth.fit(root.querySelector('#f-role'));
       SelectWidth.fit(root.querySelector('#f-status'));
-
       SelectWidth.fit(root.querySelector('#accounts-f-pref'));
       SelectWidth.fit(root.querySelector('#accounts-f-shokokai'));
-
       SelectWidth.fitPlaceholder(root.querySelector('#f-search'));
     }
     wireFilters();
-    renderRows();
 
     {
       const roleSelect = document.getElementById('org-role-select');
@@ -129,6 +272,10 @@
         alignCardBottomToManualInput(root.querySelector('.card.card--fill'), true);
       });
     }
+
+    loadAccountsFromApi(function () {
+      renderRows();
+    });
   }
 
   function renderRows() {
@@ -174,37 +321,135 @@
   function wireFilters() {
     ['f-role', 'f-status'].forEach(id => {
       const el = root.querySelector('#' + id);
-      if (el) el.addEventListener('change', renderRows);
+      if (el) el.addEventListener('change', function () {
+        loadAccountsFromApi(function () { renderRows(); });
+      });
     });
     const searchEl = root.querySelector('#f-search');
-    if (searchEl) searchEl.addEventListener('input', debounce(renderRows, 150));
+    if (searchEl) searchEl.addEventListener('input', debounce(function () {
+      loadAccountsFromApi(function () { renderRows(); });
+    }, 250));
     root.querySelector('#accounts-new-btn').addEventListener('click', () => openInline('new'));
   }
 
   let inlineMode = null;
   let inlineAccountId = null;
+  let detailLoading = false;
 
   function currentAccount() {
     return ACCOUNTS.find(a => a.user_account_id === inlineAccountId) || null;
   }
 
+  function parseAccountPayload(data) {
+    if (!data) return null;
+    if (data.account) {
+      try {
+        var obj = typeof data.account === 'string' ? JSON.parse(data.account) : data.account;
+        return normalizeAccountRow(obj);
+      } catch (e) { /* fall through */ }
+    }
+    if (data.user_account_id || data.useraccountid) {
+      var quals = data.qualification_codes;
+      if (typeof quals === 'string') {
+        try { quals = JSON.parse(quals); } catch (e2) { quals = []; }
+      }
+      return normalizeAccountRow(Object.assign({}, data, {
+        user_account_id: data.user_account_id || data.useraccountid,
+        qualification_codes: quals || [],
+        core_linked: data.core_linked === true || data.core_linked === 'true' || data.corelinked === 'true',
+      }));
+    }
+    return null;
+  }
+
+  function upsertAccountLocal(row) {
+    if (!row || !row.user_account_id) return;
+    var idx = ACCOUNTS.findIndex(a => a.user_account_id === row.user_account_id);
+    if (idx >= 0) ACCOUNTS[idx] = Object.assign({}, ACCOUNTS[idx], row);
+    else ACCOUNTS.push(row);
+  }
+
+  function defaultOrgContext() {
+    var pref = (typeof localStorage !== 'undefined' && localStorage.getItem('prefecture_code')) || '';
+    var fromList = (pref && ACCOUNTS.find(function (a) { return a.prefecture_code === pref; }))
+      || ACCOUNTS[0]
+      || null;
+    var prefecturecode = pref || (fromList && fromList.prefecture_code) || '';
+    var shokokaicd = (fromList && fromList.shokokai_cd) || '';
+    // 全国連ログイン等で一覧が空でも登録できるよう既定値
+    if (!prefecturecode) prefecturecode = '00';
+    if (!shokokaicd) shokokaicd = '0021';
+    return { prefecturecode: prefecturecode, shokokaicd: shokokaicd };
+  }
+
   function openInline(mode, accountId) {
     inlineMode = mode;
     inlineAccountId = accountId || null;
+    if (mode === 'view' && accountId) {
+      detailLoading = true;
+      renderRows();
+      postAccountsApi('./accountsdetailapi.do', { useraccountid: String(accountId) })
+        .then(function (result) {
+          detailLoading = false;
+          if (result.data && result.data.e) {
+            toastError(String(result.data.e).trim());
+            closeInline();
+            return;
+          }
+          var row = parseAccountPayload(result.data);
+          if (row) upsertAccountLocal(row);
+          renderRows();
+        })
+        .catch(function () {
+          detailLoading = false;
+          toastError('詳細の取得に失敗しました');
+          closeInline();
+        });
+      return;
+    }
+    if (mode === 'edit' && accountId) {
+      detailLoading = true;
+      renderRows();
+      postAccountsApi('./accounteditinitapi.do', { useraccountid: String(accountId) })
+        .then(function (result) {
+          detailLoading = false;
+          if (result.data && result.data.e) {
+            toastError(String(result.data.e).trim());
+            inlineMode = 'view';
+            renderRows();
+            return;
+          }
+          var row = parseAccountPayload(result.data);
+          if (row) upsertAccountLocal(row);
+          renderRows();
+        })
+        .catch(function () {
+          detailLoading = false;
+          toastError('編集データの取得に失敗しました');
+          inlineMode = 'view';
+          renderRows();
+        });
+      return;
+    }
     renderRows();
   }
 
   function closeInline() {
     inlineMode = null;
     inlineAccountId = null;
+    detailLoading = false;
     renderRows();
   }
 
   function buildDetailPanelHtml() {
+    if (detailLoading && inlineMode !== 'new') {
+      return `<div class="am-inline-panel"><div class="text-muted" style="padding:var(--space-5)">読み込み中...</div></div>`;
+    }
     const account = currentAccount();
     const viewing = inlineMode === 'view';
     const editable = inlineMode !== 'view';
     const coreLinked = account ? account.core_linked : false;
+    const orgName = (account && account.shokokai_name) || ORG_NAME;
 
     const identityEditable = editable && !coreLinked;
 
@@ -224,7 +469,7 @@
       : '';
 
     let leftHtml = '';
-    leftHtml += row('商工会', false, `<span class="detail-row__static">${esc(ORG_NAME)}</span>`);
+    leftHtml += row('商工会', false, `<span class="detail-row__static">${esc(orgName)}</span>`);
     leftHtml += row('ユーザID', true, staticOrInput(account && account.user_id, identityEditable, `<input type="text" class="form-input" id="am-user-id" placeholder="ユーザID" style="max-width:133px" value="${esc(account ? account.user_id : '')}">`));
     leftHtml += row('職員名', true, staticOrInput(account && account.shokuin_kj, identityEditable, `<input type="text" class="form-input" id="am-shokuin-kj" placeholder="職員名" style="max-width:200px" value="${esc(account ? account.shokuin_kj : '')}">`));
     leftHtml += row('メールアドレス', true, staticOrInput(account && account.email, identityEditable, `<input type="text" class="form-input" id="am-email" placeholder="example@example.com" value="${esc(account ? account.email : '')}">`));
@@ -239,7 +484,7 @@
 
     let rightHtml = '';
     if (viewing) {
-      rightHtml += row('権限ロール', false, `<span class="detail-row__static">${esc(account.permission_level)}</span>`);
+      rightHtml += row('権限ロール', false, `<span class="detail-row__static">${esc(account ? account.permission_level : '')}</span>`);
     } else {
       rightHtml += row('権限ロール', false, `<select class="form-input" id="am-permission" style="max-width:200px">${PERMISSION_LEVELS.map(p => `<option ${account && account.permission_level === p ? 'selected' : (!account && p === '一般職員' ? 'selected' : '')}>${esc(p)}</option>`).join('')}</select>`);
     }
@@ -254,7 +499,7 @@
     rightHtml += row('基幹連携', false, `<span class="badge ${coreLinked ? 'badge-status-pending' : 'badge-status-new'}">${coreLinked ? 'あり' : 'なし'}</span>`);
 
     if (viewing) {
-      rightHtml += row('ステータス', false, `<span class="badge ${account.status === 1 ? 'badge-status-ok' : 'badge-status-pending'}">${account.status === 1 ? '利用中' : '利用停止'}</span>`);
+      rightHtml += row('ステータス', false, `<span class="badge ${account && account.status === 1 ? 'badge-status-ok' : 'badge-status-pending'}">${account && account.status === 1 ? '利用中' : '利用停止'}</span>`);
     } else {
       rightHtml += row('ステータス', false, `<select class="form-input" id="am-status" style="max-width:133px"><option value="1" ${!account || account.status === 1 ? 'selected' : ''}>利用中</option><option value="0" ${account && account.status === 0 ? 'selected' : ''}>利用停止</option></select>`);
     }
@@ -272,7 +517,7 @@
       ? `<div class="flex items-center gap-sm" style="justify-content:flex-end;margin-top:var(--space-6)">
           <button type="button" class="btn btn-primary btn-sm" id="am-edit">編集する</button>
           <button type="button" class="btn btn-outline btn-sm" id="am-close">閉じる</button>
-          ${account.user_account_id !== CURRENT_USER_ACCOUNT_ID ? `<button type="button" class="btn btn-danger btn-sm" id="am-delete" style="margin-left:var(--space-8);">削除</button>` : ''}
+          ${account && account.user_account_id !== CURRENT_USER_ACCOUNT_ID ? `<button type="button" class="btn btn-danger btn-sm" id="am-delete" style="margin-left:var(--space-8);">削除</button>` : ''}
         </div>`
       : `<div class="flex items-center gap-sm" style="justify-content:flex-end;margin-top:var(--space-6)">
           <button type="button" class="btn btn-outline btn-sm" id="am-cancel">キャンセル</button>
@@ -284,21 +529,30 @@
 
   function wireDetailPanel() {
     const viewEditBtn = root.querySelector('#am-edit');
-    if (viewEditBtn) viewEditBtn.addEventListener('click', () => { inlineMode = 'edit'; renderRows(); });
+    if (viewEditBtn) viewEditBtn.addEventListener('click', () => openInline('edit', inlineAccountId));
     const closeBtn = root.querySelector('#am-close');
     if (closeBtn) closeBtn.addEventListener('click', closeInline);
     const cancelBtn = root.querySelector('#am-cancel');
     if (cancelBtn) cancelBtn.addEventListener('click', () => {
-      if (inlineMode === 'edit') { inlineMode = 'view'; renderRows(); } else { closeInline(); }
+      if (inlineMode === 'edit') { openInline('view', inlineAccountId); } else { closeInline(); }
     });
     const deleteBtn = root.querySelector('#am-delete');
     if (deleteBtn) deleteBtn.addEventListener('click', () => {
       const account = currentAccount();
       if (!account) return;
       if (!confirm(`${account.shokuin_kj}（${account.user_id}）を削除しますか？`)) return;
-      ACCOUNTS = ACCOUNTS.filter(a => a.user_account_id !== account.user_account_id);
-      Toast.success('削除しました');
-      closeInline();
+      postAccountsApi('./accountdeleteapi.do', { useraccountid: String(account.user_account_id) })
+        .then(function (result) {
+          if (result.data && result.data.e) {
+            toastError(String(result.data.e).trim());
+            return;
+          }
+          if (result.data && result.data.i) toastOk(String(result.data.i));
+          else toastOk('削除しました');
+          closeInline();
+          loadAccountsFromApi(function () { renderRows(); });
+        })
+        .catch(function () { toastError('削除に失敗しました'); });
     });
     const saveBtn = root.querySelector('#am-save');
     if (saveBtn) saveBtn.addEventListener('click', saveAccount);
@@ -314,7 +568,6 @@
     const passwordEl = root.querySelector('#am-password');
     const permissionEl = root.querySelector('#am-permission');
     const statusEl = root.querySelector('#am-status');
-    const qualificationCodes = Array.from(root.querySelectorAll('.am-qualification:checked')).map(cb => cb.value);
 
     const user_id = identityEditable ? (userIdEl ? userIdEl.value.trim() : '') : account.user_id;
     const shokuin_kj = identityEditable ? (shokuinEl ? shokuinEl.value.trim() : '') : account.shokuin_kj;
@@ -322,45 +575,85 @@
     const emailPattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
     if (!user_id || !shokuin_kj || !email) {
-      Toast.error('ユーザID・職員名・メールアドレスは必須です');
+      toastError('ユーザID・職員名・メールアドレスは必須です');
       return;
     }
     if (!emailPattern.test(email)) {
-      Toast.error('メールアドレスの形式が正しくありません');
+      toastError('メールアドレスの形式が正しくありません');
       return;
     }
     if (inlineMode === 'new' && passwordEl && !passwordEl.value) {
-      Toast.error('パスワードを入力してください');
-      return;
-    }
-    const duplicate = ACCOUNTS.some(a => a.user_id === user_id && (!account || a.user_account_id !== account.user_account_id));
-    if (duplicate) {
-      Toast.error('同じ県内に同じユーザIDのアカウントが既に存在します');
+      toastError('パスワードを入力してください');
       return;
     }
 
     const permission_level = permissionEl ? permissionEl.value : (account ? account.permission_level : '一般職員');
-    const status = statusEl ? Number(statusEl.value) : (account ? account.status : 1);
+    const status = statusEl ? String(statusEl.value) : String(account ? account.status : 1);
+    const password = passwordEl ? passwordEl.value : '';
+    const org = defaultOrgContext();
 
     if (inlineMode === 'new') {
-      const newAccount = {
-        user_account_id: nextAccountId++, user_id, shokuin_kj, email, permission_level, status,
-        core_linked: false, qualification_codes: qualificationCodes, last_login_at: null,
+      const payload = {
+        prefecturecode: org.prefecturecode,
+        shokokaicd: org.shokokaicd,
+        userid: user_id,
+        shokuinkj: shokuin_kj,
+        email: email,
+        password: password,
+        permissionlevel: permission_level,
+        status: status,
       };
-      ACCOUNTS.push(newAccount);
-      Toast.success('登録しました');
-      inlineAccountId = newAccount.user_account_id;
-    } else {
-      Object.assign(account, {
-        user_id, shokuin_kj, email, permission_level, status,
-        qualification_codes: identityEditable ? qualificationCodes : account.qualification_codes,
-      });
-      Toast.success('登録しました');
+      if (!payload.prefecturecode) {
+        toastError('県コードが取得できません。ログイン時の県を確認してください');
+        return;
+      }
+      postAccountsApi('./accountsaveapi.do', payload)
+        .then(function (result) {
+          if (result.data && result.data.e) {
+            toastError(String(result.data.e).trim());
+            return;
+          }
+          if (result.data && result.data.i) toastOk(String(result.data.i));
+          else toastOk('登録しました');
+          var newId = Number(result.data.useraccountid || result.data.user_account_id || 0);
+          inlineMode = 'view';
+          inlineAccountId = newId || null;
+          loadAccountsFromApi(function () {
+            if (newId) openInline('view', newId);
+            else renderRows();
+          });
+        })
+        .catch(function () { toastError('登録に失敗しました'); });
+      return;
     }
-    inlineMode = 'view';
-    renderRows();
+
+    const payload = {
+      useraccountid: String(account.user_account_id),
+      prefecturecode: account.prefecture_code || org.prefecturecode,
+      shokokaicd: account.shokokai_cd || org.shokokaicd,
+      userid: user_id,
+      shokuinkj: shokuin_kj,
+      email: email,
+      password: password,
+      permissionlevel: permission_level,
+      status: status,
+    };
+    postAccountsApi('./accountupdateapi.do', payload)
+      .then(function (result) {
+        if (result.data && result.data.e) {
+          toastError(String(result.data.e).trim());
+          return;
+        }
+        if (result.data && result.data.i) toastOk(String(result.data.i));
+        else toastOk('更新しました');
+        inlineMode = 'view';
+        loadAccountsFromApi(function () {
+          openInline('view', account.user_account_id);
+        });
+      })
+      .catch(function () { toastError('更新に失敗しました'); });
   }
 
   window.__renderAccounts = render;
-  render();
+  // ログイン画面では自動取得しない（accounts ルート表示時のみ）
 })();

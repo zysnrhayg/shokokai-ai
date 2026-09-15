@@ -89,6 +89,7 @@ from app.dto.accountsdetailapi.accountsdetailapi_dto import AccountsdetailapiDto
 from app.dto.accountsfilterapi.accountsfilterapi_dto import AccountsfilterapiDto
 from app.dto.accountsinitapi.accountsinitapi_dto import AccountsinitapiDto
 from app.dto.accountupdateapi.accountupdateapi_dto import AccountupdateapiDto
+from app.dto.accountdeleteapi.accountdeleteapi_dto import AccountdeleteapiDto
 from app.service.accounteditinitapi.accounteditinitapi_service import AccounteditinitapiService
 from app.service.accountforminitapi.accountforminitapi_service import AccountforminitapiService
 from app.service.accountsaveapi.accountsaveapi_service import AccountsaveapiService
@@ -96,6 +97,7 @@ from app.service.accountsdetailapi.accountsdetailapi_service import Accountsdeta
 from app.service.accountsfilterapi.accountsfilterapi_service import AccountsfilterapiService
 from app.service.accountsinitapi.accountsinitapi_service import AccountsinitapiService
 from app.service.accountupdateapi.accountupdateapi_service import AccountupdateapiService
+from app.service.accountdeleteapi.accountdeleteapi_service import AccountdeleteapiService
 from app.dto.aiproposalgenerateapi.aiproposalgenerateapi_dto import AiproposalgenerateapiDto
 from app.service.aiproposalgenerateapi.aiproposalgenerateapi_service import AiproposalgenerateapiService
 from app.dto.aiproposalinitapi.aiproposalinitapi_dto import AiproposalinitapiDto
@@ -118,6 +120,14 @@ from app.dto.jigyoshomeinokohokakonosodanrirekinamesapi.jigyoshomeinokohokakonos
 from app.service.jigyoshomeinokohokakonosodanrirekinamesapi.jigyoshomeinokohokakonosodanrirekinamesapi_service import JigyoshomeinokohokakonosodanrirekinamesapiService
 from app.dto.verify2fainitapi.verify2fainitapi_dto import Verify2fainitapiDto
 from app.service.verify2fainitapi.verify2fainitapi_service import Verify2fainitapiService
+from app.dto.formexportapi.formexportapi_dto import FormexportapiDto
+from app.service.formexportapi.formexportapi_service import FormexportapiService
+from app.dto.aisummarizeapi.aisummarizeapi_dto import AisummarizeapiDto
+from app.service.aisummarizeapi.aisummarizeapi_service import AisummarizeapiService
+from app.dto.formnewsaveapi.formnewsaveapi_dto import FormnewsaveapiDto
+from app.service.formnewsaveapi.formnewsaveapi_service import FormnewsaveapiService
+from app.dto.reportsinitapi.reportsinitapi_dto import ReportsinitapiDto
+from app.service.reportsinitapi.reportsinitapi_service import ReportsinitapiService
 
 
 commonfunction_route = Blueprint('commonfunction_route', __name__)
@@ -806,6 +816,72 @@ def accountsinitapi() :
 	
 #UnitedControllerBuilder 963
 
+	accountsinitapi_dto = AccountsinitapiDto.dict_to_json(data)
+	accountsinitapiVar_service = AccountsinitapiService()
+
+	accountsinitapiVar_service.accountsinitapi(accountsinitapi_dto, jsonObj)
+	
+	return jsonObj.toJsonString()
+
+
+
+#
+# accountupdateapi - アカウント編集画面登録ボタン - サーバー関数
+# @param accountupdateapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/accountupdateapi.do", methods=['POST'])
+
+def accountupdateapi() :
+	"""accountupdateapi - アカウント編集画面登録ボタン - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+	
+#UnitedControllerBuilder 963
+
+	accountupdateapi_dto = AccountupdateapiDto.dict_to_json(data)
+	accountupdateapiVar_service = AccountupdateapiService()
+
+	accountupdateapiVar_service.accountupdateapi(accountupdateapi_dto, jsonObj)
+	
+	return jsonObj.toJsonString()
+
+
+
+#
+# accountdeleteapi - アカウント詳細画面削除ボタン - サーバー関数
+# @param accountdeleteapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/accountdeleteapi.do", methods=['POST'])
+
+def accountdeleteapi() :
+	"""accountdeleteapi - アカウント詳細画面削除ボタン - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+	
+#UnitedControllerBuilder 963
+
+	accountdeleteapi_dto = AccountdeleteapiDto.dict_to_json(data)
+	accountdeleteapiVar_service = AccountdeleteapiService()
+
+	accountdeleteapiVar_service.accountdeleteapi(accountdeleteapi_dto, jsonObj)
+	
+	return jsonObj.toJsonString()
+
+
 
 #
 # monthlyexportapi - 月次報告月次帳票出力 - サーバー関数
@@ -950,34 +1026,6 @@ def aiinputinitapi() :
 
 	return jsonObj.toJsonString()
 
-
-
-#
-# draftsaveapi - 傾聴内容変換AI下書き保存 - サーバー関数
-# @param draftsaveapi_dto
-# @param result
-# @throws Exception
-#
-
-@commonfunction_route.route("/draftsaveapi.do", methods=['POST'])
-
-def draftsaveapi() :
-	"""draftsaveapi - 傾聴内容変換AI下書き保存 - サーバー関数"""
-
-	data = request.get_json()
-	jsonObj = JSONWFCObject()
-
-	# validate parameter 371
-
-
-#UnitedControllerBuilder 963
-
-	draftsaveapi_dto = DraftsaveapiDto.dict_to_json(data)
-	draftsaveapiVar_service = DraftsaveapiService()
-
-	draftsaveapiVar_service.draftsaveapi(draftsaveapi_dto, jsonObj)
-
-	return jsonObj.toJsonString()
 
 
 
@@ -1804,7 +1852,8 @@ def dashboardheatmappageapi() :
 
 
 #
-# draftsaveapi - 報告書編集下書き保存 - サーバー関数
+# draftsaveapi - 報告書編集下書き保存 / 傾聴内容変換AI下書き保存 - サーバー関数
+# 両画面が同一エンドポイント・同一サービスを共用する
 # @param draftsaveapi_dto
 # @param result
 # @throws Exception

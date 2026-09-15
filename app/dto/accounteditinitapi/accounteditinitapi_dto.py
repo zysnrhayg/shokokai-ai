@@ -1,8 +1,9 @@
 from utils.base_entity import BaseEntity
 
 class AccounteditinitapiDto(BaseEntity):
-    def __init__(self, mode, actflg, triggerid, row):
+    def __init__(self, mode, actflg, triggerid, row, useraccountid):
         super().__init__(mode, actflg, triggerid, row)
+        self.useraccountid = useraccountid
 
     @staticmethod
     def dict_to_json(d):
@@ -12,5 +13,5 @@ class AccounteditinitapiDto(BaseEntity):
             d.get("mode", ""),
             d.get("actflg", ""),
             d.get("triggerid", ""),
-            d.get("row", ""))
-
+            d.get("row", ""),
+            d.get("useraccountid", d.get("user_account_id", "")))

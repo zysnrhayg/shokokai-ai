@@ -1,4 +1,4 @@
-﻿#BasicService.vm
+#BasicService.vm
 #make Service templete
 import json
 import utils.config
@@ -15,6 +15,7 @@ from app.dao.api_ichiranteburushiborikomi.api_ichiranteburushiborikomi_dao impor
 from app.dto.accountsinitapi.accountsinitapi_dto import AccountsinitapiDto
 from app.dto.api102_getshokokai.api102_getshokokai_dto import Api102GetshokokaiDto
 from app.dto.api_ichiranteburushiborikomi.api_ichiranteburushiborikomi_dto import ApiIchiranteburushiborikomiDto
+from app.common.account_list_row import account_row_to_selmap
 from utils.save_data_check_utils import SaveDataCheckUtil
 import utils.string_util
 
@@ -130,7 +131,7 @@ class AccountsinitapiService :
 				for i in range(0, len(api_ichiranteburushiborikomilistVar)): #GeniusGrid 652
 				#GeniusGrid 652
 					entity = api_ichiranteburushiborikomilistVar[i]
-					selMap ={} #GeniusGrid681
+					selMap = account_row_to_selmap(entity) #GeniusGrid681
 					#GeniusGrid681
 					mapList.insert(len(mapList),selMap)
 			result = json.dumps(mapList, ensure_ascii=False)

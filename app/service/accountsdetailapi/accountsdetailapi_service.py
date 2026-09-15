@@ -13,6 +13,7 @@ import resources.messages
 from app.dao.api103_getaccountdetail.api103_getaccountdetail_dao import Api103GetaccountdetailDao
 from app.dto.accountsdetailapi.accountsdetailapi_dto import AccountsdetailapiDto
 from app.dto.api103_getaccountdetail.api103_getaccountdetail_dto import Api103GetaccountdetailDto
+from app.common.account_json import put_account_on_json
 from utils.save_data_check_utils import SaveDataCheckUtil
 import utils.string_util
 
@@ -110,7 +111,9 @@ class AccountsdetailapiService :
 				
 				SHOKOKAINAME = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "shokokai_name")) # ResultGenerator 385
 				# ResultGenerator 385
-				
+				put_account_on_json(jsonObj, rec)
+			else:
+				jsonObj.setValue(utils.json_constant.JSONID_ERR, "アカウントが見つかりません")
 			#処理終了。
 			
 		except Exception as e:
