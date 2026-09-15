@@ -1,14 +1,30 @@
-#Dao.vm common function
-from app.mapper.api_jigyoshomeinokohokakonosodanrirekinames.api_jigyoshomeinokohokakonosodanrirekinames_mapper import api_jigyoshomeinokohokakonosodanrirekinamesMapper
+from app.mapper.api_jigyoshomeinokohokakonosodanrirekinames.api_jigyoshomeinokohokakonosodanrirekinames_mapper import (
+    api_jigyoshomeinokohokakonosodanrirekinamesMapper,
+)
 import utils.mysqldb_utils
-import utils.date_util
- # api_jigyoshomeinokohokakonosodanrirekinames
 
-class ApiJigyoshomeinokohokakonosodanrirekinamesDao :
 
-# 関数定義_SQL文_事業所名の候補
-     
-    def api_jigyoshomeinokohokakonosodanrirekinames(self,dtoObj) :
-        returnVal = utils.mysqldb_utils.querySQL(api_jigyoshomeinokohokakonosodanrirekinamesMapper.api_jigyoshomeinokohokakonosodanrirekinames(dtoObj.prefecturecode,dtoObj.shokokaicd,dtoObj.limit),{'prefecture_code':dtoObj.prefecturecode,'shokokai_cd':dtoObj.shokokaicd,'limit':dtoObj.limit})
+class ApiJigyoshomeinokohokakonosodanrirekinamesDao:
+
+    def api_jigyoshomeinokohokakonosodanrirekinames(self, dtoObj):
+        prefecture_code = getattr(dtoObj, "prefecturecode", None) or ""
+        shokokai_cd = getattr(dtoObj, "shokokaicd", None) or ""
+        keyword = (
+            getattr(dtoObj, "keyword", None)
+            or getattr(dtoObj, "businessname", None)
+            or getattr(dtoObj, "xx", None)
+            or ""
+        )
+        limit = getattr(dtoObj, "limit", None) or "20"
+        returnVal = utils.mysqldb_utils.querySQL(
+            api_jigyoshomeinokohokakonosodanrirekinamesMapper.api_jigyoshomeinokohokakonosodanrirekinames(
+                prefecture_code, shokokai_cd, keyword, limit
+            ),
+            {
+                "prefecture_code": prefecture_code,
+                "shokokai_cd": shokokai_cd,
+                "keyword": keyword,
+                "limit": str(limit),
+            },
+        )
         return utils.mysqldb_utils.result_to_list_of_dict(returnVal)
-    

@@ -129,8 +129,11 @@
                   <div style="font-size:var(--fs-md);color:var(--text);margin-top:1.5em">ご希望や条件を詳しく教えていただくと、あなたに合った提案ができます。</div>
                   <div class="form-row"><div class="form-label" style="white-space:nowrap">事業所名／業種</div>
                     <div class="flex items-center gap-sm">
-                      <input type="text" class="form-input" id="ap-business-name" placeholder="事業所名を入力">
-                      <select class="form-input" id="ap-industry" style="max-width:280px"><option value="">業種を選択</option>${INDUSTRIES.map(i => `<option>${esc(i)}</option>`).join('')}</select>
+                      <div class="mi-autocomplete" style="flex:1; min-width:160px;">
+                        <input type="text" class="form-input" id="ap-business-name" placeholder="事業所名を入力" autocomplete="off">
+                        <div class="mi-autocomplete__dropdown" id="ap-business-dropdown"></div>
+                      </div>
+                      <select class="form-input" id="ap-industry" style="max-width:280px"><option value="">業種を選択</option>${INDUSTRIES.map(i => `<option value="${esc(i)}">${esc(i)}</option>`).join('')}</select>
                     </div>
                   </div>
                   <div class="form-row"><div class="form-label" style="white-space:nowrap">支援テーマ（複数選択可）</div>
@@ -165,7 +168,136 @@
 
     SelectWidth.fit(root.querySelector('#ap-industry'));
     if (typeof window.__applyRoleAccentColor === 'function') window.__applyRoleAccentColor();
+    wireBusinessNameSuggest();
     root.querySelector('#ap-summary').focus();
+  }
+
+  function parseDragB(data) {
+    var raw = data && data.dragB;
+    if (raw == null || raw === '') return [];
+    if (Array.isArray(raw)) return raw;
+    if (typeof raw === 'string') {
+      try { return JSON.parse(raw); } catch (e) { return []; }
+    }
+    return [];
+  }
+
+  function wireBusinessNameSuggest() {
+    const input = root.querySelector('#ap-business-name');
+    const dropdown = root.querySelector('#ap-business-dropdown');
+    if (!input || !dropdown) return;
+    let timer = null;
+    let seq = 0;
+
+    function renderMatches(names) {
+      dropdown.innerHTML = '';
+      if (!names.length) {
+        const empty = document.createElement('div');
+        empty.className = 'mi-autocomplete__item mi-autocomplete__item--empty';
+        empty.textContent = '候補がありません';
+        dropdown.appendChild(empty);
+        return;
+      }
+      names.forEach(function (name) {
+        const item = document.createElement('div');
+        item.className = 'mi-autocomplete__item';
+        item.textContent = name;
+        item.addEventListener('mousedown', function (e) {
+          e.preventDefault();
+          input.value = name;
+          dropdown.classList.remove('is-open');
+        });
+        dropdown.appendChild(item);
+      });
+    }
+
+    function search() {
+      const q = input.value.trim();
+      if (!q) {
+        dropdown.classList.remove('is-open');
+        return;
+      }
+      const my = ++seq;
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        const body = Object.assign({
+          keyword: q,
+          xx: q,
+          limit: '20',
+        }, (window.ApiClient && window.ApiClient.orgContext) ? window.ApiClient.orgContext() : {});
+        postAp('./jigyoshomeinokohokakonosodanrirekinamesapi.do', body).then(function (result) {
+          if (my !== seq) return;
+          const data = (result && result.data) || {};
+          if (data.e) {
+            renderMatches([]);
+            dropdown.classList.add('is-open');
+            return;
+          }
+          const names = parseDragB(data).map(function (r) {
+            return (r && (r.business_name || r.businessname)) || '';
+          }).filter(Boolean);
+          renderMatches(names);
+          dropdown.classList.add('is-open');
+        }).catch(function () {
+          if (my !== seq) return;
+          renderMatches([]);
+          dropdown.classList.add('is-open');
+        });
+      }, 280);
+    }
+
+    input.addEventListener('input', search);
+    input.addEventListener('focus', search);
+    input.addEventListener('blur', function () {
+      setTimeout(function () { dropdown.classList.remove('is-open'); }, 150);
+    });
+  }
+
+  function applyApiIndustries(rows) {
+    const select = root.querySelector('#ap-industry');
+    if (!select || !Array.isArray(rows) || !rows.length) return;
+    const prev = select.value;
+    const opts = ['<option value=\"\">業種を選択</option>'].concat(rows.map(function (r) {
+      const label = String(r.label || '').trim();
+      const code = String(r.industry_code || '').trim();
+      if (!label) return '';
+      // value=label for generate keyword; keep code in data attribute
+      return `<option value="${esc(label)}" data-code="${esc(code)}">${esc(label)}</option>`;
+    }).filter(Boolean));
+    select.innerHTML = opts.join('');
+    if (prev && select.querySelector('option[value=\"' + prev.replace(/\"/g, '\\\"') + '\"]')) {
+      select.value = prev;
+    }
+    SelectWidth.fit(select);
+  }
+
+  function postAp(url, body) {
+    if (window.ApiClient && typeof window.ApiClient.post === 'function') {
+      return window.ApiClient.post(url, body);
+    }
+    return Promise.reject(new Error('ApiClient unavailable'));
+  }
+
+  function applyApiThemes(themeRows) {
+    if (!Array.isArray(themeRows) || !themeRows.length) return;
+    const grid = root.querySelector('.checkbox-grid');
+    if (!grid) return;
+    const items = themeRows.map(function (t) {
+      // Prefer theme_code (wage/labor/...). Never use badge_class color as value.
+      const code = String(t.theme_code || t.filter_group || '').trim();
+      const label = String(t.label || code).trim();
+      if (!code || code.charAt(0) === '#') return null;
+      themeLabelByCode.set(code, label);
+      return [code, label];
+    }).filter(Boolean);
+    if (!items.length) return;
+    grid.innerHTML = items.map(function (t) {
+      return `<label><input type="checkbox" class="ap-theme-checkbox" value="${esc(t[0])}"> ${esc(t[1])}</label>`;
+    }).join('');
+  }
+
+  function selectedThemeLabels(codes) {
+    return (codes || []).map(function (c) { return themeLabelByCode.get(c) || c; }).filter(Boolean);
   }
 
   function generate() {
@@ -180,34 +312,77 @@
 
     lastThemeCodes = themeCodes.length ? themeCodes : ['wage'];
     altOffset = 0;
-    summaryText = `ご相談内容の整理：${industry}を営む事業者様より「${themeLabel}」に関するご相談です。「${summary}」とのことですので、この内容をもとに以下の支援策をご提案します。`;
-    pickProposals();
-    renderResult();
-    if (proposals.length) {
-      Toast.success('AI提案を生成しました');
-    } else {
-      Toast.error('該当するテーマの提案テンプレートが見つかりませんでした');
-    }
-    logAiUsage(
-      '/ai-proposal/log-usage', '', 'ai_proposal.generate',
-      `業種: ${industry} / 支援テーマ: ${themeLabel} / 相談概要: ${summary}`,
-      proposals.map(p => `${p.title}\n${p.body}`).join('\n\n')
-    );
-  }
+    const labels = selectedThemeLabels(lastThemeCodes);
+    const themeLabelForApi = labels.join('、') || themeLabel;
+    summaryText = `ご相談内容の整理：${industry}を営む事業者様より「${themeLabelForApi}」に関するご相談です。「${summary}」とのことですので、この内容をもとに以下の支援策をご提案します。`;
 
-  function pickProposals() {
-    const all = PROPOSAL_TEMPLATES[lastThemeCodes[0]] || [];
-    if (!all.length) { proposals = []; return; }
-    const start = altOffset % all.length;
-    proposals = [all[start], all[(start + 1) % all.length]];
+    const body = Object.assign({
+      industry: industry,
+      // Send Japanese labels so DB ILIKE can hit knowledge titles/content
+      themefiltergroup: themeLabelForApi,
+      consultationsummary: summary,
+    }, (window.ApiClient && window.ApiClient.orgContext) ? window.ApiClient.orgContext() : {});
+
+    postAp('./aiproposalgenerateapi.do', body).then(function (result) {
+      const data = (result && result.data) || {};
+      if (Array.isArray(data.proposals) && data.proposals.length) {
+        proposals = data.proposals;
+        renderResult();
+        Toast.success(data.i || 'AI提案を生成しました');
+      } else {
+        proposals = [];
+        renderResult();
+        Toast.error(data.e || '該当するナレッジ提案が見つかりませんでした');
+      }
+      logAiUsage(
+        '/ai-proposal/log-usage', '', 'ai_proposal.generate',
+        `業種: ${industry} / 支援テーマ: ${themeLabel} / 相談概要: ${summary}`,
+        proposals.map(p => `${p.title}\n${p.body}`).join('\n\n')
+      );
+    }).catch(function () {
+      proposals = [];
+      renderResult();
+      Toast.error('提案の生成に失敗しました');
+    });
   }
 
   function showAlternate(reason) {
     if (!lastThemeCodes.length) return;
     altOffset += 2;
-    pickProposals();
-    renderResult();
-    Toast.success(reason ? `「${reason}」を踏まえて別の提案を表示しました` : '別の提案を表示しました');
+    const themeLabelForApi = selectedThemeLabels(lastThemeCodes).join('、') || lastThemeCodes[0] || '';
+    const body = Object.assign({
+      reason: reason || '',
+      themefiltergroup: themeLabelForApi,
+    }, (window.ApiClient && window.ApiClient.orgContext) ? window.ApiClient.orgContext() : {});
+
+    postAp('./aiproposalregenerateapi.do', body).then(function (result) {
+      const data = (result && result.data) || {};
+      if (Array.isArray(data.proposals) && data.proposals.length) {
+        proposals = data.proposals;
+      } else {
+        proposals = [];
+      }
+      renderResult();
+      if (proposals.length) {
+        Toast.success(data.i || (reason ? `「${reason}」を踏まえて別の提案を表示しました` : '別の提案を表示しました'));
+      } else {
+        Toast.error(data.e || '代替提案が見つかりませんでした');
+      }
+    }).catch(function () {
+      proposals = [];
+      renderResult();
+      Toast.error('代替提案の取得に失敗しました');
+    });
+  }
+
+  function loadInit() {
+    const body = (window.ApiClient && window.ApiClient.orgContext) ? window.ApiClient.orgContext() : {};
+    postAp('./aiproposalinitapi.do', body).then(function (result) {
+      const data = (result && result.data) || {};
+      if (data.e) return;
+      applyApiThemes(data.themes);
+      applyApiIndustries(data.industries);
+    }).catch(function () { /* keep local themes / industries */ });
   }
 
   function formatProposalBody(body) {
@@ -243,19 +418,25 @@
     const roleSelectEl = document.getElementById('org-role-select');
     const currentRole = roleSelectEl ? roleSelectEl.value : 'shokokai';
     const isFederationNow = currentRole === 'national' || currentRole === 'pref';
-    const proposalsHtml = proposals.map((p, i) => `
+    const proposalsHtml = proposals.map((p, i) => {
+      const apiMeta = (p.meta || p.knowledge_code)
+        ? `<strong>📚 参照したナレッジ：</strong>${esc(p.meta || ('関連ナレッジ：' + p.knowledge_code))}`
+        : '';
+      const metaLine = apiMeta || (i === 0 ? firstReferenceLine : fallbackReferenceLine);
+      return `
       <div class="proposal-card">
         <div class="proposal-card__header">
           <div class="proposal-card__title"><span style="margin-right:var(--space-3);white-space:nowrap;">${esc(PROPOSAL_ORDER_LABELS[i] || `${i + 1}件目の提案`)}</span>${esc(PROPOSAL_GIST_BY_TITLE[p.title] || p.title)}</div>
         </div>
         <div class="proposal-card__body">${formatProposalBody(p.body)}</div>
-        <div class="proposal-card__meta">${i === 0 ? firstReferenceLine : fallbackReferenceLine}</div>
+        <div class="proposal-card__meta">${metaLine}</div>
         ${isFederationNow ? '' : `
         <div class="flex items-center" style="justify-content:flex-end;">
           <button type="button" class="btn btn-primary--violet btn-sm mt-sm ap-apply-btn" data-index="${i}" style="color:white">提案内容から報告書を作成する</button>
         </div>`}
       </div>
-    `).join('');
+    `;
+    }).join('');
 
     const differentHtml = proposals.length ? `
       <div style="margin-top:var(--space-4);">
@@ -295,6 +476,8 @@
     lastThemeCodes = [];
     altOffset = 0;
     render();
+    loadInit();
   };
   render();
+  loadInit();
 })();
