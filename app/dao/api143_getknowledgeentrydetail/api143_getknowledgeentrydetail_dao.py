@@ -7,8 +7,8 @@ import utils.date_util
 class Api143GetknowledgeentrydetailDao :
 
 # 関数定義_SQL文_知識データ詳細
-     
+
     def api143_getknowledgeentrydetail(self,dtoObj) :
-        returnVal = utils.mysqldb_utils.querySQL(api143_getknowledgeentrydetailMapper.api143_getknowledgeentrydetail(dtoObj.knowledge_entry_id),{'knowledge_entry_id':dtoObj.knowledge_entry_id})
+        # 知識データIDをDTOから取得して詳細を検索する
+        returnVal = utils.mysqldb_utils.querySQL(api143_getknowledgeentrydetailMapper.api143_getknowledgeentrydetail(dtoObj.knowledgeentryid),{'knowledgeentryid':dtoObj.knowledgeentryid})
         return utils.mysqldb_utils.result_to_list_of_dict(returnVal)
-    

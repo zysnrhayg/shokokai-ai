@@ -3,8 +3,8 @@
 import json
 import utils.config
 import threading
-import utils.json_constant	
-from flask import session 
+import utils.json_constant
+from flask import session
 from app.common.getautonum import GetAutonum
 from datetime import datetime, timezone, timedelta
 import utils.date_util
@@ -21,62 +21,66 @@ import utils.string_util
 
 class EntriesinitapiService :
 
-	#	# 
+	#
 	# 知識データ一覧画面初期表示
 	# @param Entity
 	# @param jsonObj
 	# @throws Exception
 	#
 	def entriesinitapi(self,entriesinitapi_dto,jsonObj) :
-			
+
 		api_chishikidetaichiran = ApiChishikidetaichiranDto.dict_to_json({}) #CommonFunction 110
 		api_chishikidetaichiranList = None #ResultGenerator 72
-		#ResultGenerator 80
-		SHUTOKUKENSUU = ""
-		#_dto api_chishikidetaichiran_dto = None #ResultGenerator 119
 		#UltimateGeniuBean 115
 		utils.config.global_log.debug(str(threading.current_thread().native_id)+ ": start")
 		try :
 			#知識データ一覧画面初期表示_EntriesInitAPI_(API)
-			
-			#「項目処理」（共通関数:EntriesInitAPI）,パラメータは（）
-			
-			#以下の処理を行う。
-			
-			#関数「API_ChishikiDetaIchiran」の「db_API_ChishikiDetaIchiran」メソッドを行う,パラメータは「」,戻り値設定は「」を設定する。
-			
-			#ReulstGenerator 87
+
+			#関数「API_ChishikiDetaIchiran」の「db_API_ChishikiDetaIchiran」メソッドを行う,知識データ一覧を取得する。
 			api_chishikidetaichiranList = ApiChishikidetaichiranDao().api_chishikidetaichiran(api_chishikidetaichiran)
 			api_chishikidetaichiranlistVar = None #ResultGenerator 89
-			#ResultGenerator 89
 			if api_chishikidetaichiranList != None :
 				api_chishikidetaichiranlistVar = api_chishikidetaichiranList.fetchall() if hasattr(api_chishikidetaichiranList, 'fetchall') else api_chishikidetaichiranList
-			if api_chishikidetaichiranlistVar != None and len(api_chishikidetaichiranlistVar) > 0 :
-				SHUTOKUKENSUU = str(len(api_chishikidetaichiranlistVar))
-			# --LINE114 retrieved first value
-			if api_chishikidetaichiranlistVar != None and len(api_chishikidetaichiranlistVar) > 0 :
-				rec = api_chishikidetaichiranlistVar[0]
-			#関数「API_ChishikiDetaIchiran」の「db_API_ChishikiDetaIchiran」取得結果をJSON形式でGrid「entries」に設定し,20行で改ページする。
+
+			#取得結果をGrid「entries」用のJSON形式に変換する（20行ごとの改ページはフロントエンド側で行う）
 			mapList = [] #GeniusGrid 606
-			#GeniusGrid 606
 			if api_chishikidetaichiranlistVar != None and len(api_chishikidetaichiranlistVar) > 0 :#GeniusGrid 647
-				#GeniusGrid 647
 				for i in range(0, len(api_chishikidetaichiranlistVar)): #GeniusGrid 652
-				#GeniusGrid 652
 					entity = api_chishikidetaichiranlistVar[i]
 					selMap ={} #GeniusGrid681
-					#GeniusGrid681
+					# 知識データID
+					selMap["knowledge_entry_id"] = utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "knowledge_entry_id"))
+					# ナレッジコード
+					selMap["knowledge_code"] = utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "knowledge_code"))
+					# タイトル
+					selMap["title"] = utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "title"))
+					# 適用範囲（県コード・県名）
+					selMap["prefecture_code"] = utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "prefecture_code"))
+					selMap["prefecture_name"] = utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "prefecture_name"))
+					# 紐付ファイル（原本文書）
+					selMap["knowledge_document_id"] = utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "knowledge_document_id"))
+					selMap["document_title"] = utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "document_title"))
+					# テーマバッジ（中間表経由のJSON配列）
+					theme_badges = utils.string_util.dict_get(entity, "theme_badges")
+					if isinstance(theme_badges, str) :
+						# json_aggの結果は文字列として返るためそのまま設定する
+						selMap["theme_badges"] = theme_badges
+					else :
+						selMap["theme_badges"] = json.dumps(theme_badges if theme_badges else [], ensure_ascii=False)
+					# 更新日
+					selMap["updated_date"] = utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "updated_date"))
+					# ステータス
+					selMap["status"] = utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "status"))
+					# 本文
+					selMap["content"] = utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "content"))
 					mapList.insert(len(mapList),selMap)
-			result = json.dumps(mapList, ensure_ascii=False)
+			# 日付型などJSON非対応オブジェクトはdefault=strで文字列化する
+			result = json.dumps(mapList, default=str, ensure_ascii=False)
+			# 取得結果をフロントエンドのGrid「dragB」に返却する
 			jsonObj.setHtml("dragB", result) #GeniusGrid748
-			#GeniusGrid748
 			#処理終了。
-			
+
 		except Exception as e:
 			utils.config.global_log.error(e)
 			raise
-		utils.config.global_log.debug(str(threading.current_thread().native_id)+ ": end") 
-		
-			
-	
-	
+		utils.config.global_log.debug(str(threading.current_thread().native_id)+ ": end")
