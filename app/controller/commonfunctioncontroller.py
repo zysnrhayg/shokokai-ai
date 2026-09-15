@@ -19,6 +19,9 @@ from app.service.entryformnewinitapi.entryformnewinitapi_service import Entryfor
 from app.service.entrysaveapi.entrysaveapi_service import EntrysaveapiService
 from app.service.entryupdateapi.entryupdateapi_service import EntryupdateapiService
 from app.service.dashboardinitapi.dashboardinitapi_service import DashboardinitapiService
+from app.service.dashboardnationalinitapi.dashboardnationalinitapi_service import DashboardnationalinitapiService
+from app.service.dashboardprefinitapi.dashboardprefinitapi_service import DashboardprefinitapiService
+from app.service.dashboardshokokaiinitapi.dashboardshokokaiinitapi_service import DashboardshokokaiinitapiService
 from app.service.loginapi.loginapi_service import LoginapiService
 from app.service.logininitapi.logininitapi_service import LogininitapiService
 from app.service.logoutapi.logoutapi_service import LogoutapiService
@@ -30,6 +33,9 @@ from app.dto.entryformnewinitapi.entryformnewinitapi_dto import Entryformnewinit
 from app.dto.entrysaveapi.entrysaveapi_dto import EntrysaveapiDto
 from app.dto.entryupdateapi.entryupdateapi_dto import EntryupdateapiDto
 from app.dto.dashboardinitapi.dashboardinitapi_dto import DashboardinitapiDto
+from app.dto.dashboardnationalinitapi.dashboardnationalinitapi_dto import DashboardnationalinitapiDto
+from app.dto.dashboardprefinitapi.dashboardprefinitapi_dto import DashboardprefinitapiDto
+from app.dto.dashboardshokokaiinitapi.dashboardshokokaiinitapi_dto import DashboardshokokaiinitapiDto
 from app.dto.loginapi.loginapi_dto import LoginapiDto
 from app.dto.logininitapi.logininitapi_dto import LogininitapiDto
 from app.dto.logoutapi.logoutapi_dto import LogoutapiDto
@@ -333,6 +339,48 @@ def dashboardinitapi() :
 
 	dashboardinitapiVar_service.dashboardinitapi(dashboardinitapi_dto, jsonObj)
 
+	return jsonObj.toJsonString()
+
+
+#
+# dashboardnationalinitapi - ダッシュボード（全国連）初期データ取得
+#
+
+@commonfunction_route.route("/dashboardnationalinitapi.do", methods=['POST'])
+def dashboardnationalinitapi():
+	"""dashboardnationalinitapi - ダッシュボード（全国連）初期データ取得"""
+	data = request.get_json(silent=True) or {}
+	jsonObj = JSONWFCObject()
+	dto = DashboardnationalinitapiDto.dict_to_json(data)
+	DashboardnationalinitapiService().dashboardnationalinitapi(dto, jsonObj)
+	return jsonObj.toJsonString()
+
+
+#
+# dashboardprefinitapi - ダッシュボード（県連）初期データ取得
+#
+
+@commonfunction_route.route("/dashboardprefinitapi.do", methods=['POST'])
+def dashboardprefinitapi():
+	"""dashboardprefinitapi - ダッシュボード（県連）初期データ取得"""
+	data = request.get_json(silent=True) or {}
+	jsonObj = JSONWFCObject()
+	dto = DashboardprefinitapiDto.dict_to_json(data)
+	DashboardprefinitapiService().dashboardprefinitapi(dto, jsonObj)
+	return jsonObj.toJsonString()
+
+
+#
+# dashboardshokokaiinitapi - ダッシュボード（商工会）初期データ取得
+#
+
+@commonfunction_route.route("/dashboardshokokaiinitapi.do", methods=['POST'])
+def dashboardshokokaiinitapi():
+	"""dashboardshokokaiinitapi - ダッシュボード（商工会）初期データ取得"""
+	data = request.get_json(silent=True) or {}
+	jsonObj = JSONWFCObject()
+	dto = DashboardshokokaiinitapiDto.dict_to_json(data)
+	DashboardshokokaiinitapiService().dashboardshokokaiinitapi(dto, jsonObj)
 	return jsonObj.toJsonString()
 
 

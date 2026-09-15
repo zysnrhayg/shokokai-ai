@@ -130,6 +130,8 @@ class LoginapiService:
             apply_staff_login_session(account, remember)
             jsonObj.setValue("need_mfa", False)
             jsonObj.setValue("username", account["shokuin_kj"] or account["user_id"])
+            jsonObj.setValue("prefecturecode", account["prefecture_code"])
+            jsonObj.setValue("shokokaicd", account["shokokai_cd"])
             jsonObj.setScript("OK", "./#home")
             jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_SUCCESS)
         except Exception as e:

@@ -30,6 +30,8 @@ class Verify2faapiService:
                 remember = True
             apply_staff_login_session(pending, remember)
             jsonObj.setValue("username", pending.get("shokuin_kj") or pending.get("user_id") or "")
+            jsonObj.setValue("prefecturecode", pending.get("prefecture_code") or "")
+            jsonObj.setValue("shokokaicd", pending.get("shokokai_cd") or "")
             jsonObj.setScript("OK", "./#home")
             jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_SUCCESS)
         except Exception as e:

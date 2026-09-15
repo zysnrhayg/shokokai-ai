@@ -45,6 +45,11 @@ class AccountsfilterapiService :
 		#UltimateGeniuBean 115
 		utils.config.global_log.debug(str(threading.current_thread().native_id)+ ": start")
 		try :
+			# 県未指定時はログイン session を使う（空のまま全件にならないように）
+			PREFECTURE_CODE = utils.string_util.changeNullToBlank(PREFECTURE_CODE)
+			SHOKOKAI_CD = utils.string_util.changeNullToBlank(SHOKOKAI_CD)
+			if not PREFECTURE_CODE:
+				PREFECTURE_CODE = utils.string_util.changeNullToBlank(session.get("PREFECTURE_CODE"))
 			#アカウント一覧一覧絞込（県/商工会/権限/検索）_AccountsFilterAPI_(API)
 			
 			#「項目処理」（共通関数:AccountsFilterAPI）,パラメータは（prefecture_code,shokokai_cd,permission_level,status,core_linked,keyword）
@@ -111,6 +116,7 @@ class AccountsfilterapiService :
 					mapList.insert(len(mapList),selMap)
 			result = json.dumps(mapList, ensure_ascii=False)
 			jsonObj.setHtml("dragB", result) #GeniusGrid748
+			jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_SUCCESS)
 			#GeniusGrid748
 			#処理終了。
 			

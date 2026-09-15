@@ -22,8 +22,25 @@ class DashboardheatmappageapiDto(BaseEntity):
 			#EXCLUDED_KEYS
 		self.excludedkeys = excludedkeys
 	
-	def dict_to_json(dict):
-		return DashboardheatmappageapiDto(dict.get("mode",""),dict.get("actflg",""),dict.get("triggerid",""),dict.get("row",""),dict.get("page",""),dict.get("pagesize",""),dict.get("rolecode",""),dict.get("fiscalyearcode",""),dict.get("excludedkeys",""))
+	@staticmethod
+	def dict_to_json(d):
+		if d is None:
+			d = {}
+		o = DashboardheatmappageapiDto(
+			d.get("mode", ""),
+			d.get("actflg", ""),
+			d.get("triggerid", ""),
+			d.get("row", ""),
+			d.get("page", ""),
+			d.get("pagesize", ""),
+			d.get("rolecode", ""),
+			d.get("fiscalyearcode", "") or d.get("fiscalyearid", ""),
+			d.get("excludedkeys", ""),
+		)
+		o.fiscalyearid = d.get("fiscalyearid", "") or d.get("fiscalyearcode", "")
+		o.prefecturecode = d.get("prefecturecode") or d.get("prefecture_code", "")
+		o.shokokaicd = d.get("shokokaicd") or d.get("shokokai_cd", "")
+		return o
 	
 	
 	

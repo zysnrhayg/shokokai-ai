@@ -1,89 +1,64 @@
-#BasicService.vm
-#make Service templete
-import json
 import utils.config
 import threading
-import utils.json_constant	
-from flask import session 
-from app.common.getautonum import GetAutonum
-from datetime import datetime, timezone, timedelta
-import utils.date_util
-from utils.jsonwfc_object import JSONWFCObject
-import resources.messages
-from app.dao.api182_dashboardheatmapcelltoggle.api182_dashboardheatmapcelltoggle_dao import Api182DashboardheatmapcelltoggleDao
-from app.dto.api182_dashboardheatmapcelltoggle.api182_dashboardheatmapcelltoggle_dto import Api182DashboardheatmapcelltoggleDto
-from app.dto.dashboardheatmapcelltoggleapi.dashboardheatmapcelltoggleapi_dto import DashboardheatmapcelltoggleapiDto
-from utils.save_data_check_utils import SaveDataCheckUtil
+import utils.json_constant
+from flask import session
+from app.common.dashboard_api import (
+    fetch_heatmap_cells,
+    latest_fiscal_year_id,
+    org_from_session,
+    parse_excluded_keys,
+    set_json_success,
+)
 import utils.string_util
 
 
+class DashboardheatmapcelltoggleapiService:
 
-
-class DashboardheatmapcelltoggleapiService :
-
-	#	# 
-	# ダッシュボード（全国連）ヒートマップセル除外トグル
-	# @param Entity
-	# @param jsonObj
-	# @throws Exception
-	#
-	def dashboardheatmapcelltoggleapi(self,dashboardheatmapcelltoggleapi_dto,jsonObj) :
-			
-		#GeniusClientScript 1315
-		CELL_KEY = dashboardheatmapcelltoggleapi_dto.cellkey#GeninusClientScript 1318
-		EXCLUDED = dashboardheatmapcelltoggleapi_dto.excluded#GeninusClientScript 1318
-		api182_dashboardheatmapcelltoggle = Api182DashboardheatmapcelltoggleDto.dict_to_json({}) #CommonFunction 110
-		api182_dashboardheatmapcelltoggleList = None #ResultGenerator 72
-		#ResultGenerator 80
-		SHUTOKUKENSUU = ""
-		#UltimateGeniuBean 115
-		utils.config.global_log.debug(str(threading.current_thread().native_id)+ ": start")
-		try :
-			#ダッシュボード（全国連）ヒートマップセル除外トグル_DashboardHeatmapCellToggleAPI_(API)
-			
-			#「項目処理」（共通関数:DashboardHeatmapCellToggleAPI）,パラメータは（cell_key,excluded）
-			
-			#以下の処理を行う。
-			
-			#関数「API182_DashboardHeatmapCellToggle」の「db_API182_DashboardHeatmapCellToggle」メソッドを行う,パラメータは「cell_key,excluded」。
-			
-			# cell_key
-			api182_dashboardheatmapcelltoggle.cellkey = CELL_KEY #ArgumentGenerator 274
-			#ArgumentGenerator 274
-			
-			# excluded
-			api182_dashboardheatmapcelltoggle.excluded = EXCLUDED #ArgumentGenerator 274
-			#ArgumentGenerator 274
-			
-			#ReulstGenerator 87
-			api182_dashboardheatmapcelltoggleList = Api182DashboardheatmapcelltoggleDao().api182_dashboardheatmapcelltoggle(api182_dashboardheatmapcelltoggle)
-			api182_dashboardheatmapcelltogglelistVar = None #ResultGenerator 89
-			#ResultGenerator 89
-			if api182_dashboardheatmapcelltoggleList != None :
-				api182_dashboardheatmapcelltogglelistVar = api182_dashboardheatmapcelltoggleList.fetchall() if hasattr(api182_dashboardheatmapcelltoggleList, 'fetchall') else api182_dashboardheatmapcelltoggleList
-			if api182_dashboardheatmapcelltogglelistVar != None and len(api182_dashboardheatmapcelltogglelistVar) > 0 :
-				SHUTOKUKENSUU = str(len(api182_dashboardheatmapcelltogglelistVar))
-			#関数「API182_DashboardHeatmapCellToggle」の「db_API182_DashboardHeatmapCellToggle」取得結果をGrid「monthly_stats」に設定。
-			mapList = [] #GeniusGrid 606
-			#GeniusGrid 606
-			if api182_dashboardheatmapcelltogglelistVar != None and len(api182_dashboardheatmapcelltogglelistVar) > 0 :#GeniusGrid 647
-				#GeniusGrid 647
-				for i in range(0, len(api182_dashboardheatmapcelltogglelistVar)): #GeniusGrid 652
-				#GeniusGrid 652
-					entity = api182_dashboardheatmapcelltogglelistVar[i]
-					selMap ={} #GeniusGrid681
-					#GeniusGrid681
-					mapList.insert(len(mapList),selMap)
-			result = json.dumps(mapList, ensure_ascii=False)
-			jsonObj.setHtml("dragB", result) #GeniusGrid748
-			#GeniusGrid748
-			#処理終了。
-			
-		except Exception as e:
-			utils.config.global_log.error(e)
-			raise
-		utils.config.global_log.debug(str(threading.current_thread().native_id)+ ": end") 
-		
-			
-	
-	
+    def dashboardheatmapcelltoggleapi(self, dashboardheatmapcelltoggleapi_dto, jsonObj):
+        CELL_KEY = utils.string_util.changeNullToBlank(
+            getattr(dashboardheatmapcelltoggleapi_dto, "cellkey", "")
+        )
+        EXCLUDED = utils.string_util.changeNullToBlank(
+            getattr(dashboardheatmapcelltoggleapi_dto, "excluded", "")
+        )
+        ROLE_CODE = utils.string_util.changeNullToBlank(
+            getattr(dashboardheatmapcelltoggleapi_dto, "rolecode", "") or "pref"
+        )
+        utils.config.global_log.debug(str(threading.current_thread().native_id) + ": start")
+        try:
+            prefecture_code, shokokai_cd = org_from_session(session, dashboardheatmapcelltoggleapi_dto)
+            fiscal_year_id = utils.string_util.changeNullToBlank(
+                getattr(dashboardheatmapcelltoggleapi_dto, "fiscalyearid", "")
+            ) or latest_fiscal_year_id(prefecture_code, shokokai_cd)
+            # Touch DB heatmap master so toggle stays aligned with current org cells.
+            cells = fetch_heatmap_cells(ROLE_CODE, prefecture_code, shokokai_cd, fiscal_year_id)
+            valid_keys = {
+                (c.get("cell_key") or c.get("name") or "") for c in cells if (c.get("cell_key") or c.get("name"))
+            }
+            excluded = parse_excluded_keys(
+                getattr(dashboardheatmapcelltoggleapi_dto, "excludedkeys", "")
+            )
+            if CELL_KEY:
+                if EXCLUDED in ("true", "1", "True", True):
+                    excluded.add(CELL_KEY)
+                else:
+                    excluded.discard(CELL_KEY)
+            excluded = {k for k in excluded if k in valid_keys}
+            set_json_success(
+                jsonObj,
+                {
+                    "rows": cells,
+                    "excludedkeys": "\u001f".join(sorted(excluded)),
+                    "cellkey": CELL_KEY,
+                    "excluded": EXCLUDED,
+                    "fiscalyearid": fiscal_year_id,
+                },
+            )
+        except Exception as e:
+            utils.config.global_log.error(e)
+            jsonObj.setValue(utils.json_constant.JSONID_ERR, "ヒートマップセル更新に失敗しました")
+            jsonObj.setValue(
+                utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_FAIL
+            )
+            raise
+        utils.config.global_log.debug(str(threading.current_thread().native_id) + ": end")

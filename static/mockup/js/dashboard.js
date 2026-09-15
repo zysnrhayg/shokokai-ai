@@ -139,7 +139,7 @@
 
   const NATIONAL_THEMES = THEMES.map(t => ({ ...t, count: t.count * 42 }));
 
-  const MONTH_LABELS = ['5月', '6月', '7月', '8月'];
+  let MONTH_LABELS = ['5月', '6月', '7月', '8月'];
 
   const TIER_BASE = { h5: 34, h4: 22, h3: 14, h2: 8, h1: 4 };
 
@@ -174,6 +174,187 @@
 
   let CURRENT_SHOW_AI = false;
   const excludedShokokai = new Set();
+  let dashRole = 'pref';
+  let fiscalYearId = '';
+  let dashNotices = [];
+  let dashUseApi = false;
+  let dashKpi = { thisMonth: null, priorMonth: null };
+
+  function postDash(url, body) {
+    if (window.ApiClient && typeof window.ApiClient.post === 'function') {
+      return window.ApiClient.post(url, body);
+    }
+    return Promise.reject(new Error('ApiClient unavailable'));
+  }
+
+  function dashBody(extra) {
+    return Object.assign({
+      rolecode: dashRole,
+      fiscalyearid: fiscalYearId || '',
+      excludedkeys: Array.from(excludedShokokai).join('\u001f'),
+    }, (window.ApiClient && window.ApiClient.orgContext) ? window.ApiClient.orgContext() : {}, extra || {});
+  }
+
+  function applyExcludedKeys(raw) {
+    excludedShokokai.clear();
+    if (!raw) return;
+    String(raw).split('\u001f').forEach(function (k) {
+      if (k) excludedShokokai.add(k);
+    });
+  }
+
+  function applyMonthlyStats(rows) {
+    if (!Array.isArray(rows) || !rows.length) return;
+    CURRENT_MONTHLY_STATS = rows.map(function (r) {
+      return {
+        name: r.name || '',
+        counts: Array.isArray(r.counts) ? r.counts : [],
+        aiCounts: Array.isArray(r.ai_counts) ? r.ai_counts : (Array.isArray(r.aiCounts) ? r.aiCounts : []),
+        progress: Number(r.progress) || 0,
+        prior: Number(r.prior) || 0,
+      };
+    });
+  }
+
+  function applyHeatmapCells(rows) {
+    if (!Array.isArray(rows) || !rows.length) return;
+    CURRENT_LIST = rows.map(function (r) {
+      return {
+        cd: r.cd || '',
+        name: r.name || '',
+        short: r.short || r.name || '',
+        group_code: (r.group_code == null || r.group_code === '') ? null : r.group_code,
+        group_label: r.group_label || null,
+        tier: r.tier || 'h3',
+      };
+    });
+  }
+
+  function applyDashboardInit(data) {
+    if (!data || data.e) return false;
+    dashUseApi = true;
+    fiscalYearId = String(data.fiscalyearid || data.fiscal_year_id || '');
+    if (Array.isArray(data.themes) && data.themes.length) {
+      CURRENT_THEMES = data.themes.map(function (t) {
+        return {
+          code: t.code || t.theme_code || '',
+          label: t.label || '',
+          count: Number(t.count || t.support_count) || 0,
+        };
+      });
+    }
+    if (Array.isArray(data.heatmap) && data.heatmap.length) {
+      applyHeatmapCells(data.heatmap);
+    }
+    if (Array.isArray(data.monthly_stats) && data.monthly_stats.length) {
+      applyMonthlyStats(data.monthly_stats);
+    }
+    if (Array.isArray(data.month_labels) && data.month_labels.length) {
+      MONTH_LABELS = data.month_labels;
+    }
+    if (Array.isArray(data.notices)) {
+      dashNotices = data.notices;
+    }
+    if (typeof data.thismonthsupport !== 'undefined' && data.thismonthsupport !== null && data.thismonthsupport !== '') {
+      dashKpi.thisMonth = Number(data.thismonthsupport) || 0;
+    }
+    if (typeof data.priormonthsupport !== 'undefined' && data.priormonthsupport !== null && data.priormonthsupport !== '') {
+      dashKpi.priorMonth = Number(data.priormonthsupport) || 0;
+    }
+    if (data.heatmap_title) CURRENT_HEATMAP_TITLE = data.heatmap_title;
+    if (data.all_label) CURRENT_ALL_LABEL = data.all_label;
+    if (data.self_label) CURRENT_SELF_LABEL = data.self_label;
+    if (data.total_label) CURRENT_TOTAL_LABEL = data.total_label;
+    if (data.col_label) CURRENT_COL_LABEL = data.col_label;
+    if (typeof data.show_ai !== 'undefined') CURRENT_SHOW_AI = !!data.show_ai;
+    return true;
+  }
+
+  function initApiByRole(role) {
+    if (role === 'national') return './dashboardnationalinitapi.do';
+    if (role === 'shokokai') return './dashboardshokokaiinitapi.do';
+    return './dashboardprefinitapi.do';
+  }
+
+  function loadDashboardInit(role) {
+    return postDash(initApiByRole(role), dashBody({ rolecode: role })).then(function (result) {
+      const data = (result && result.data) || {};
+      if (applyDashboardInit(data)) return data;
+      return null;
+    }).catch(function () { return null; });
+  }
+
+  function applyRecentReports(rows) {
+    const tbody = document.querySelector('#home-shokokai-content .recent-reports-card tbody');
+    if (!tbody) return;
+    if (!Array.isArray(rows)) return;
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="color:var(--muted)">最近の報告はありません</td></tr>';
+      return;
+    }
+    tbody.innerHTML = rows.map(function (r) {
+      const formLabel = esc(r.form_label || r.form_code || '');
+      const badge = esc(r.badge_class || '#1a6fa8');
+      const staff = esc(r.staff || '');
+      return `<tr data-business="${esc(r.business_name || '')}" data-time-start="${esc(r.time_start || '')}" data-time-end="${esc(r.time_end || '')}" data-report-id="${esc(r.report_id || '')}">
+        <td><span class="badge" style="--badge-color:${badge}">${formLabel}</span></td>
+        <td>${esc(r.report_date || '')}</td>
+        <td>${esc(r.theme_label || '')}</td>
+        <td>${esc(r.content || '')}</td>
+        <td>${staff}</td>
+        <td class="col-action"><span class="btn btn-primary btn-sm">閲覧</span></td>
+      </tr>`;
+    }).join('');
+    if (typeof window.__bindRecentReportRows === 'function') {
+      window.__bindRecentReportRows(tbody);
+    }
+  }
+
+  function applyShokokaiHome(data) {
+    if (!data || data.e) return;
+    const shokokaiEl = document.getElementById('home-shokokai-content');
+    if (!shokokaiEl) return;
+    if (Array.isArray(data.notices)) {
+      const list = shokokaiEl.querySelector('.kpi-notice-list');
+      if (list) {
+        if (!data.notices.length) {
+          list.innerHTML = '<div class="notice-item">お知らせはありません</div>';
+        } else {
+          list.innerHTML = data.notices.map(function (n) {
+            return '<div class="notice-item">' + esc(n.content || '') + '</div>';
+          }).join('');
+        }
+      }
+    }
+    const thisMonth = (typeof data.thismonthsupport !== 'undefined' && data.thismonthsupport !== null && data.thismonthsupport !== '')
+      ? Number(data.thismonthsupport) || 0
+      : null;
+    const priorMonth = (typeof data.priormonthsupport !== 'undefined' && data.priormonthsupport !== null && data.priormonthsupport !== '')
+      ? Number(data.priormonthsupport) || 0
+      : null;
+    if (thisMonth != null) {
+      const stat = shokokaiEl.querySelector('.notice-stat__main');
+      if (stat) {
+        let change = '－';
+        if (priorMonth != null) {
+          const diff = thisMonth - priorMonth;
+          change = diff === 0 ? '－'
+            : ((diff > 0 ? '▲' : '▼') + '前月比 ' + (diff > 0 ? '+' : '') + diff.toLocaleString() + '件');
+        }
+        stat.innerHTML = '今月の支援件数<span class="value">' + thisMonth.toLocaleString() + '件</span><span class="notice-stat__change">' + change + '</span>';
+      }
+    }
+    if (Array.isArray(data.recent_reports)) applyRecentReports(data.recent_reports);
+  }
+
+  function loadShokokaiHome() {
+    return postDash('./dashboardshokokaiinitapi.do', dashBody({ rolecode: 'shokokai' })).then(function (result) {
+      const data = (result && result.data) || {};
+      if (data.e) return null;
+      applyShokokaiHome(data);
+      return data;
+    }).catch(function () { return null; });
+  }
 
   function themeChartHtml() {
 
@@ -292,7 +473,19 @@
       const name = cell.getAttribute('data-name');
       if (excludedShokokai.has(name)) excludedShokokai.delete(name); else excludedShokokai.add(name);
       cell.classList.toggle('is-off', excludedShokokai.has(name));
-      root.querySelector('#dash-bottom-table').innerHTML = monthlyTableHtml();
+      refreshBottomTable();
+      if (!dashUseApi) return;
+      postDash('./dashboardheatmapcelltoggleapi.do', dashBody({
+        cellkey: name,
+        excluded: excludedShokokai.has(name) ? 'true' : 'false',
+      })).then(function (result) {
+        const data = (result && result.data) || {};
+        if (data.e) return;
+        if (Array.isArray(data.rows) && data.rows.length) applyHeatmapCells(data.rows);
+        if (typeof data.excludedkeys !== 'undefined') applyExcludedKeys(data.excludedkeys);
+        renderHeatmapPage();
+        refreshBottomTable();
+      }).catch(function () { /* keep optimistic UI */ });
     });
     const allCheckbox = filterEl.querySelector('#dash-filter-all');
     const groupBoxes = () => filterEl.querySelectorAll('[data-group-value]');
@@ -300,6 +493,25 @@
     const keysForGroup = (value) => value === '__self__'
       ? CURRENT_LIST.filter(s => s.group_code == null).map(s => s.name)
       : CURRENT_LIST.filter(s => String(s.group_code) === String(value)).map(s => s.name);
+
+    function syncGroupFilterToApi() {
+      if (!dashUseApi) return;
+      const selected = Array.from(groupBoxes()).filter(function (b) { return b.checked; }).map(function (b) {
+        return b.getAttribute('data-group-value');
+      }).join(',');
+      postDash('./dashboardheatmapfilterapi.do', dashBody({
+        groupvalues: selected,
+        includeall: allCheckbox.checked ? 'true' : 'false',
+      })).then(function (result) {
+        const data = (result && result.data) || {};
+        if (data.e) return;
+        if (Array.isArray(data.rows) && data.rows.length) applyHeatmapCells(data.rows);
+        if (typeof data.excludedkeys !== 'undefined') applyExcludedKeys(data.excludedkeys);
+        renderHeatmapPage();
+        refreshBottomTable();
+      }).catch(function () { /* keep optimistic UI */ });
+    }
+
     groupBoxes().forEach(cb => {
       cb.addEventListener('change', () => {
         keysForGroup(cb.getAttribute('data-group-value')).forEach(name => {
@@ -307,7 +519,8 @@
         });
         allCheckbox.checked = Array.from(groupBoxes()).every(b => b.checked);
         renderHeatmapPage();
-        root.querySelector('#dash-bottom-table').innerHTML = monthlyTableHtml();
+        refreshBottomTable();
+        syncGroupFilterToApi();
       });
     });
     allCheckbox.addEventListener('change', () => {
@@ -316,24 +529,25 @@
       if (on) excludedShokokai.clear();
       else CURRENT_LIST.forEach(s => excludedShokokai.add(s.name));
       renderHeatmapPage();
-      root.querySelector('#dash-bottom-table').innerHTML = monthlyTableHtml();
+      refreshBottomTable();
+      syncGroupFilterToApi();
     });
   }
 
   function monthlyTableHtml() {
-    const totalCounts = MONTH_LABELS.map((_, i) => CURRENT_MONTHLY_STATS.reduce((sum, r) => sum + r.counts[i], 0));
-    const totalYtd = CURRENT_MONTHLY_STATS.reduce((sum, r) => sum + r.counts.reduce((a, b) => a + b, 0), 0);
+    const totalCounts = MONTH_LABELS.map((_, i) => CURRENT_MONTHLY_STATS.reduce((sum, r) => sum + (Number(r.counts[i]) || 0), 0));
+    const totalYtd = CURRENT_MONTHLY_STATS.reduce((sum, r) => sum + r.counts.reduce((a, b) => a + (Number(b) || 0), 0), 0);
 
-    const totalAi = CURRENT_MONTHLY_STATS.reduce((sum, r) => sum + (r.aiCounts || []).reduce((a, b) => a + b, 0), 0);
+    const totalAi = CURRENT_MONTHLY_STATS.reduce((sum, r) => sum + (r.aiCounts || []).reduce((a, b) => a + (Number(b) || 0), 0), 0);
     const rowHtml = (label, counts, ytd, progress, prior, aiYtd, isTotal, hidden) => `
       <tr${isTotal ? ' class="total"' : ''}${hidden ? ' style="display:none"' : ''}>
         <td>${isTotal ? `<strong>${esc(label)}</strong>` : esc(label)}</td>
-        ${counts.map(c => `<td class="num">${isTotal ? `<strong>${c.toLocaleString()}</strong>` : c.toLocaleString()}</td>`).join('')}
+        ${counts.map(c => `<td class="num">${isTotal ? `<strong>${Number(c).toLocaleString()}</strong>` : Number(c).toLocaleString()}</td>`).join('')}
         <td class="num">${isTotal ? `<strong>${ytd.toLocaleString()}</strong>` : ytd.toLocaleString()}</td>
         <td>
           <div class="flex items-center gap-sm">
-            <div class="progress" style="width:120px;flex-shrink:0"><div class="progress__fill ${progress >= 50 ? 'progress__fill--green' : 'progress__fill--accent'}" style="width:${progress}%"></div></div>
-            ${progress.toFixed(1)}%（前年度${prior.toLocaleString()}件）
+            <div class="progress" style="width:120px;flex-shrink:0"><div class="progress__fill ${progress >= 50 ? 'progress__fill--green' : 'progress__fill--accent'}" style="width:${Math.min(100, Math.max(0, progress))}%"></div></div>
+            ${Number(progress).toFixed(1)}%（前年度${Number(prior).toLocaleString()}件）
           </div>
         </td>
         ${CURRENT_SHOW_AI ? `<td class="num">${isTotal ? `<strong>${aiYtd.toLocaleString()}</strong>` : aiYtd.toLocaleString()}</td>` : ''}
@@ -341,8 +555,8 @@
 
     const sortedStats = CURRENT_MONTHLY_STATS;
     const rows = sortedStats.map(r => rowHtml(
-      r.name, r.counts, r.counts.reduce((a, b) => a + b, 0), r.progress, r.prior,
-      (r.aiCounts || []).reduce((a, b) => a + b, 0), false, excludedShokokai.has(r.name)
+      r.name, r.counts, r.counts.reduce((a, b) => a + (Number(b) || 0), 0), r.progress, r.prior,
+      (r.aiCounts || []).reduce((a, b) => a + (Number(b) || 0), 0), false, excludedShokokai.has(r.name)
     )).join('');
     const totalRow = rowHtml(CURRENT_TOTAL_LABEL, totalCounts, totalYtd, 58.4, 480, totalAi, true, false);
     return `
@@ -358,8 +572,17 @@
     `;
   }
 
-  function render(role) {
+  function refreshBottomTable() {
+    const el = root.querySelector('#dash-bottom-table');
+    if (el) el.innerHTML = monthlyTableHtml();
+  }
 
+  function setRoleDefaults(role) {
+    dashRole = role;
+    dashUseApi = false;
+    dashNotices = [];
+    dashKpi = { thisMonth: null, priorMonth: null };
+    fiscalYearId = '';
     if (role === 'national') {
       CURRENT_LIST = NATIONAL_LIST;
       CURRENT_THEMES = NATIONAL_THEMES;
@@ -382,15 +605,23 @@
       CURRENT_SHOW_AI = false;
     }
     excludedShokokai.clear();
+  }
 
-    const thisMonthSupport = CURRENT_MONTHLY_STATS.reduce((sum, r) => sum + r.counts[3], 0);
-    const priorMonthSupport = CURRENT_MONTHLY_STATS.reduce((sum, r) => sum + r.counts[2], 0);
+  function paintDashboard(role) {
+    const noticeItems = dashNotices.length
+      ? dashNotices.map(function (n) { return `<div class="notice-item">${esc(n.content || '')}</div>`; }).join('')
+      : `<div class="notice-item">お知らせはありません</div>`;
+
+    const computedThis = CURRENT_MONTHLY_STATS.reduce((sum, r) => sum + ((r.counts && r.counts.length) ? Number(r.counts[r.counts.length - 1]) || 0 : 0), 0);
+    const computedPrior = CURRENT_MONTHLY_STATS.reduce((sum, r) => sum + ((r.counts && r.counts.length > 1) ? Number(r.counts[r.counts.length - 2]) || 0 : 0), 0);
+    const thisMonthSupport = (dashKpi.thisMonth != null) ? dashKpi.thisMonth : computedThis;
+    const priorMonthSupport = (dashKpi.priorMonth != null) ? dashKpi.priorMonth : computedPrior;
     const monthDiff = thisMonthSupport - priorMonthSupport;
     const monthChangeLabel = monthDiff === 0 ? '－'
       : (monthDiff > 0 ? '▲' : '▼') + `前月比 ${monthDiff > 0 ? '+' : ''}${monthDiff.toLocaleString()}件`;
 
-    const thisMonthAi = CURRENT_MONTHLY_STATS.reduce((sum, r) => sum + ((r.aiCounts || [])[3] || 0), 0);
-    const priorMonthAi = CURRENT_MONTHLY_STATS.reduce((sum, r) => sum + ((r.aiCounts || [])[2] || 0), 0);
+    const thisMonthAi = CURRENT_MONTHLY_STATS.reduce((sum, r) => sum + (((r.aiCounts || []).length) ? Number((r.aiCounts || [])[(r.aiCounts || []).length - 1]) || 0 : 0), 0);
+    const priorMonthAi = CURRENT_MONTHLY_STATS.reduce((sum, r) => sum + (((r.aiCounts || []).length > 1) ? Number((r.aiCounts || [])[(r.aiCounts || []).length - 2]) || 0 : 0), 0);
     const aiMonthDiff = thisMonthAi - priorMonthAi;
     const aiMonthChangeLabel = aiMonthDiff === 0 ? '－'
       : (aiMonthDiff > 0 ? '▲' : '▼') + `前月比 ${aiMonthDiff > 0 ? '+' : ''}${aiMonthDiff.toLocaleString()}件`;
@@ -403,10 +634,7 @@
       <div class="card notice-card" style="margin-bottom:var(--space-8)">
         <div class="notice-panel">
 
-          <div class="kpi-notice-list">
-            <div class="notice-item">2026年7月分の月次報告の提出締め切りは2026年8月25日です</div>
-            <div class="notice-item"><a href="#reports" class="notice-item-link">下書きのまま保存されている報告書が3件あります</a></div>
-          </div>
+          <div class="kpi-notice-list">${noticeItems}</div>
           <div style="border-left:1px solid var(--gold-border); padding-left:var(--space-7); display:flex; align-items:center;">
             <div class="notice-stat__main">今月の支援件数<span class="value">${thisMonthSupport.toLocaleString()}件</span><span class="notice-stat__change">${monthChangeLabel}</span></div>${aiStatHtml}
           </div>
@@ -430,12 +658,22 @@
     });
   }
 
+  function render(role) {
+    setRoleDefaults(role);
+    loadDashboardInit(role).then(function () {
+      paintDashboard(role);
+    }).catch(function () {
+      paintDashboard(role);
+    });
+  }
+
   window.__renderHomeForRole = (role) => {
     const isFederation = role === 'national' || role === 'pref';
     const shokokaiEl = document.getElementById('home-shokokai-content');
     if (shokokaiEl) shokokaiEl.style.display = isFederation ? 'none' : '';
     root.style.display = isFederation ? '' : 'none';
     if (isFederation) render(role);
+    else loadShokokaiHome();
   };
   window.__renderHomeForRole(document.getElementById('org-role-select') ? document.getElementById('org-role-select').value : 'pref');
 })();

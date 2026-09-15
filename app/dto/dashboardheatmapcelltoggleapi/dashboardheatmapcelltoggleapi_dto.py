@@ -16,8 +16,24 @@ class DashboardheatmapcelltoggleapiDto(BaseEntity):
 			#EXCLUDED
 		self.excluded = excluded
 	
-	def dict_to_json(dict):
-		return DashboardheatmapcelltoggleapiDto(dict.get("mode",""),dict.get("actflg",""),dict.get("triggerid",""),dict.get("row",""),dict.get("cellkey",""),dict.get("excluded",""))
+	@staticmethod
+	def dict_to_json(d):
+		if d is None:
+			d = {}
+		o = DashboardheatmapcelltoggleapiDto(
+			d.get("mode", ""),
+			d.get("actflg", ""),
+			d.get("triggerid", ""),
+			d.get("row", ""),
+			d.get("cellkey", ""),
+			d.get("excluded", ""),
+		)
+		o.rolecode = d.get("rolecode", "")
+		o.fiscalyearid = d.get("fiscalyearid", "")
+		o.excludedkeys = d.get("excludedkeys", "")
+		o.prefecturecode = d.get("prefecturecode") or d.get("prefecture_code", "")
+		o.shokokaicd = d.get("shokokaicd") or d.get("shokokai_cd", "")
+		return o
 	
 	
 	

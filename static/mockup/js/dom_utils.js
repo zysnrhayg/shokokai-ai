@@ -20,10 +20,13 @@ function filterByPrefecture(options, prefectureCode) {
   return prefectureCode ? options.filter(s => s.prefecture_code === prefectureCode) : options;
 }
 
-document.querySelectorAll('.recent-reports-card tbody tr').forEach((tr) => {
+document.querySelectorAll('.recent-reports-card tbody tr').forEach(bindRecentReportRow);
+
+function bindRecentReportRow(tr) {
   const viewBtn = tr.querySelector('.col-action .btn');
   const badgeEl = tr.querySelector('td:first-child .badge');
-  if (!viewBtn || !badgeEl) return;
+  if (!viewBtn || !badgeEl || viewBtn.dataset.bound === '1') return;
+  viewBtn.dataset.bound = '1';
   viewBtn.style.cursor = 'pointer';
   viewBtn.addEventListener('click', () => {
 
@@ -52,7 +55,11 @@ document.querySelectorAll('.recent-reports-card tbody tr').forEach((tr) => {
     };
     location.hash = '#' + destScreen;
   });
-});
+}
+
+window.__bindRecentReportRows = function (scope) {
+  (scope || document).querySelectorAll('.recent-reports-card tbody tr').forEach(bindRecentReportRow);
+};
 
 function syncSelectPlaceholder(select) {
   if (select) select.classList.toggle('is-placeholder', select.value === '');

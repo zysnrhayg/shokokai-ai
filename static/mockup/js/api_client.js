@@ -22,7 +22,7 @@
         } catch (e) {
           data = { e: text };
         }
-        if (data && data.r && !data.dragB && !data.account && !data.useraccountid && !data.proposals && !data.themes && !data.industries) {
+        if (data && data.r && !data.dragB && !data.account && !data.useraccountid && !data.proposals && !data.themes && !data.industries && !data.heatmap && !data.monthly_stats && !data.rows && !data.excludedkeys && !data.recent_reports) {
           data.e = data.e || 'セッションが切れました。再ログインしてください';
         }
         if (response.status === 403) {
@@ -37,8 +37,11 @@
   function orgContext() {
     var pref = (typeof localStorage !== 'undefined' && localStorage.getItem('prefecture_code')) || '';
     var shokokai = (typeof localStorage !== 'undefined' && localStorage.getItem('shokokai_cd')) || '';
-    // Empty values let the server fall back to session PREFECTURE_CODE / SHOKOKAI_CD.
-    // Do not hardcode 00/0021 — that filters out most seed trn_report rows.
+    // Server trusts client org only when BOTH are set; otherwise session pair is used.
+    // Sending pref-only (common after login form) used to become 00/0021 and empty recent reports.
+    if (!pref || !shokokai) {
+      return {};
+    }
     return {
       prefecturecode: pref,
       shokokaicd: shokokai,

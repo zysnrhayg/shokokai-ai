@@ -97,6 +97,10 @@
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem('userid', userid);
       if (username) localStorage.setItem('username', username);
+      var pref = (data && (data.prefecturecode || data.prefecture_code)) || '';
+      var shokokai = (data && (data.shokokaicd || data.shokokai_cd)) || '';
+      if (pref) localStorage.setItem('prefecture_code', pref);
+      if (shokokai) localStorage.setItem('shokokai_cd', shokokai);
     }
     var userInfo = document.querySelector('.user-info');
     if (userInfo && userid) {
@@ -207,6 +211,10 @@
     } else if (key === 'home') {
       document.getElementById('app-title').textContent = 'ホーム';
       document.getElementById('app-subtitle').textContent = '事業環境変化対応型支援事業';
+      if (typeof window.__renderHomeForRole === 'function') {
+        var roleEl = document.getElementById('org-role-select');
+        window.__renderHomeForRole(roleEl ? roleEl.value : 'shokokai');
+      }
     }
   }
 

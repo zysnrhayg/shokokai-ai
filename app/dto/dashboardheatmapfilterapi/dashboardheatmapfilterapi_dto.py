@@ -16,8 +16,23 @@ class DashboardheatmapfilterapiDto(BaseEntity):
 			#INCLUDE_ALL
 		self.includeall = includeall
 	
-	def dict_to_json(dict):
-		return DashboardheatmapfilterapiDto(dict.get("mode",""),dict.get("actflg",""),dict.get("triggerid",""),dict.get("row",""),dict.get("groupvalues",""),dict.get("includeall",""))
+	@staticmethod
+	def dict_to_json(d):
+		if d is None:
+			d = {}
+		o = DashboardheatmapfilterapiDto(
+			d.get("mode", ""),
+			d.get("actflg", ""),
+			d.get("triggerid", ""),
+			d.get("row", ""),
+			d.get("groupvalues", ""),
+			d.get("includeall", ""),
+		)
+		o.rolecode = d.get("rolecode", "")
+		o.fiscalyearid = d.get("fiscalyearid", "")
+		o.prefecturecode = d.get("prefecturecode") or d.get("prefecture_code", "")
+		o.shokokaicd = d.get("shokokaicd") or d.get("shokokai_cd", "")
+		return o
 	
 	
 	
