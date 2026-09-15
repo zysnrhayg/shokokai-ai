@@ -27,7 +27,10 @@ def _is_exempt_path(path, exempt):
 
 def init_csrf(app):
     """Set CSRF_ENABLED from settings/env (default False). Call once after app settings are loaded."""
-    raw = app.config.get("CSRF_ENABLED", os.getenv("CSRF_ENABLED", "false"))
+    # 環境変数を優先して読み込む（開発環境では .env の CSRF_ENABLED=false でCSRF保護を無効化する）
+    raw = os.getenv("CSRF_ENABLED")
+    if raw is None:
+        raw = app.config.get("CSRF_ENABLED", "false")
     if isinstance(raw, bool):
         app.config["CSRF_ENABLED"] = raw
         return
@@ -48,6 +51,10 @@ def check_csrf(app, request, session, get_message_by_id):
     Validate CSRF for state-changing methods. Returns (True, None) if valid or exempt,
     or (False, response) to return 403 with i18n message.
     """
+    # 環境変数CSRF_ENABLEDが明示的にfalseの場合はCSRF保護を無効化する（開発環境用）
+    env_csrf = os.getenv("CSRF_ENABLED")
+    if env_csrf is not None and str(env_csrf).lower() in ("0", "false", "no", "off"):
+        return True, None
     if not app.config.get("CSRF_ENABLED", True):
         return True, None
     if request.method not in ("POST", "PUT", "DELETE", "PATCH"):

@@ -7,8 +7,25 @@ import utils.date_util
 class Api137InsertknowledgedocumentDao :
 
 # 関数定義_SQL文_ナレッジ文書登録
-     
+
     def api137_insertknowledgedocument(self,dtoObj) :
-        returnVal = utils.mysqldb_utils.querySQL(api137_insertknowledgedocumentMapper.api137_insertknowledgedocument(dtoObj.knowledge_document_id,dtoObj.uploaded_date,dtoObj.file_size_kb,dtoObj.status,dtoObj.file_path),{'knowledge_document_id':dtoObj.knowledge_document_id,'uploaded_date':dtoObj.uploaded_date,'file_size_kb':dtoObj.file_size_kb,'status':dtoObj.status,'file_path':dtoObj.file_path})
+        # DTOのフィールドからSQLパラメータを取得する
+        returnVal = utils.mysqldb_utils.querySQL(
+            api137_insertknowledgedocumentMapper.api137_insertknowledgedocument(
+                dtoObj.knowledgedocumentid,
+                dtoObj.prefecturecode,
+                dtoObj.documentcode,
+                dtoObj.title,
+                dtoObj.category,
+                dtoObj.format
+            ),
+            {
+                'knowledge_document_id': dtoObj.knowledgedocumentid,
+                'prefecture_code': dtoObj.prefecturecode if dtoObj.prefecturecode else None,
+                'document_code': dtoObj.documentcode,
+                'title': dtoObj.title,
+                'category': dtoObj.category,
+                'format': dtoObj.format
+            }
+        )
         return utils.mysqldb_utils.result_to_list_of_dict(returnVal)
-    

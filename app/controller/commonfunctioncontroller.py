@@ -1,4 +1,6 @@
-from flask import Blueprint, Flask, request, jsonify, redirect, url_for, render_template,session, Response
+from flask import Blueprint, Flask, request, jsonify, redirect, url_for, render_template,session, Response, send_file
+import io
+from datetime import datetime
 from flask_login import login_user, login_required, logout_user
 import os
 import json
@@ -1344,7 +1346,85 @@ def documentversiondownloadapi() :
 
 	documentversiondownloadapiVar_service.documentversiondownloadapi(documentversiondownloadapi_dto, jsonObj)
 
-	return jsonObj.toJsonString()
+	# jsonObjからダウンロード情報を取得する
+	import json as _json
+	download_info = jsonObj.getJsonObj().get("downloadInfo", "{}")
+	info = _json.loads(download_info) if download_info else {}
+
+	file_path = info.get("file_path", "")
+	title = info.get("title", "文書")
+	version_number = info.get("version_number", 1)
+
+	# ファイルパスから拡張子を取得する
+	ext = file_path.split(".")[-1].lower() if "." in file_path else "txt"
+
+	# ログインユーザーIDを取得する（FlaskセッションのUSER_IDキーから取得）
+	login_id = session.get("USER_ID", "unknown") if session else "unknown"
+
+	# システム日付（yyyyMMddHHmmssSSS）を生成する
+	now = datetime.now()
+	timestamp = now.strftime("%Y%m%d%H%M%S") + str(now.microsecond // 1000).zfill(3)
+
+	# ダウンロードファイル名を生成する（タイトル+システム日付+ログインID+.拡張子）
+	filename = f"{title}{timestamp}{login_id}.{ext}"
+
+	# ファイル形式に応じてコンテンツを生成する
+	buf = io.BytesIO()
+	if ext == "pdf":
+		# fpdf2で有効なPDFファイルを生成する
+		from fpdf import FPDF
+		pdf = FPDF()
+		pdf.add_page()
+		# 日本語フォントを使用するためTTFフォントを追加する
+		font_path = None
+		for candidate in [r"C:\Windows\Fonts\msgothic.ttc", r"C:\Windows\Fonts\msmincho.ttc", r"C:\Windows\Fonts\yuGothic.ttc"]:
+			if os.path.exists(candidate):
+				font_path = candidate
+				break
+		if font_path:
+			pdf.add_font("JP", "", font_path, uni=True)
+			pdf.set_font("JP", size=14)
+		else:
+			pdf.set_font("Helvetica", size=14)
+		pdf.cell(0, 10, title, ln=True)
+		pdf.ln(10)
+		pdf.set_font("Helvetica", size=10)
+		pdf.cell(0, 10, "Version: " + str(version_number), ln=True)
+		pdf.cell(0, 10, "File: " + file_path, ln=True)
+		pdf.output(buf)
+	elif ext == "xlsx":
+		# openpyxlでExcelファイルを生成する
+		from openpyxl import Workbook
+		wb = Workbook()
+		ws = wb.active
+		ws.title = "文書情報"
+		ws["A1"] = "タイトル"
+		ws["B1"] = title
+		ws["A2"] = "版番号"
+		ws["B2"] = version_number
+		ws["A3"] = "ファイルパス"
+		ws["B3"] = file_path
+		wb.save(buf)
+	elif ext == "docx" or ext == "doc":
+		# python-docxでWordファイルを生成する
+		from docx import Document
+		doc = Document()
+		doc.add_heading(title, 0)
+		doc.add_paragraph("版番号: " + str(version_number))
+		doc.add_paragraph("ファイルパス: " + file_path)
+		doc.save(buf)
+	else:
+		# テキストファイルとして出力する
+		content = f"タイトル: {title}\n版番号: {version_number}\nファイルパス: {file_path}\n"
+		buf.write(content.encode("utf-8"))
+
+	buf.seek(0)
+	# ファイル名をカスタムヘッダーで別途渡す（日本語対応）
+	import urllib.parse
+	encoded_filename = urllib.parse.quote(filename, safe='')
+	resp = send_file(buf, as_attachment=True, download_name=filename, mimetype='application/octet-stream')
+	resp.headers['X-Download-Filename'] = encoded_filename
+	return resp
 
 
 

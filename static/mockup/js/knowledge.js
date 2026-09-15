@@ -6,13 +6,10 @@
   let inlineMode = null; // view | edit | new
   let inlineIndex = null;
 
-  const DOCUMENTS = [
-    { id: 1, title: '業務改善助成金 活用事例集', prefecture_name: null, category: '事例集', format: 'PDF', file_size_kb: 2140, linked_count: 4, uploaded_date: '2026-07-02', status: '公開中', status_badge_class: 'badge-status-ok' },
-    { id: 2, title: '省エネ設備導入 補助金活用ガイド', prefecture_name: null, category: 'ガイド', format: 'PDF', file_size_kb: 3380, linked_count: 3, uploaded_date: '2026-06-18', status: '公開中', status_badge_class: 'badge-status-ok' },
-    { id: 3, title: '北海道 米国関税影響アンケート結果', prefecture_name: '北海道', category: '調査資料', format: 'Excel', file_size_kb: 512, linked_count: 1, uploaded_date: '2026-08-05', status: '審査中', status_badge_class: 'badge-status-pending' },
-    { id: 4, title: 'インボイス制度 対応チェックリスト', prefecture_name: null, category: 'チェックリスト', format: 'Word', file_size_kb: 88, linked_count: 5, uploaded_date: '2026-05-20', status: '公開中', status_badge_class: 'badge-status-ok' },
-  ];
+  // 原本文書一覧データ（初期表示時に後端APIから取得する）
+  let DOCUMENTS = [];
 
+  // 知識データ一覧（静的データのまま）
   const ENTRIES = [
     { id: 1, knowledge_code: 'K-014', title: '業務改善助成金 活用事例集', prefecture_name: null, theme_badges: [{ label: '賃上げ・最低賃金引上げ', badge_class: '#c0392b' }], document_title: '業務改善助成金 活用事例集', updated_date: '2026-07-03', status: '公開中', body: '業務改善助成金を活用した賃上げ事例をまとめたナレッジです。' },
     { id: 2, knowledge_code: 'K-018', title: '省エネ設備導入 補助金活用ガイド', prefecture_name: null, theme_badges: [{ label: 'エネルギー価格・物価の高騰', badge_class: '#1a6fa8' }], document_title: '省エネ設備導入 補助金活用ガイド', updated_date: '2026-06-19', status: '公開中', body: '省エネ設備導入時の補助金活用手順と注意点です。' },
@@ -27,6 +24,217 @@
     { id: 2, name: 'knowledge_hokkaido', vector_count: 96, synced_date: '2026-08-22', status: '同期済み', status_badge_class: 'badge-status-ok' },
     { id: 3, name: 'knowledge_hokkaido_pending', vector_count: 0, synced_date: '未同期', status: '未同期', status_badge_class: 'badge-status-pending' },
   ];
+
+  // 後端API呼び出しの共通関数（CSRFトークンをヘッダーに付与する）
+  function getCsrfToken() {
+    const el = document.querySelector('input[name="csrf_token"]');
+    return el ? el.value : '';
+  }
+  async function callApi(url, row) {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCsrfToken()
+      },
+      body: JSON.stringify({ mode: '1', actflg: '1', triggerid: url.replace('/', '').replace('.do', ''), row: row || {} })
+    });
+    return await res.json();
+  }
+
+  // 原本文書一覧を取得するAPI（KnowledgeInitAPI）
+  async function loadDocuments() {
+    try {
+      const data = await callApi('/knowledgeinitapi.do', {});
+      const dragB = data.dragB ? JSON.parse(data.dragB) : [];
+      DOCUMENTS = dragB.map(function (row) {
+        const status = row.status || '公開中';
+        return {
+          id: row.knowledge_document_id,
+          title: row.title || '',
+          prefecture_name: row.prefecture_name || null,
+          category: row.category || '',
+          format: row.format || '',
+          file_size_kb: row.file_size_kb ? Number(row.file_size_kb) : 0,
+          linked_count: row.linked_count ? Number(row.linked_count) : 0,
+          uploaded_date: row.uploaded_date || '',
+          status: status,
+          status_badge_class: status === '公開中' ? 'badge-status-ok' : status === '審査中' ? 'badge-status-pending' : 'badge-status-new',
+          active_version_number: row.active_version_number,
+          file_path: row.file_path || ''
+        };
+      });
+      render();
+    } catch (e) {
+      console.error('文書一覧の取得に失敗しました', e);
+    }
+  }
+
+  // 原本文書詳細を取得するAPI（DocumentDetailInitAPI）
+  async function loadDocumentDetail(docId) {
+    try {
+      const data = await callApi('/documentdetailinitapi.do', { knowledgedocumentid: String(docId) });
+      const detail = data.documentDetail ? JSON.parse(data.documentDetail) : {};
+      const status = detail.status || '公開中';
+      return {
+        id: detail.knowledge_document_id,
+        title: detail.title || '',
+        prefecture_name: detail.prefecture_name || null,
+        category: detail.category || '',
+        format: detail.format || '',
+        file_size_kb: detail.file_size_kb ? Number(detail.file_size_kb) : 0,
+        linked_count: detail.linked_count ? Number(detail.linked_count) : 0,
+        uploaded_date: detail.uploaded_date || '',
+        status: status,
+        status_badge_class: status === '公開中' ? 'badge-status-ok' : status === '審査中' ? 'badge-status-pending' : 'badge-status-new',
+        active_version_number: detail.active_version_number,
+        file_path: detail.file_path || ''
+      };
+    } catch (e) {
+      console.error('文書詳細の取得に失敗しました', e);
+      return null;
+    }
+  }
+
+  // 原本文書編集画面の初期値を取得するAPI（DocumentFormInitAPI）
+  async function loadDocumentForm(docId) {
+    try {
+      const data = await callApi('/documentforminitapi.do', { id: String(docId) });
+      const detail = data.documentDetail ? JSON.parse(data.documentDetail) : {};
+      return {
+        id: detail.knowledge_document_id,
+        title: detail.title || '',
+        prefecture_name: detail.prefecture_name || null,
+        prefecture_code: detail.prefecture_code || '',
+        category: detail.category || '',
+        format: detail.format || ''
+      };
+    } catch (e) {
+      console.error('編集画面初期値の取得に失敗しました', e);
+      return null;
+    }
+  }
+
+  // 原本文書新規登録画面の初期値を取得するAPI（DocumentFormNewInitAPI）
+  async function loadNewDocumentForm() {
+    try {
+      const data = await callApi('/documentformnewinitapi.do', {});
+      const detail = data.documentDetail ? JSON.parse(data.documentDetail) : {};
+      return {
+        id: '',
+        title: detail.title || '',
+        prefecture_name: detail.prefecture_name || null,
+        prefecture_code: detail.prefecture_code || '',
+        category: detail.category || '',
+        format: detail.format || 'PDF'
+      };
+    } catch (e) {
+      console.error('新規登録画面初期値の取得に失敗しました', e);
+      return null;
+    }
+  }
+
+  // 原本文書を更新するAPI（DocumentUpdateAPI）
+  async function updateDocument(docId, fields) {
+    try {
+      const data = await callApi('/documentupdateapi.do', {
+        knowledgedocumentid: String(docId),
+        title: fields.title,
+        category: fields.category,
+        format: fields.format,
+        prefecturecode: fields.prefecture_code || '',
+        status: fields.status || ''
+      });
+      if (data.msg) toastSuccess(data.msg);
+      else toastSuccess('文書を保存しました');
+      return true;
+    } catch (e) {
+      console.error('文書の更新に失敗しました', e);
+      toastError('文書の更新に失敗しました');
+      return false;
+    }
+  }
+
+  // 原本文書を新規登録するAPI（DocumentSaveAPI）
+  async function saveDocument(fields) {
+    try {
+      const data = await callApi('/documentsaveapi.do', {
+        title: fields.title,
+        category: fields.category,
+        format: fields.format,
+        prefecturecode: fields.prefecture_code || '',
+        filepath: fields.file_path || '',
+        filesizekb: fields.file_size_kb || 0,
+        status: fields.status || '審査中'
+      });
+      if (data.msg) toastSuccess(data.msg);
+      else toastSuccess('文書を登録しました');
+      return true;
+    } catch (e) {
+      console.error('文書の登録に失敗しました', e);
+      toastError('文書の登録に失敗しました');
+      return false;
+    }
+  }
+
+  // 原本文書の新しい版を登録するAPI（DocumentVersionNewAPI）
+  async function uploadNewVersion(docId, fields) {
+    try {
+      const data = await callApi('/documentversionnewapi.do', {
+        knowledgedocumentid: String(docId),
+        filepath: fields.file_path || '',
+        filesizekb: fields.file_size_kb || 0,
+        status: fields.status || '審査中'
+      });
+      if (data.msg) toastSuccess(data.msg);
+      else toastSuccess('新しい版を登録しました');
+      return true;
+    } catch (e) {
+      console.error('版の登録に失敗しました', e);
+      toastError('版の登録に失敗しました');
+      return false;
+    }
+  }
+
+  // 原本文書のダウンロードAPI（DocumentVersionDownloadAPI）
+  // バックエンドからファイルBlobを受信し、ブラウザでダウンロードする
+  async function downloadDocument(docId, versionNumber) {
+    try {
+      const res = await fetch('/documentversiondownloadapi.do', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCsrfToken()
+        },
+        body: JSON.stringify({ mode: '1', actflg: '1', triggerid: 'documentversiondownloadapi', row: { id: String(docId), version: String(versionNumber) } })
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      // カスタムヘッダーX-Download-Filenameからファイル名を取得する（日本語対応）
+      const encodedName = res.headers.get('X-Download-Filename') || '';
+      let filename = 'download';
+      if (encodedName) {
+        filename = decodeURIComponent(encodedName);
+      } else {
+        const cd = res.headers.get('Content-Disposition') || '';
+        const match = cd.match(/filename\*?=(?:UTF-8'')?["']?([^"';\n]+)/);
+        if (match) filename = decodeURIComponent(match[1]);
+      }
+      // Blobを受信してダウンロードリンクを生成する
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toastSuccess('ダウンロードしました');
+    } catch (e) {
+      console.error('ダウンロードに失敗しました', e);
+      toastError('ダウンロードに失敗しました');
+    }
+  }
 
   function toastSuccess(msg) {
     if (typeof Toast !== 'undefined' && Toast.success) Toast.success(msg);
@@ -316,21 +524,36 @@
   }
 
   function wireDocumentPanel() {
+    // 詳細ボタン：後端APIから文書詳細を取得する（DocumentDetailInitAPI）
     root.querySelectorAll('.kn-doc-detail-btn').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
-        openInline('view', Number(btn.dataset.index));
+        const idx = Number(btn.dataset.index);
+        const doc = DOCUMENTS[idx];
+        loadDocumentDetail(doc.id).then(function (detail) {
+          if (detail) {
+            DOCUMENTS[idx] = detail;
+            openInline('view', idx);
+          }
+        });
       });
     });
+    // ダウンロードボタン：後端APIからファイルパスを取得する（DocumentVersionDownloadAPI）
     root.querySelectorAll('.kn-doc-download-btn').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         const doc = DOCUMENTS[Number(btn.dataset.index)];
-        toastSuccess(`${doc.title} をダウンロードしました（モック）`);
+        downloadDocument(doc.id, doc.active_version_number || 1);
       });
     });
+    // ＋文書を追加するボタン：後端APIから新規画面初期値を取得する（DocumentFormNewInitAPI）
     const addBtn = root.querySelector('#kn-doc-add');
-    if (addBtn) addBtn.addEventListener('click', (e) => { e.preventDefault(); openInline('new'); });
+    if (addBtn) addBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      loadNewDocumentForm().then(function (form) {
+        if (form) openInline('new');
+      });
+    });
 
     const editBtn = root.querySelector('#kn-doc-edit');
     if (editBtn) editBtn.addEventListener('click', () => { inlineMode = 'edit'; render(); });
@@ -349,20 +572,39 @@
       const status = (root.querySelector('#kn-doc-status') || {}).value || '審査中';
       const badge = status === '公開中' ? 'badge-status-ok' : status === '審査中' ? 'badge-status-pending' : 'badge-status-new';
       if (inlineMode === 'new') {
-        DOCUMENTS.unshift({
-          id: Date.now(), title, prefecture_name: scope || null, category, format,
-          file_size_kb: 0, linked_count: 0, uploaded_date: new Date().toISOString().slice(0, 10),
-          status, status_badge_class: badge,
+        // 新規登録：後端APIで文書を登録する（DocumentSaveAPI）
+        saveDocument({
+          title: title,
+          prefecture_code: scope === '北海道' ? '01' : '',
+          category: category,
+          format: format,
+          status: status,
+          file_path: '',
+          file_size_kb: 0
+        }).then(function (ok) {
+          if (ok) {
+            inlineMode = null;
+            inlineIndex = null;
+            loadDocuments();
+          }
         });
-        inlineIndex = 0;
-        toastSuccess('文書を登録しました');
       } else {
+        // 編集保存：後端APIで文書を更新する（DocumentUpdateAPI）
         const doc = DOCUMENTS[inlineIndex];
-        Object.assign(doc, { title, prefecture_name: scope || null, category, format, status, status_badge_class: badge });
-        toastSuccess('文書を保存しました');
+        updateDocument(doc.id, {
+          title: title,
+          prefecture_code: scope === '北海道' ? '01' : '',
+          category: category,
+          format: format,
+          status: status
+        }).then(function (ok) {
+          if (ok) {
+            Object.assign(doc, { title, prefecture_name: scope || null, category, format, status, status_badge_class: badge });
+            inlineMode = 'view';
+            render();
+          }
+        });
       }
-      inlineMode = 'view';
-      render();
     });
   }
 
@@ -506,6 +748,12 @@
     if (typeof window.__applyRoleAccentColor === 'function') window.__applyRoleAccentColor();
   }
 
-  window.__renderKnowledge = () => { activeTab = 'document'; inlineMode = null; inlineIndex = null; render(); };
-  render();
+  // 画面初期表示時に原本文書一覧を取得する（KnowledgeInitAPI）
+  window.__renderKnowledge = () => {
+    activeTab = 'document';
+    inlineMode = null;
+    inlineIndex = null;
+    loadDocuments();
+  };
+  loadDocuments();
 })();

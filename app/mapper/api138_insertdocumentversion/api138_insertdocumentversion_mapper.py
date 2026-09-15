@@ -5,7 +5,8 @@ import sqlite3
 import utils.sql_utils
 
 class api138_insertdocumentversionMapper:
-    def api138_insertdocumentversion(knowledge_document_id,prefecture_code,document_code,title,category,format,created_by,updated_by):
-        params = ["knowledge_document_id","prefecture_code","document_code","title","category","format","created_by","updated_by"]
-        values = [knowledge_document_id,prefecture_code,document_code,title,category,format,created_by,updated_by]
-        return utils.sql_utils.formatSQL("""INSERT INTO trn_knowledge_document ( :knowledgedocumentid , :prefecturecode , active_version_number , :documentcode , :title , :category , :format , created_at , :createdby , updated_at , :updatedby ) VALUES ( %s , %s , 1 , %s , %s , %s , %s , TO_CHAR(NOW( ) , 'YYYYMMDDHH24MISS' ) , %s , TO_CHAR(NOW( ) , 'YYYYMMDDHH24MISS' ) , %s ) ;""",params,values)
+    def api138_insertdocumentversion(knowledge_document_id,version_number,uploaded_by,file_size_kb,status,file_path):
+        params = ["knowledge_document_id","version_number","uploaded_by","file_size_kb","status","file_path"]
+        values = [knowledge_document_id,version_number,uploaded_by,file_size_kb,status,file_path]
+        # trn_knowledge_document_versionテーブルに新規版を登録する
+        return utils.sql_utils.formatSQL("""INSERT INTO trn_knowledge_document_version ( knowledge_document_id , version_number , uploaded_date , uploaded_by , file_size_kb , status , file_path , created_at , updated_at ) VALUES ( :knowledge_document_id , :version_number , CURRENT_DATE , :uploaded_by , :file_size_kb , :status , :file_path , TO_CHAR ( NOW ( ) , 'YYYYMMDDHH24MISS' ) , TO_CHAR ( NOW ( ) , 'YYYYMMDDHH24MISS' ) ) ;""",params,values)

@@ -9,6 +9,8 @@ class Api135GetknowledgedocumentdetailDao :
 # 関数定義_SQL文_ナレッジ文書詳細
      
     def api135_getknowledgedocumentdetail(self,dtoObj) :
-        returnVal = utils.mysqldb_utils.querySQL(api135_getknowledgedocumentdetailMapper.api135_getknowledgedocumentdetail(dtoObj.knowledge_document_id),{'knowledge_document_id':dtoObj.knowledge_document_id})
+        # DTOのknowledgedocumentidをSQLパラメータに渡す
+        knowledge_document_id = dtoObj.knowledgedocumentid
+        returnVal = utils.mysqldb_utils.querySQL(api135_getknowledgedocumentdetailMapper.api135_getknowledgedocumentdetail(knowledge_document_id),{'knowledge_document_id':knowledge_document_id})
         return utils.mysqldb_utils.result_to_list_of_dict(returnVal)
     

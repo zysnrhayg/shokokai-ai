@@ -3,8 +3,8 @@
 import json
 import utils.config
 import threading
-import utils.json_constant	
-from flask import session 
+import utils.json_constant
+from flask import session
 from app.common.getautonum import GetAutonum
 from datetime import datetime, timezone, timedelta
 import utils.date_util
@@ -19,95 +19,52 @@ from utils.save_data_check_utils import SaveDataCheckUtil
 import utils.string_util
 
 
-
-
 class DocumentupdateapiService :
 
-	#	# 
+	#
 	# ナレッジ文書編集画面登録ボタン
 	# @param Entity
 	# @param jsonObj
 	# @throws Exception
 	#
 	def documentupdateapi(self,documentupdateapi_dto,jsonObj) :
-			
-		#GeniusClientScript 1315
-		KNOWLEDGE_DOCUMENT_ID = documentupdateapi_dto.knowledgedocumentid#GeninusClientScript 1318
-		TITLE = documentupdateapi_dto.title#GeninusClientScript 1318
-		CATEGORY = documentupdateapi_dto.category#GeninusClientScript 1318
-		FORMAT = documentupdateapi_dto.format#GeninusClientScript 1318
-		api139_updateknowledgedocument = Api139UpdateknowledgedocumentDto.dict_to_json({}) #CommonFunction 110
-		api_knowledgedocumentversioninformation = ApiKnowledgedocumentversioninformationDto.dict_to_json({}) #CommonFunction 110
-		KOUSHINKENSUU = ""
-		#UltimateGeniuBean 115
+
+		# 編集画面の入力値（原本文書ID・タイトル・カテゴリ・形式・適用範囲・ステータス）
+		KNOWLEDGE_DOCUMENT_ID = documentupdateapi_dto.knowledgedocumentid
+		TITLE = documentupdateapi_dto.title
+		CATEGORY = documentupdateapi_dto.category
+		FORMAT = documentupdateapi_dto.format
+		PREFECTURE_CODE = documentupdateapi_dto.prefecturecode or ""
+		STATUS = documentupdateapi_dto.status or ""
+		# updated_byはinteger型（user_account_id）
+		USER_ACCOUNT_ID = session.get("USER_ACCOUNT_ID", 1) or 1
+		api139_updateknowledgedocument = Api139UpdateknowledgedocumentDto.dict_to_json({})
+		api_knowledgedocumentversioninformation = ApiKnowledgedocumentversioninformationDto.dict_to_json({})
+
 		utils.config.global_log.debug(str(threading.current_thread().native_id)+ ": start")
 		try :
-			#ナレッジ文書編集画面登録ボタン_DocumentUpdateAPI_(API)
-			
-			#「項目処理」（共通関数:DocumentUpdateAPI）,パラメータは（knowledge_document_id,title,category,format）
-			
-			#以下の処理を行う。
-			
-			#関数「API139_UpdateKnowledgeDocument」の「db_API139_UpdateKnowledgeDocument」メソッドを行う,パラメータは「title,category,format,knowledge_document_id」。
-			
-			# title
-			api139_updateknowledgedocument.title = TITLE #ArgumentGenerator 274
-			#ArgumentGenerator 274
-			
-			# prefecture_code
-			api139_updateknowledgedocument.prefecturecode = CATEGORY #ArgumentGenerator 274
-			#ArgumentGenerator 274
-			
-			# category
-			api139_updateknowledgedocument.category = FORMAT #ArgumentGenerator 274
-			#ArgumentGenerator 274
-			
-			# format
-			api139_updateknowledgedocument.format = KNOWLEDGE_DOCUMENT_ID #ArgumentGenerator 274
-			#ArgumentGenerator 274
-			
-			# updated_by
-			api139_updateknowledgedocument.updatedby = "" #ArgumentGenerator 237
-			#ArgumentGenerator 237
-			
-			# knowledge_document_id
-			api139_updateknowledgedocument.knowledgedocumentid = "" #ArgumentGenerator 237
-			#ArgumentGenerator 237
-			
-			Api139UpdateknowledgedocumentDao().api139_updateknowledgedocument(api139_updateknowledgedocument) #ResultGenerator 104
-			#ResultGenerator 104
-			#関数「API_KnowledgeDocumentVersionInformation」の「db_API_KnowledgeDocumentVersionInformation」メソッドを行う,パラメータは「title,category,format,knowledge_document_id」。
-			
-			# status
-			api_knowledgedocumentversioninformation.status = TITLE #ArgumentGenerator 274
-			#ArgumentGenerator 274
-			
-			# updated_by
-			api_knowledgedocumentversioninformation.updatedby = CATEGORY #ArgumentGenerator 274
-			#ArgumentGenerator 274
-			
-			# knowledge_document_id
-			api_knowledgedocumentversioninformation.knowledgedocumentid = FORMAT #ArgumentGenerator 274
-			#ArgumentGenerator 274
-			
-			ApiKnowledgedocumentversioninformationDao().api_knowledgedocumentversioninformation(api_knowledgedocumentversioninformation) #ResultGenerator 104
-			#ResultGenerator 104
-			#<更新件数>が"1"の場合,以下の処理を行う。
-			#GeniusClientScript 983
-			if KOUSHINKENSUU.replace(" ", "") == "1" : #GeniusContion 823
-				#GeniusContion 823
-				#「更新しました」メッセージを表示する。
-				jsonObj.setScript(utils.json_constant.JSONID_MSG, "更新しました")
-				#処理終了。
-				pass
-				#GeniusClientScript 1207
-			#処理終了。
-			
+			# ナレッジ文書編集画面登録ボタン_DocumentUpdateAPI_(API)
+
+			# 原本文書マスタを更新する（タイトル・適用範囲・カテゴリ・形式・更新者）
+			api139_updateknowledgedocument.title = TITLE
+			api139_updateknowledgedocument.prefecturecode = PREFECTURE_CODE
+			api139_updateknowledgedocument.category = CATEGORY
+			api139_updateknowledgedocument.format = FORMAT
+			api139_updateknowledgedocument.updatedby = USER_ACCOUNT_ID
+			api139_updateknowledgedocument.knowledgedocumentid = KNOWLEDGE_DOCUMENT_ID
+			Api139UpdateknowledgedocumentDao().api139_updateknowledgedocument(api139_updateknowledgedocument)
+
+			# 有効版のステータスを更新する（ステータスが指定されている場合のみ）
+			if STATUS != "" :
+				api_knowledgedocumentversioninformation.status = STATUS
+				api_knowledgedocumentversioninformation.updatedby = USER_ACCOUNT_ID
+				api_knowledgedocumentversioninformation.knowledgedocumentid = KNOWLEDGE_DOCUMENT_ID
+				ApiKnowledgedocumentversioninformationDao().api_knowledgedocumentversioninformation(api_knowledgedocumentversioninformation)
+
+			# 「更新しました」メッセージを表示する
+			jsonObj.setScript(utils.json_constant.JSONID_MSG, "更新しました")
+
 		except Exception as e:
 			utils.config.global_log.error(e)
 			raise
-		utils.config.global_log.debug(str(threading.current_thread().native_id)+ ": end") 
-		
-			
-	
-	
+		utils.config.global_log.debug(str(threading.current_thread().native_id)+ ": end")

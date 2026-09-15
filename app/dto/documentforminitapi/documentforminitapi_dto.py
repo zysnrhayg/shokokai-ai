@@ -8,8 +8,12 @@ class DocumentforminitapiDto(BaseEntity):
     def dict_to_json(d):
         if d is None:
             d = {}
-        return DocumentforminitapiDto(
+        dto = DocumentforminitapiDto(
             d.get("mode", ""),
             d.get("actflg", ""),
             d.get("triggerid", ""),
-            d.get("row", ""))
+            d.get("row", {}))
+        row = d.get("row", {}) if isinstance(d.get("row", {}), dict) else {}
+        # 編集対象の原本文書ID
+        dto.id = row.get("id", "") or row.get("knowledge_document_id", "") or row.get("knowledgedocumentid", "")
+        return dto

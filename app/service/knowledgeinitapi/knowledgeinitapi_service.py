@@ -107,8 +107,22 @@ class KnowledgeinitapiService :
 					entity = api_genponbunshoichiranlistVar[i]
 					selMap ={} #GeniusGrid681
 					#GeniusGrid681
+					# API_GenponBunshoIchiranの取得結果を、Grid「documents」の1行分のデータとして設定する。
+					selMap["knowledge_document_id"] = utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "knowledge_document_id"))
+					selMap["document_code"] = utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "document_code"))
+					selMap["title"] = utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "title"))
+					selMap["category"] = utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "category"))
+					selMap["format"] = utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "format"))
+					selMap["active_version_number"] = utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "active_version_number"))
+					selMap["prefecture_code"] = utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "prefecture_code"))
+					selMap["prefecture_name"] = utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "prefecture_name"))
+					selMap["uploaded_date"] = utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "uploaded_date"))
+					selMap["file_size_kb"] = utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "file_size_kb"))
+					selMap["status"] = utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "status"))
+					selMap["file_path"] = utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "file_path"))
+					selMap["linked_count"] = utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "linked_count"))
 					mapList.insert(len(mapList),selMap)
-			result = json.dumps(mapList, ensure_ascii=False)
+			result = json.dumps(mapList, default=str, ensure_ascii=False)
 			jsonObj.setHtml("dragB", result) #GeniusGrid748
 			#GeniusGrid748
 			#処理終了。
