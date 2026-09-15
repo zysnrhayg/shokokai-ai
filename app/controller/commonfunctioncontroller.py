@@ -104,6 +104,20 @@ from app.dto.aiproposalregenerateapi.aiproposalregenerateapi_dto import Aipropos
 from app.service.aiproposalregenerateapi.aiproposalregenerateapi_service import AiproposalregenerateapiService
 from app.dto.knowledgesearchapi.knowledgesearchapi_dto import KnowledgesearchapiDto
 from app.service.knowledgesearchapi.knowledgesearchapi_service import KnowledgesearchapiService
+from app.dto.dashboardheatmapcelltoggleapi.dashboardheatmapcelltoggleapi_dto import DashboardheatmapcelltoggleapiDto
+from app.service.dashboardheatmapcelltoggleapi.dashboardheatmapcelltoggleapi_service import DashboardheatmapcelltoggleapiService
+from app.dto.dashboardheatmapfilterapi.dashboardheatmapfilterapi_dto import DashboardheatmapfilterapiDto
+from app.service.dashboardheatmapfilterapi.dashboardheatmapfilterapi_service import DashboardheatmapfilterapiService
+from app.dto.dashboardheatmappageapi.dashboardheatmappageapi_dto import DashboardheatmappageapiDto
+from app.service.dashboardheatmappageapi.dashboardheatmappageapi_service import DashboardheatmappageapiService
+from app.dto.draftsaveapi.draftsaveapi_dto import DraftsaveapiDto
+from app.service.draftsaveapi.draftsaveapi_service import DraftsaveapiService
+from app.dto.jigyoshomeinokohokakonosodanrirekihistoryapi.jigyoshomeinokohokakonosodanrirekihistoryapi_dto import JigyoshomeinokohokakonosodanrirekihistoryapiDto
+from app.service.jigyoshomeinokohokakonosodanrirekihistoryapi.jigyoshomeinokohokakonosodanrirekihistoryapi_service import JigyoshomeinokohokakonosodanrirekihistoryapiService
+from app.dto.jigyoshomeinokohokakonosodanrirekinamesapi.jigyoshomeinokohokakonosodanrirekinamesapi_dto import JigyoshomeinokohokakonosodanrirekinamesapiDto
+from app.service.jigyoshomeinokohokakonosodanrirekinamesapi.jigyoshomeinokohokakonosodanrirekinamesapi_service import JigyoshomeinokohokakonosodanrirekinamesapiService
+from app.dto.verify2fainitapi.verify2fainitapi_dto import Verify2fainitapiDto
+from app.service.verify2fainitapi.verify2fainitapi_service import Verify2fainitapiService
 
 
 commonfunction_route = Blueprint('commonfunction_route', __name__)
@@ -1707,6 +1721,199 @@ def knowledgesearchapi() :
 	knowledgesearchapiVar_service = KnowledgesearchapiService()
 
 	knowledgesearchapiVar_service.knowledgesearchapi(knowledgesearchapi_dto, jsonObj)
+	
+	return jsonObj.toJsonString()
+@commonfunction_route.route("/dashboardheatmapcelltoggleapi.do", methods=['POST'])
+
+def dashboardheatmapcelltoggleapi() :
+	"""dashboardheatmapcelltoggleapi - ダッシュボード（全国連）ヒートマップセル除外トグル - サーバー関数"""
+
+	data = request.get_json() or {}
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+	
+#UnitedControllerBuilder 963
+
+	dashboardheatmapcelltoggleapi_dto = DashboardheatmapcelltoggleapiDto.dict_to_json(data)
+	dashboardheatmapcelltoggleapiVar_service = DashboardheatmapcelltoggleapiService()
+
+	dashboardheatmapcelltoggleapiVar_service.dashboardheatmapcelltoggleapi(dashboardheatmapcelltoggleapi_dto, jsonObj)
+	
+	return jsonObj.toJsonString()
+
+
+
+#
+# dashboardheatmapfilterapi - ダッシュボード（全国連）ヒートマップ絞込（地方／グループ） - サーバー関数
+# @param dashboardheatmapfilterapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/dashboardheatmapfilterapi.do", methods=['POST'])
+
+def dashboardheatmapfilterapi() :
+	"""dashboardheatmapfilterapi - ダッシュボード（全国連）ヒートマップ絞込（地方／グループ） - サーバー関数"""
+
+	data = request.get_json() or {}
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+	
+#UnitedControllerBuilder 963
+
+	dashboardheatmapfilterapi_dto = DashboardheatmapfilterapiDto.dict_to_json(data)
+	dashboardheatmapfilterapiVar_service = DashboardheatmapfilterapiService()
+
+	dashboardheatmapfilterapiVar_service.dashboardheatmapfilterapi(dashboardheatmapfilterapi_dto, jsonObj)
+	
+	return jsonObj.toJsonString()
+
+
+
+#
+# dashboardheatmappageapi - ダッシュボード（全国連）ヒートマップページ送り - サーバー関数
+# @param dashboardheatmappageapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/dashboardheatmappageapi.do", methods=['POST'])
+
+def dashboardheatmappageapi() :
+	"""dashboardheatmappageapi - ダッシュボード（全国連）ヒートマップページ送り - サーバー関数"""
+
+	data = request.get_json() or {}
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+	
+#UnitedControllerBuilder 963
+
+	dashboardheatmappageapi_dto = DashboardheatmappageapiDto.dict_to_json(data)
+	dashboardheatmappageapiVar_service = DashboardheatmappageapiService()
+
+	dashboardheatmappageapiVar_service.dashboardheatmappageapi(dashboardheatmappageapi_dto, jsonObj)
+	
+	return jsonObj.toJsonString()
+
+
+
+#
+# draftsaveapi - 報告書編集下書き保存 - サーバー関数
+# @param draftsaveapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/draftsaveapi.do", methods=['POST'])
+
+def draftsaveapi() :
+	"""draftsaveapi - 報告書編集下書き保存 - サーバー関数"""
+
+	data = request.get_json() or {}
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+	
+#UnitedControllerBuilder 963
+
+	draftsaveapi_dto = DraftsaveapiDto.dict_to_json(data)
+	draftsaveapiVar_service = DraftsaveapiService()
+
+	draftsaveapiVar_service.draftsaveapi(draftsaveapi_dto, jsonObj)
+	
+	return jsonObj.toJsonString()
+
+
+
+#
+# jigyoshomeinokohokakonosodanrirekihistoryapi - 事業所過去相談履歴 - サーバー関数
+# @param jigyoshomeinokohokakonosodanrirekihistoryapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/jigyoshomeinokohokakonosodanrirekihistoryapi.do", methods=['POST'])
+
+def jigyoshomeinokohokakonosodanrirekihistoryapi() :
+	"""jigyoshomeinokohokakonosodanrirekihistoryapi - 事業所過去相談履歴 - サーバー関数"""
+
+	data = request.get_json() or {}
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+	
+#UnitedControllerBuilder 963
+
+	jigyoshomeinokohokakonosodanrirekihistoryapi_dto = JigyoshomeinokohokakonosodanrirekihistoryapiDto.dict_to_json(data)
+	jigyoshomeinokohokakonosodanrirekihistoryapiVar_service = JigyoshomeinokohokakonosodanrirekihistoryapiService()
+
+	jigyoshomeinokohokakonosodanrirekihistoryapiVar_service.jigyoshomeinokohokakonosodanrirekihistoryapi(jigyoshomeinokohokakonosodanrirekihistoryapi_dto, jsonObj)
+	
+	return jsonObj.toJsonString()
+
+
+
+#
+# jigyoshomeinokohokakonosodanrirekinamesapi - 事業所名サジェスト - サーバー関数
+# @param jigyoshomeinokohokakonosodanrirekinamesapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/jigyoshomeinokohokakonosodanrirekinamesapi.do", methods=['POST'])
+
+def jigyoshomeinokohokakonosodanrirekinamesapi() :
+	"""jigyoshomeinokohokakonosodanrirekinamesapi - 事業所名サジェスト - サーバー関数"""
+
+	data = request.get_json() or {}
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+	
+#UnitedControllerBuilder 963
+
+	jigyoshomeinokohokakonosodanrirekinamesapi_dto = JigyoshomeinokohokakonosodanrirekinamesapiDto.dict_to_json(data)
+	jigyoshomeinokohokakonosodanrirekinamesapiVar_service = JigyoshomeinokohokakonosodanrirekinamesapiService()
+
+	jigyoshomeinokohokakonosodanrirekinamesapiVar_service.jigyoshomeinokohokakonosodanrirekinamesapi(jigyoshomeinokohokakonosodanrirekinamesapi_dto, jsonObj)
+	
+	return jsonObj.toJsonString()
+
+
+
+#
+# verify2fainitapi - 二段階認証画面画面を開く - サーバー関数
+# @param verify2fainitapi_dto
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/verify2fainitapi.do", methods=['POST'])
+
+def verify2fainitapi() :
+	"""verify2fainitapi - 二段階認証画面画面を開く - サーバー関数"""
+
+	data = request.get_json() or {}
+	jsonObj = JSONWFCObject()
+
+	# validate parameter 371
+
+	
+#UnitedControllerBuilder 963
+
+	verify2fainitapi_dto = Verify2fainitapiDto.dict_to_json(data)
+	verify2fainitapiVar_service = Verify2fainitapiService()
+
+	verify2fainitapiVar_service.verify2fainitapi(verify2fainitapi_dto, jsonObj)
 	
 	return jsonObj.toJsonString()
 
