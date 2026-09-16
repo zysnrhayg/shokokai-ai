@@ -36,29 +36,21 @@ class VectordetailinitapiService :
 		#ResultGenerator 80
 		SHUTOKUKENSUU = ""
 		#_dto api149_getvectorcollectiondetail_dto = None #ResultGenerator 119
-		#ResultGenerator365
-		VECTORCOLLECTIONID = ""
-		COLLECTIONCODE = ""
-		NAME = ""
-		VECTORCOUNT = ""
-		BASELINEVECTORCOUNT = ""
-		STATUS = ""
-		SYNCEDDATE = ""
 		#UltimateGeniuBean 115
 		utils.config.global_log.debug(str(threading.current_thread().native_id)+ ": start")
 		try :
 			#ベクトル詳細画面初期表示_VectorDetailInitAPI_(API)
-			
+
 			#「項目処理」（共通関数:VectorDetailInitAPI）,パラメータは（vector_collection_id）
-			
+
 			#以下の処理を行う。
-			
-			#関数「API149_GetVectorCollectionDetail」の「db_API149_GetVectorCollectionDetail」メソッドを行う,パラメータは「vector_collection_id」,戻り値設定は「<vector_collection_id>=vector_collection_id,<collection_code>=collection_code,<name>=name,<vector_count>=vector_count,<baseline_vector_count>=baseline_vector_count,<status>=status,<synced_date>=synced_date」を設定する。
-			
+
+			#関数「API149_GetVectorCollectionDetail」の「db_API149_GetVectorCollectionDetail」メソッドを行う,パラメータは「vector_collection_id」,戻り値設定は「」を設定する。
+
 			# vector_collection_id
 			api149_getvectorcollectiondetail.vectorcollectionid = VECTOR_COLLECTION_ID #ArgumentGenerator 274
 			#ArgumentGenerator 274
-			
+
 			#ReulstGenerator 87
 			api149_getvectorcollectiondetailList = Api149GetvectorcollectiondetailDao().api149_getvectorcollectiondetail(api149_getvectorcollectiondetail)
 			api149_getvectorcollectiondetaillistVar = None #ResultGenerator 89
@@ -68,29 +60,24 @@ class VectordetailinitapiService :
 			if api149_getvectorcollectiondetaillistVar != None and len(api149_getvectorcollectiondetaillistVar) > 0 :
 				SHUTOKUKENSUU = str(len(api149_getvectorcollectiondetaillistVar))
 			# --LINE114 retrieved first value
+			# ベクトル詳細データをJSON形式でフロントエンドに返却する
+			detailInfo = {}
 			if api149_getvectorcollectiondetaillistVar != None and len(api149_getvectorcollectiondetaillistVar) > 0 :
 				rec = api149_getvectorcollectiondetaillistVar[0]
-				VECTORCOLLECTIONID = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "vector_collection_id")) # ResultGenerator 385
-				# ResultGenerator 385
-				
-				COLLECTIONCODE = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "collection_code")) # ResultGenerator 385
-				# ResultGenerator 385
-				
-				NAME = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "name")) # ResultGenerator 385
-				# ResultGenerator 385
-				
-				VECTORCOUNT = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "vector_count")) # ResultGenerator 385
-				# ResultGenerator 385
-				
-				BASELINEVECTORCOUNT = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "baseline_vector_count")) # ResultGenerator 385
-				# ResultGenerator 385
-				
-				STATUS = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "status")) # ResultGenerator 385
-				# ResultGenerator 385
-				
-				SYNCEDDATE = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "synced_date")) # ResultGenerator 385
-				# ResultGenerator 385
-				
+				status = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "status"))
+				status_badge_class = "badge-status-ok" if status == "同期済み" else "badge-status-pending"
+				detailInfo = {
+					"vector_collection_id": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "vector_collection_id")),
+					"collection_code": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "collection_code")),
+					"name": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "name")),
+					"vector_count": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "vector_count")),
+					"baseline_vector_count": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "baseline_vector_count")),
+					"status": status,
+					"status_badge_class": status_badge_class,
+					"synced_date": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "synced_date"))
+				}
+			# ベクトル詳細データをJSON形式でフロントエンドに返却する
+			jsonObj.setHtml("dragB", json.dumps(detailInfo, ensure_ascii=False, default=str))
 			#処理終了。
 			
 		except Exception as e:

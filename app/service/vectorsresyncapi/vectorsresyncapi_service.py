@@ -28,29 +28,35 @@ class VectorsresyncapiService :
 	# @throws Exception
 	#
 	def vectorsresyncapi(self,vectorsresyncapi_dto,jsonObj) :
-			
+
 		api153_resyncvectorcollections = Api153ResyncvectorcollectionsDto.dict_to_json({}) #CommonFunction 110
 		#UltimateGeniuBean 115
 		utils.config.global_log.debug(str(threading.current_thread().native_id)+ ": start")
 		try :
 			#ベクトル一覧画面再同期ボタン_VectorsResyncAPI_(API)
-			
-			#「項目処理」（共通関数:VectorsResyncAPI）,パラメータは（）
-			
+
+			#「項目処理」（共通関数:VectorsResyncAPI）,パラメータは（vectorcollectionid, vectorcount）
+
 			#以下の処理を行う。
-			
+
+			# DTOから再同期対象のベクトルコレクションIDとベクトル数を取得する
+			VECTOR_COLLECTION_ID = vectorsresyncapi_dto.vectorcollectionid
+			VECTOR_COUNT = vectorsresyncapi_dto.vectorcount
+
 			#関数「API153_ResyncVectorCollections」の「db_API153_ResyncVectorCollections」メソッドを行う,パラメータは「vector_collection_id,vector_count」。
-			
+
 			# vector_collection_id
 			api153_resyncvectorcollections.vectorcollectionid = VECTOR_COLLECTION_ID #ArgumentGenerator 274
 			#ArgumentGenerator 274
-			
+
 			# vector_count
 			api153_resyncvectorcollections.vectorcount = VECTOR_COUNT #ArgumentGenerator 274
 			#ArgumentGenerator 274
-			
+
 			Api153ResyncvectorcollectionsDao().api153_resyncvectorcollections(api153_resyncvectorcollections) #ResultGenerator 104
 			#ResultGenerator 104
+			# 再同期完了メッセージをフロントエンドに返却する
+			jsonObj.setScript(utils.json_constant.JSONID_MSG, "再同期しました")
 			#処理終了。
 			
 		except Exception as e:

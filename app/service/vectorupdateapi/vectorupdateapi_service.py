@@ -32,6 +32,7 @@ class VectorupdateapiService :
 		#GeniusClientScript 1315
 		VECTOR_COLLECTION_ID = vectorupdateapi_dto.vectorcollectionid#GeninusClientScript 1318
 		NAME = vectorupdateapi_dto.name#GeninusClientScript 1318
+		VECTOR_COUNT = vectorupdateapi_dto.vectorcount#GeninusClientScript 1318
 		STATUS = vectorupdateapi_dto.status#GeninusClientScript 1318
 		api151_updatevectorcollection = Api151UpdatevectorcollectionDto.dict_to_json({}) #CommonFunction 110
 		KOUSHINKENSUU = ""
@@ -39,27 +40,33 @@ class VectorupdateapiService :
 		utils.config.global_log.debug(str(threading.current_thread().native_id)+ ": start")
 		try :
 			#ベクトル編集画面登録ボタン_VectorUpdateAPI_(API)
-			
-			#「項目処理」（共通関数:VectorUpdateAPI）,パラメータは（vector_collection_id,name,status）
-			
+
+			#「項目処理」（共通関数:VectorUpdateAPI）,パラメータは（vector_collection_id,name,vector_count,status）
+
 			#以下の処理を行う。
-			
-			#関数「API151_UpdateVectorCollection」の「db_API151_UpdateVectorCollection」メソッドを行う,パラメータは「name,status,vector_collection_id」。
-			
+
+			#関数「API151_UpdateVectorCollection」の「db_API151_UpdateVectorCollection」メソッドを行う,パラメータは「name,vector_count,status,vector_collection_id」。
+
 			# name
 			api151_updatevectorcollection.name = NAME #ArgumentGenerator 274
 			#ArgumentGenerator 274
-			
+
+			# vector_count
+			api151_updatevectorcollection.vectorcount = VECTOR_COUNT #ArgumentGenerator 274
+			#ArgumentGenerator 274
+
 			# status
 			api151_updatevectorcollection.status = STATUS #ArgumentGenerator 274
 			#ArgumentGenerator 274
-			
+
 			# vector_collection_id
 			api151_updatevectorcollection.vectorcollectionid = VECTOR_COLLECTION_ID #ArgumentGenerator 274
 			#ArgumentGenerator 274
-			
-			Api151UpdatevectorcollectionDao().api151_updatevectorcollection(api151_updatevectorcollection) #ResultGenerator 104
+
+			updateResult = Api151UpdatevectorcollectionDao().api151_updatevectorcollection(api151_updatevectorcollection) #ResultGenerator 104
 			#ResultGenerator 104
+			# 更新件数を取得する
+			KOUSHINKENSUU = str(len(updateResult)) if updateResult != None else "0"
 			#<更新件数>が"1"の場合,以下の処理を行う。
 			#GeniusClientScript 983
 			if KOUSHINKENSUU.replace(" ", "") == "1" : #GeniusContion 823
@@ -69,6 +76,9 @@ class VectorupdateapiService :
 				#処理終了。
 				pass
 				#GeniusClientScript 1207
+			else:
+				# 更新失敗時のメッセージを表示する
+				jsonObj.setScript(utils.json_constant.JSONID_MSG, "更新に失敗しました")
 			#処理終了。
 			
 		except Exception as e:

@@ -9,6 +9,7 @@ class ApiKnowledgedocumentversioninformationDao :
 # 関数定義_SQL文_ナレッジ文書バージョン情報更新
      
     def api_knowledgedocumentversioninformation(self,dtoObj) :
-        returnVal = utils.mysqldb_utils.querySQL(api_knowledgedocumentversioninformationMapper.api_knowledgedocumentversioninformation(dtoObj.status,dtoObj.updated_by,dtoObj.knowledge_document_id),{'status':dtoObj.status,'updated_by':dtoObj.updated_by,'knowledge_document_id':dtoObj.knowledge_document_id})
+        # DTOのフィールド名（camelCase）を使用する
+        returnVal = utils.mysqldb_utils.querySQL(api_knowledgedocumentversioninformationMapper.api_knowledgedocumentversioninformation(dtoObj.status,dtoObj.updatedby,dtoObj.knowledgedocumentid),{'status':dtoObj.status,'updated_by':dtoObj.updatedby,'knowledge_document_id':dtoObj.knowledgedocumentid})
         return utils.mysqldb_utils.result_to_list_of_dict(returnVal)
     
