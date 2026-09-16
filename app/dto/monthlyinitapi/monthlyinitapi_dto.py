@@ -9,6 +9,7 @@ class MonthlyinitapiDto(BaseEntity):
         self.shokokaicd = kwargs.get("shokokaicd", "")
         self.fiscalyearcode = kwargs.get("fiscalyearcode", "")
         self.yearmonth = kwargs.get("yearmonth", "")
+        self.periodtype = kwargs.get("periodtype", "")
 
     @staticmethod
     def dict_to_json(d):
@@ -24,4 +25,5 @@ class MonthlyinitapiDto(BaseEntity):
             shokokaicd=d.get("shokokaicd", d.get("shokokai_cd", "")),
             fiscalyearcode=d.get("fiscalyearcode", d.get("fiscal_year_code", "")),
             yearmonth=d.get("yearmonth", d.get("year_month", "")),
+            periodtype=d.get("periodtype", d.get("period_type", "")),
         )

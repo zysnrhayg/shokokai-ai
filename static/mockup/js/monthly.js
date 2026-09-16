@@ -19,8 +19,6 @@
   let initDone = false;
   let listReqSeq = 0; // 一覧再取得の競合防止
 
-  const ANNUAL_FORM_CODES = ['H', 'I-1', 'I-7', 'I-8'];
-
   const detailByKey = new Map();
   const totalByMonth = new Map();
 
@@ -83,7 +81,7 @@
   }
 
   function buildPayload(extra) {
-    var body = { rolecode: currentUiRole() };
+    var body = { rolecode: currentUiRole(), periodtype: periodType };
     if (window.ApiClient && typeof window.ApiClient.orgContext === 'function') {
       var org = window.ApiClient.orgContext() || {};
       if (org.prefecturecode) body.prefecturecode = org.prefecturecode;
@@ -130,23 +128,24 @@
         <div class="cat-lbl">📄 帳票は指定した条件で出力、CSVは条件に関係なく一覧を出力します</div>
 
         <div class="card" id="monthly-filter-card">
-          <div class="card-header" id="monthly-filter-header">
+          <div class="card-header" id="monthly-filter-header"${periodType === 'annual' ? ' class="is-annual"' : ''}>
             <div class="filter-row">
-              <div class="filter-field"><div class="filter-field__label">出力種別</div>
+              <div class="filter-field" style="order:1;"><div class="filter-field__label">出力種別</div>
                 <div class="flex items-center gap-md" style="height:36px; box-sizing:border-box;">
                   <label class="flex items-center gap-xs" style="white-space:nowrap;cursor:pointer;"><input type="radio" name="f-period-type" value="monthly"${periodType === 'monthly' ? ' checked' : ''}> 月次</label>
                   <label class="flex items-center gap-xs" style="white-space:nowrap;cursor:pointer;"><input type="radio" name="f-period-type" value="annual"${periodType === 'annual' ? ' checked' : ''}> 年次</label>
                 </div>
               </div>
               <div class="filter-field" id="monthly-year-month-field"></div>
-              <div class="filter-field" style="margin-left:auto;">
+              <div class="filter-field" id="monthly-export-field">
                 <div class="filter-field__label">帳票出力</div>
-                <div class="flex items-center gap-xs" id="monthly-export-groups"></div>
+                <div class="flex items-center flex-wrap gap-xs" id="monthly-export-groups"></div>
               </div>
-              <div class="filter-field" style="border-left:1px solid var(--gold-border); padding-left:var(--space-6);">
+              <div class="filter-row__spacer" aria-hidden="true"></div>
+              <div class="filter-field monthly-csv-field" style="border-left:1px solid var(--gold-border); padding-left:var(--space-6);">
                 <div class="filter-field__label">&nbsp;</div>
                 <div class="flex items-center gap-md">
-                  <button type="button" class="btn btn-outline btn-sm" id="monthly-csv-btn">⬇ 一覧をCSVに出力する</button>
+                  <button type="button" class="btn btn-outline btn-sm" id="monthly-csv-btn" style="background:var(--surface-hover)">⬇ 一覧をCSVに出力する</button>
                 </div>
               </div>
             </div>
@@ -170,6 +169,8 @@
         selectedMonth = null;
       }
       periodType = nextType;
+      var headerEl = root.querySelector('#monthly-filter-header');
+      if (headerEl) headerEl.classList.toggle('is-annual', periodType === 'annual');
       renderExportGroup();
       renderYearMonthField();
       // 月次↔年次：DB からテーマ一覧を取り直す（月次は実施年月で0件テーマ除外）
@@ -218,12 +219,18 @@
     return false;
   }
 
+  function exportFormMeta(formCode) {
+    return (DATA.export_forms || []).find(function (f) {
+      return f.form_code === formCode;
+    });
+  }
+
   function exportForm(formCode, formLabel) {
-    var isAnnual = ANNUAL_FORM_CODES.indexOf(formCode) >= 0;
+    var meta = exportFormMeta(formCode);
     var payload = buildPayload({
       formcode: formCode,
       fiscalyearcode: selectedYear || DATA.current_fiscal_year_code || '',
-      yearmonth: isAnnual ? '' : (selectedMonth || ''),
+      yearmonth: (meta && meta.requires_yearmonth) ? (selectedMonth || '') : '',
     });
     var csrf = window.ApiClient && window.ApiClient.getCsrfToken
       ? window.ApiClient.getCsrfToken()
@@ -344,7 +351,10 @@
     }
     const checked = root.querySelector('input[name="f-period-type"]:checked');
     const isAnnual = checked && checked.value === 'annual';
-    const forms = formsSrc.filter(f => ANNUAL_FORM_CODES.includes(f.form_code) === isAnnual);
+    const wantGroup = isAnnual ? 'annual' : 'monthly';
+    const forms = formsSrc.filter(function (f) {
+      return (f.period_group || 'monthly') === wantGroup;
+    });
     groupsEl.innerHTML = forms.length
       ? forms.map(f => `<button type="button" class="btn btn-outline btn-sm" data-export-form="${esc(f.form_code)}" data-export-label="${esc(f.full_label)}">${esc(f.short_label)}</button>`).join('')
       : `<span class="text-muted text-sm">出力できる帳票がありません</span>`;

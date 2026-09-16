@@ -1,7 +1,8 @@
 # 帳票配布ディレクトリ（MONTHLY_REPORT_EXPORT_DIR）
 
 ## 本番
-顧客アップロードの帳票ファイル（`report_*_template.xlsx` 等）をこのディレクトリ直下に置きます。
+**Excelテンプレートのみ**（`report_*_template.xlsx` 等）をこのディレクトリ直下に置きます。
+数値・ラベルは `v_output_h_excel`／`v_output_i1_excel`〜`i8_excel` と `cfg_excel_output_mapping` から書き込みます。
 ファイル名は `cfg_excel_report_definition.template_filename` と一致させてください。
 
 ## テスト用ダミー

@@ -320,7 +320,11 @@
   #reports-filter-header { background: var(--gold-bg); border-bottom-color: var(--gold-border); }
 
   #monthly-filter-header, #accounts-filter-header { align-items: flex-end; }
-  #monthly-filter-header .filter-row { align-items: flex-start; width: 100%; }
+  #monthly-filter-header .filter-row { align-items: flex-start; width: 100%; flex-wrap: nowrap; }
+  #monthly-filter-header .filter-row__spacer { flex: 1 1 auto; min-width: var(--space-3); align-self: stretch; order: 3; }
+  #monthly-filter-header #monthly-year-month-field { order: 2; }
+  #monthly-filter-header #monthly-export-field { flex: 0 1 auto; min-width: 0; order: 4; }
+  #monthly-filter-header .monthly-csv-field { flex: 0 0 auto; margin-left: 0; order: 5; }
 
   #ks-search-header { display: flex; flex-direction: column; gap: var(--space-4); }
 
