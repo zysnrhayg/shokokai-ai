@@ -7,10 +7,11 @@ class ReportscsvexportapiService:
     def reportscsvexportapi(self, reportscsvexportapi_dto, jsonObj):
         utils.config.global_log.debug(str(threading.current_thread().native_id) + ": start")
         try:
-            rows = reports_api.fetch_reports(reportscsvexportapi_dto)
+            rows = reports_api.fetch_reports_csv(reportscsvexportapi_dto)
             marked = reports_api.mark_reports_printed(rows)
             reports_api.set_list_result(jsonObj, rows)
             jsonObj.setValue("filename", "報告書を見る.csv")
+            jsonObj.setValue("csvcolumns", reports_api.CSV_VIEW_COLUMNS)
             jsonObj.setValue("markedprinted", marked)
         except Exception as e:
             utils.config.global_log.error(e)

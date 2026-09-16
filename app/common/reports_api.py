@@ -271,14 +271,17 @@ def report_row_to_selmap(rec):
     return {
         "report_id": rec.get("report_id"),
         "report_code": _blank(rec.get("report_code")),
+        "industry": _blank(rec.get("industry")),
         "form_code": form_code,
         "form_short_label": _blank(rec.get("form_short_label")) or form_code,
-        "form_full_label": _blank(rec.get("form_full_label")),
+        "form_full_label": _blank(rec.get("form_full_label")) or _blank(rec.get("form_short_label")) or form_code,
         "form_badge_class": _blank(rec.get("form_badge_class")) or "#1a6fa8",
         "report_date": _fmt_date(rec.get("report_date")),
+        "registered_at": _fmt_date(rec.get("registered_at")),
         "theme_id": rec.get("theme_id"),
         "theme_code": _blank(rec.get("theme_code")),
         "theme_label": _blank(rec.get("theme_label")),
+        "theme_badge_class": _blank(rec.get("theme_badge_class")),
         "summary": summary,
         "content": content,
         "staff_main_name": main,
@@ -298,13 +301,98 @@ def report_row_to_selmap(rec):
     }
 
 
+def list_visible_reports(dto):
+    """顧客設計 get_visible_reports（ロール範囲のみ。絞込はFE）。"""
+    from app.reports.services import get_visible_reports
+    role = _g(dto, "rolecode", "role_code")
+    return [report_row_to_selmap(rec) for rec in get_visible_reports(role)]
+
+
 def fetch_reports(dto, years=None):
-    scope = resolve_scope(dto)
+    """一覧ベースは顧客 get_visible_reports。画面条件は追加WHERE相当で絞る。"""
+    from app.reports.services import get_visible_reports
+    role = _g(dto, "rolecode", "role_code")
+    rows = [report_row_to_selmap(rec) for rec in get_visible_reports(role)]
     year_month, fy_start, fy_end = _resolve_year_month(dto, years)
     form = _normalize_form(_g(dto, "form", "formcode", "form_code"))
     theme = _g(dto, "theme")
     keyword = _g(dto, "keyword")
     include_draft = _flag(_g(dto, "includedraft", "include_draft"))
+    unprinted_only = _flag(_g(dto, "unprintedonly", "unprinted_only"))
+    # 全国連UIの県・商工会フィルタ（ロールWHERE以外の画面条件）
+    scope = resolve_scope(dto)
+    pref = scope["prefecture_code"]
+    sho = scope["shokokai_cd"]
+    out = []
+    for r in rows:
+        rd = _blank(r.get("report_date"))
+        ym = rd[:7] if len(rd) >= 7 else ""
+        if year_month and ym != year_month:
+            continue
+        if (not year_month) and fy_start and fy_end and ym:
+            if ym < fy_start or ym > fy_end:
+                continue
+        if pref and r.get("prefecture_code") != pref:
+            continue
+        if sho and r.get("shokokai_cd") != sho:
+            continue
+        fc = _blank(r.get("form_code"))
+        if form == "様式F" and fc != "F":
+            continue
+        if form == "全様式G" and (not fc or fc == "F" or fc.startswith("H") or fc.startswith("I")):
+            continue
+        if form and form not in ("様式F", "全様式G") and fc != form:
+            continue
+        if theme and theme not in (_blank(r.get("theme_label")), _blank(r.get("theme_code"))):
+            continue
+        if keyword:
+            blob = " ".join([
+                _blank(r.get("summary")),
+                _blank(r.get("content")),
+                _blank(r.get("staff_main_name")),
+                _blank(r.get("staff_sub_name")),
+                _blank(r.get("report_code")),
+            ]).lower()
+            if keyword.lower() not in blob:
+                continue
+        if include_draft and _blank(r.get("status")) != "下書き":
+            continue
+        if unprinted_only and r.get("printed"):
+            continue
+        out.append(r)
+    return out
+
+
+
+# CSV列（v_output_reports_csv の日本語カラム順。report_id は印刷済み更新用）
+CSV_VIEW_COLUMNS = [
+    "様式",
+    "都道府県連",
+    "商工会",
+    "報告書番号",
+    "支援テーマ",
+    "業種",
+    "実施日",
+    "開始時刻",
+    "終了時刻",
+    "事業所名",
+    "担当者名",
+    "概要",
+    "内容",
+    "音声入力の変換結果",
+    "担当（主）",
+    "担当（副）",
+    "登録日",
+]
+
+
+def fetch_reports_csv(dto, years=None):
+    """報告書一覧CSV: VIEW v_output_reports_csv から取得（status=登録済みはVIEW定義）。"""
+    scope = resolve_scope(dto)
+    year_month, fy_start, fy_end = _resolve_year_month(dto, years)
+    form = _normalize_form(_g(dto, "form", "formcode", "form_code"))
+    theme = _g(dto, "theme")
+    keyword = _g(dto, "keyword")
     unprinted_only = _flag(_g(dto, "unprintedonly", "unprinted_only"))
     params = {
         "role_prefecture_code": scope["role_prefecture_code"],
@@ -318,82 +406,82 @@ def fetch_reports(dto, years=None):
         "theme": theme,
         "keyword": keyword,
     }
-    sql = """
-SELECT r.report_id
-     , r.report_code
-     , r.industry_code AS industry
-     , r.report_date
-     , r.summary
-     , COALESCE(NULLIF(r.summary, ''), LEFT(COALESCE(r.content, ''), 80), '') AS content_text
-     , r.content
-     , r.staff_main_name
-     , r.staff_sub_name
-     , r.registered_at
-     , r.prefecture_code
-     , r.shokokai_cd
-     , p.name AS prefecture_name
-     , s.name AS shokokai_name
-     , t.label AS theme_label
-     , t.theme_code AS theme_code
-     , t.badge_class AS theme_badge_class
-     , r.theme_id
-     , r.form_code
-     , COALESCE(f.short_label, r.form_code, '') AS form_short_label
-     , COALESCE(f.full_label, r.form_code, '') AS form_full_label
-     , COALESCE(f.badge_class, '#1a6fa8') AS form_badge_class
-     , r.status
-     , r.printed_at
-     , r.time_start
-     , r.time_end
-     , r.business_name
-     , r.business_person
-FROM trn_report r
-LEFT JOIN mst_prefecture p ON p.prefecture_code = r.prefecture_code
-LEFT JOIN mst_shokokai s
-  ON s.prefecture_code = r.prefecture_code AND s.shokokai_cd = r.shokokai_cd
-LEFT JOIN mst_theme t ON t.theme_id = r.theme_id
-LEFT JOIN mst_form f
-  ON f.form_code = r.form_code AND f.fiscal_year_id = r.fiscal_year_id
-WHERE r.deleted_at IS NULL
-  AND COALESCE(r.status, '') <> '削除'
-"""
+    sql = (
+        'SELECT v.report_id'
+        '     , v."様式"'
+        '     , v."都道府県連"'
+        '     , v."商工会"'
+        '     , v."報告書番号"'
+        '     , v."支援テーマ"'
+        '     , v."業種"'
+        '     , v."実施日"'
+        '     , v."開始時刻"'
+        '     , v."終了時刻"'
+        '     , v."事業所名"'
+        '     , v."担当者名"'
+        '     , v."概要"'
+        '     , v."内容"'
+        '     , v."音声入力の変換結果"'
+        '     , v."担当（主）"'
+        '     , v."担当（副）"'
+        '     , v."登録日"'
+        "\nFROM v_output_reports_csv v\n"
+        "JOIN trn_report r ON r.report_id = v.report_id\n"
+        "WHERE r.deleted_at IS NULL\n"
+    )
     if params["role_prefecture_code"]:
-        sql += "  AND r.prefecture_code = :role_prefecture_code\n"
+        sql += "  AND v.prefecture_code = :role_prefecture_code\n"
     if params["role_shokokai_cd"]:
-        sql += "  AND r.shokokai_cd = :role_shokokai_cd\n"
+        sql += "  AND v.shokokai_cd = :role_shokokai_cd\n"
     if params["prefecture_code"]:
-        sql += "  AND r.prefecture_code = :prefecture_code\n"
+        sql += "  AND v.prefecture_code = :prefecture_code\n"
     if params["shokokai_cd"]:
-        sql += "  AND r.shokokai_cd = :shokokai_cd\n"
+        sql += "  AND v.shokokai_cd = :shokokai_cd\n"
     if params["year_month"]:
-        sql += "  AND to_char(r.report_date, 'YYYY-MM') = :year_month\n"
+        sql += '  AND to_char(v."実施日", \'YYYY-MM\') = :year_month\n'
     elif params["fy_start_month"] and params["fy_end_month"]:
-        sql += "  AND to_char(r.report_date, 'YYYY-MM') BETWEEN :fy_start_month AND :fy_end_month\n"
+        sql += '  AND to_char(v."実施日", \'YYYY-MM\') BETWEEN :fy_start_month AND :fy_end_month\n'
     if form:
-        sql += """  AND (
-        (:form = '様式F' AND r.form_code = 'F')
-        OR (:form = '全様式G' AND r.form_code IS NOT NULL AND r.form_code <> 'F'
-            AND r.form_code NOT LIKE 'H%' AND r.form_code NOT LIKE 'I%')
-        OR r.form_code = :form
-      )
-"""
+        sql += (
+            "  AND (\n"
+            "        (:form = '様式F' AND r.form_code = 'F')\n"
+            "        OR (:form = '全様式G' AND r.form_code IS NOT NULL AND r.form_code <> 'F'\n"
+            "            AND r.form_code NOT LIKE 'H%' AND r.form_code NOT LIKE 'I%')\n"
+            "        OR r.form_code = :form\n"
+            "      )\n"
+        )
     if theme:
-        sql += "  AND (t.label = :theme OR t.theme_code = :theme OR CAST(r.theme_id AS text) = :theme)\n"
+        sql += '  AND (v."支援テーマ" = :theme OR CAST(r.theme_id AS text) = :theme)\n'
     if keyword:
-        sql += """  AND (
-        COALESCE(r.summary, '') ILIKE '%' || :keyword || '%'
-        OR COALESCE(r.content, '') ILIKE '%' || :keyword || '%'
-        OR COALESCE(r.staff_main_name, '') ILIKE '%' || :keyword || '%'
-        OR COALESCE(r.staff_sub_name, '') ILIKE '%' || :keyword || '%'
-        OR COALESCE(r.business_name, '') ILIKE '%' || :keyword || '%'
-      )
-"""
-    if include_draft:
-        sql += "  AND r.status = '下書き'\n"
+        sql += (
+            "  AND (\n"
+            "        COALESCE(v.\"概要\", '') ILIKE '%' || :keyword || '%'\n"
+            "        OR COALESCE(v.\"内容\", '') ILIKE '%' || :keyword || '%'\n"
+            "        OR COALESCE(v.\"担当（主）\", '') ILIKE '%' || :keyword || '%'\n"
+            "        OR COALESCE(v.\"担当（副）\", '') ILIKE '%' || :keyword || '%'\n"
+            "        OR COALESCE(v.\"事業所名\", '') ILIKE '%' || :keyword || '%'\n"
+            "        OR COALESCE(v.\"報告書番号\", '') ILIKE '%' || :keyword || '%'\n"
+            "      )\n"
+        )
     if unprinted_only:
         sql += "  AND r.printed_at IS NULL\n"
-    sql += "ORDER BY r.report_date DESC NULLS LAST, r.report_id DESC"
-    return [report_row_to_selmap(rec) for rec in _q(sql, params)]
+    sql += 'ORDER BY v."実施日" DESC NULLS LAST, v.report_id DESC'
+    rows = []
+    for rec in _q(sql, params):
+        rec = jsonable_row(rec)
+        item = {"report_id": rec.get("report_id")}
+        for col in CSV_VIEW_COLUMNS:
+            val = rec.get(col)
+            if col in ("実施日", "登録日"):
+                val = _fmt_date(val)
+            elif val is None:
+                val = ""
+            else:
+                val = str(val)
+            item[col] = val
+        rows.append(item)
+    return rows
+
 
 
 def mark_reports_printed(rows):
