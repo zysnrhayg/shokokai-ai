@@ -2,8 +2,7 @@ import utils.config
 import threading
 import utils.json_constant
 from app.common.api_json import entries_to_proposals
-from app.dao.api154_getpublishedentries.api154_getpublishedentries_dao import Api154GetpublishedentriesDao
-from app.dto.api154_getpublishedentries.api154_getpublishedentries_dto import Api154GetpublishedentriesDto
+from app.knowledge.services import get_entries_with_themes
 import utils.string_util
 
 
@@ -31,10 +30,7 @@ def _keyword_candidates(*texts):
 
 
 def _fetch_entries(keyword):
-    api154 = Api154GetpublishedentriesDto.dict_to_json({})
-    api154.keyword = (keyword or "")[:80]
-    api154.prefecturecode = ""
-    return Api154GetpublishedentriesDao().api154_getpublishedentries(api154) or []
+    return get_entries_with_themes(keyword=keyword, prefecture_code="")
 
 
 class AiproposalgenerateapiService:

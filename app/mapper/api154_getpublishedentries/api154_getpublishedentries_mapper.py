@@ -13,6 +13,7 @@ class api154_getpublishedentriesMapper:
      , updated_date
      , knowledge_document_id
      , prefecture_code
+     , COALESCE ( ( SELECT json_agg ( json_build_object ( 'theme_id' , t.theme_id , 'label' , t.label , 'badge_class' , t.badge_class ) ORDER BY t.group_order , t.theme_id ) FROM trn_knowledge_entry_theme et JOIN mst_theme t ON t.theme_id = et.theme_id WHERE et.knowledge_entry_id = trn_knowledge_entry.knowledge_entry_id ) , '[]' ) AS theme_badges
 FROM trn_knowledge_entry
 WHERE status = '公開中'
   AND deleted_at IS NULL
