@@ -3,9 +3,16 @@
   var dropdown = document.getElementById('mi-jigyosho-dropdown');
   if (!input || !dropdown) return;
 
+  // サンプル事業所名（静的データ）
   var SAMPLE_NAMES = [
-    '株式会社北海道フーズ', '有限会社さっぽろ工務店', '道央運送株式会社',
-    '北見電機株式会社', '有限会社函館水産', '旭川商事株式会社',
+    '村上雑貨店',
+    '長谷川工務店',
+    '佐藤農園',
+    '旅館いとう',
+    '山本建材',
+    '田中運送',
+    '鈴木商店',
+    '高橋印刷'
   ];
 
   function render(matches) {
@@ -25,8 +32,8 @@
         e.preventDefault();
         input.value = name;
         close();
-
         if (typeof updateHistoryVisibility === 'function') updateHistoryVisibility();
+        input.dispatchEvent(new Event('input'));
       });
       dropdown.appendChild(item);
     });
@@ -37,7 +44,9 @@
   function update() {
     var q = input.value.trim();
     if (!q) { close(); return; }
-    var matches = SAMPLE_NAMES.filter(function (name) { return name.indexOf(q) !== -1; });
+    var matches = SAMPLE_NAMES.filter(function (n) {
+      return n.indexOf(q) !== -1;
+    });
     render(matches);
     dropdown.classList.add('is-open');
   }

@@ -438,7 +438,26 @@
                       </span>
                     </summary>
 
-                    <div class="mi-hint-text" id="mi-detail-info-dropdown__body" style="font-size:var(--fs-md);">来年度構築予定</div>
+                    <div id="mi-detail-info-dropdown__body" style="font-size:var(--fs-md);">
+                      <div id="mi-detail-info-grid" style="overflow-x:auto;">
+                        <table class="mi-detail-grid__table" style="width:100%;border-collapse:collapse;font-size:var(--fs-md);">
+                          <thead>
+                            <tr>
+                              <th style="padding:6px 8px;border-bottom:2px solid var(--c-border,#ddd);text-align:left;">事業所名</th>
+                              <th style="padding:6px 8px;border-bottom:2px solid var(--c-border,#ddd);text-align:left;">最新報告日</th>
+                            </tr>
+                          </thead>
+                          <tbody id="mi-detail-info-tbody">
+                            <tr><td colspan="2" style="padding:6px 8px;color:var(--c-text-sub,#888);">展開すると事業所名一覧が表示されます</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div id="mi-detail-info-pager" style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;">
+                        <button type="button" id="mi-detail-info-prev" style="padding:4px 12px;border:1px solid var(--c-border,#ddd);border-radius:4px;background:var(--c-surface,#fff);cursor:pointer;">前へ</button>
+                        <span id="mi-detail-info-page-info" style="font-size:var(--fs-md);"></span>
+                        <button type="button" id="mi-detail-info-next" style="padding:4px 12px;border:1px solid var(--c-border,#ddd);border-radius:4px;background:var(--c-surface,#fff);cursor:pointer;">次へ</button>
+                      </div>
+                    </div>
                   </details>
                 </div>
               </div>
@@ -2946,6 +2965,7 @@
 <script src="/static/mockup/js/reports_list.js"></script>
 <script src="/static/mockup/js/entry_history.js"></script>
 <script src="/static/mockup/js/entry_jigyosho_autocomplete.js"></script>
+<script src="/static/mockup/js/entry_detail_info.js"></script>
 <script src="/static/mockup/js/accounts.js"></script>
 <script src="/static/mockup/js/knowledge.js"></script>
 <script src="/static/mockup/js/knowledge_search.js"></script>

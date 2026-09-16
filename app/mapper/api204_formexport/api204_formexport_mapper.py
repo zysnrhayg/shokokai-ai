@@ -1,11 +1,32 @@
 #Mapper.vm common function mapper
-import sqlite3
-#Mapper.vm
-
+# 傾聴内容変換AI帳票出力用：F相談受付票データ取得
+# テーブル：v_output_f_excel（ビュー）
+# report_id指定時は該当報告書を、未指定時は最新の報告書を1件返す
 import utils.sql_utils
 
 class api204_formexportMapper:
-    def api204_formexport(report_id):
-        params = ["report_id"]
-        values = [report_id]
-        return utils.sql_utils.formatSQL("""SELECT trn_report.:reportid , trn_report.report_code , trn_report.form_code , mst_form.full_label AS form_full_label , trn_report.report_date , trn_report.time_start , trn_report.time_end , trn_report.staff_main_name , trn_report.staff_sub_name , trn_report.industry , trn_report.business_name , trn_report.business_person , trn_report.content , trn_report.summary , trn_report.prefecture_code , trn_report.shokokai_cd FROM trn_report JOIN mst_form ON mst_form.form_code = trn_report.form_code AND mst_form.fiscal_year_id = trn_report.fiscal_year_id WHERE trn_report.report_id = report_id;""",params,values)
+    def api204_formexport(reportid):
+        params = ["reportid"]
+        values = [reportid]
+        # ビュー「v_output_f_excel」からF相談受付票データを取得する（日文カラム名はダブルクォート必須）
+        return utils.sql_utils.formatSQL("""SELECT report_id
+     , "様式"
+     , "報告書番号"
+     , "都道府県連"
+     , "商工会"
+     , "実施日"
+     , "開始時刻"
+     , "終了時刻"
+     , "支援テーマ"
+     , "業種"
+     , "事業所名"
+     , "担当者名"
+     , "担当（主）"
+     , "担当（副）"
+     , "概要"
+     , "内容"
+FROM v_output_f_excel
+WHERE 1=1
+  <ifreportid> AND report_id = CAST(:reportid AS integer) </ifreportid>
+ORDER BY report_id DESC
+LIMIT 1""",params,values)
