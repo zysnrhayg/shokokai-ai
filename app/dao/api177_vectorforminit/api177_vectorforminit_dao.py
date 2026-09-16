@@ -7,8 +7,9 @@ import utils.date_util
 class Api177VectorforminitDao :
 
 # 関数定義_SQL文_ベクトル編集
-     
+
     def api177_vectorforminit(self,dtoObj) :
-        returnVal = utils.mysqldb_utils.querySQL(api177_vectorforminitMapper.api177_vectorforminit(dtoObj.vector_collection_id),{'vector_collection_id':dtoObj.vector_collection_id})
+        # DTOのフィールド名（vectorcollectionid）を使用する
+        returnVal = utils.mysqldb_utils.querySQL(api177_vectorforminitMapper.api177_vectorforminit(dtoObj.vectorcollectionid),{'vector_collection_id':dtoObj.vectorcollectionid})
         return utils.mysqldb_utils.result_to_list_of_dict(returnVal)
     

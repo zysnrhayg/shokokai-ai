@@ -39,22 +39,17 @@ class VectorsinitapiService :
 		api_ragsettei = ApiRagsetteiDto.dict_to_json({}) #CommonFunction 110
 		api_ragsetteiList = None #ResultGenerator 72
 		#_dto api_ragsettei_dto = None #ResultGenerator 119
-		#ResultGenerator365
-		VECTORCOLLECTIONID = ""
-		COLLECTIONCODE = ""
-		NAME = ""
-		VECTORCOUNT = ""
 		#UltimateGeniuBean 115
 		utils.config.global_log.debug(str(threading.current_thread().native_id)+ ": start")
 		try :
 			#ベクトル一覧画面初期表示_VectorsInitAPI_(API)
-			
+
 			#「項目処理」（共通関数:VectorsInitAPI）,パラメータは（）
-			
+
 			#以下の処理を行う。
-			
+
 			#関数「API_BekutorukorekushonIchiran」の「db_API_BekutorukorekushonIchiran」メソッドを行う,パラメータは「」,戻り値設定は「」を設定する。
-			
+
 			#ReulstGenerator 87
 			api_bekutorukorekushonichiranList = ApiBekutorukorekushonichiranDao().api_bekutorukorekushonichiran(api_bekutorukorekushonichiran)
 			api_bekutorukorekushonichiranlistVar = None #ResultGenerator 89
@@ -69,19 +64,33 @@ class VectorsinitapiService :
 			#関数「API_BekutorukorekushonIchiran」の「db_API_BekutorukorekushonIchiran」取得結果をJSON形式でGrid「collections」に設定し,20行で改ページする。
 			mapList = [] #GeniusGrid 606
 			#GeniusGrid 606
+			# ベクトル一覧データをGrid「dragB」に設定する（フロントエンド表示用）
 			if api_bekutorukorekushonichiranlistVar != None and len(api_bekutorukorekushonichiranlistVar) > 0 :#GeniusGrid 647
 				#GeniusGrid 647
 				for i in range(0, len(api_bekutorukorekushonichiranlistVar)): #GeniusGrid 652
 				#GeniusGrid 652
 					entity = api_bekutorukorekushonichiranlistVar[i]
-					selMap ={} #GeniusGrid681
+					# ステータスに応じたバッジクラスを設定する
+					status = utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "status"))
+					status_badge_class = "badge-status-ok" if status == "同期済み" else "badge-status-pending"
+					selMap = {
+						"vector_collection_id": utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "vector_collection_id")),
+						"collection_code": utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "collection_code")),
+						"name": utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "name")),
+						"vector_count": utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "vector_count")),
+						"baseline_vector_count": utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "baseline_vector_count")),
+						"synced_date": utils.string_util.changeNullToBlank(utils.string_util.dict_get(entity, "synced_date")),
+						"status": status,
+						"status_badge_class": status_badge_class
+					} #GeniusGrid681
 					#GeniusGrid681
 					mapList.insert(len(mapList),selMap)
-			result = json.dumps(mapList, ensure_ascii=False)
+			# ベクトル一覧データをJSON形式でフロントエンドに返却する
+			result = json.dumps(mapList, ensure_ascii=False, default=str)
 			jsonObj.setHtml("dragB", result) #GeniusGrid748
 			#GeniusGrid748
-			#関数「API_RAGsettei」の「db_API_RAGsettei」メソッドを行う,パラメータは「」,戻り値設定は「<vector_collection_id>=vector_collection_id,<collection_code>=collection_code,<name>=name,<vector_count>=vector_count」を設定する。
-			
+			#関数「API_RAGsettei」の「db_API_RAGsettei」メソッドを行う,パラメータは「」,戻り値設定は「」を設定する。
+
 			#ReulstGenerator 87
 			api_ragsetteiList = ApiRagsetteiDao().api_ragsettei(api_ragsettei)
 			api_ragsetteilistVar = None #ResultGenerator 89
@@ -91,20 +100,20 @@ class VectorsinitapiService :
 			if api_ragsetteilistVar != None and len(api_ragsetteilistVar) > 0 :
 				SHUTOKUKENSUU = str(len(api_ragsetteilistVar))
 			# --LINE114 retrieved first value
+			# RAG設定をJSON形式でフロントエンドに返却する
+			ragInfo = {}
 			if api_ragsetteilistVar != None and len(api_ragsetteilistVar) > 0 :
 				rec = api_ragsetteilistVar[0]
-				VECTORCOLLECTIONID = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "vector_collection_id")) # ResultGenerator 385
-				# ResultGenerator 385
-				
-				COLLECTIONCODE = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "collection_code")) # ResultGenerator 385
-				# ResultGenerator 385
-				
-				NAME = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "name")) # ResultGenerator 385
-				# ResultGenerator 385
-				
-				VECTORCOUNT = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "vector_count")) # ResultGenerator 385
-				# ResultGenerator 385
-				
+				ragInfo = {
+					"rag_setting_id": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "rag_setting_id")),
+					"embedding_model": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "embedding_model")),
+					"vector_db": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "vector_db")),
+					"chunk_size": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "chunk_size")),
+					"chunk_overlap": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "chunk_overlap")),
+					"last_synced_at": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "last_synced_at"))
+				}
+			# RAG設定をJSON形式でフロントエンドに返却する
+			jsonObj.setHtml("ragSetting", json.dumps(ragInfo, ensure_ascii=False, default=str))
 			#処理終了。
 			
 		except Exception as e:

@@ -7,8 +7,10 @@ import utils.date_util
 class Api150InsertvectorcollectionDao :
 
 # 関数定義_SQL文_ベクトル登録
-     
+
     def api150_insertvectorcollection(self,dtoObj) :
-        returnVal = utils.mysqldb_utils.querySQL(api150_insertvectorcollectionMapper.api150_insertvectorcollection(dtoObj.collection_code,dtoObj.name,dtoObj.vector_count,dtoObj.baseline_vector_count,dtoObj.status),{'collection_code':dtoObj.collection_code,'name':dtoObj.name,'vector_count':dtoObj.vector_count,'baseline_vector_count':dtoObj.baseline_vector_count,'status':dtoObj.status})
+        # DTOのフィールド名（name, vectorcount, baselinevectorcount, status）を使用する
+        # collection_codeはMapper側でCTE+UPDATEにより自動採番するためDTOから取得しない
+        returnVal = utils.mysqldb_utils.querySQL(api150_insertvectorcollectionMapper.api150_insertvectorcollection(dtoObj.name,dtoObj.vectorcount,dtoObj.baselinevectorcount,dtoObj.status),{'name':dtoObj.name,'vector_count':dtoObj.vectorcount,'baseline_vector_count':dtoObj.baselinevectorcount,'status':dtoObj.status})
         return utils.mysqldb_utils.result_to_list_of_dict(returnVal)
     

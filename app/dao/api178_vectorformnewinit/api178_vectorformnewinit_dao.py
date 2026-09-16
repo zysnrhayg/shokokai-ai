@@ -7,8 +7,9 @@ import utils.date_util
 class Api178VectorformnewinitDao :
 
 # 関数定義_SQL文_ベクトル登録初期表示
-     
+
     def api178_vectorformnewinit(self,dtoObj) :
+        # RAG設定を取得する（パラメータなし）
         returnVal = utils.mysqldb_utils.querySQL(api178_vectorformnewinitMapper.api178_vectorformnewinit(),{})
         return utils.mysqldb_utils.result_to_list_of_dict(returnVal)
     

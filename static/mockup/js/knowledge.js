@@ -15,13 +15,24 @@
   // 知識データ編集・新規画面の選択用マスタ一覧（フォーム初期表示APIから取得する）
   let ENTRY_FORM_META = { documentList: [], themeList: [], prefectureList: [] };
 
-  const RAG_SETTING = { embedding_model: 'text-embedding-3-large', vector_db: 'pgvector', chunk_size: 800, chunk_overlap: 100 };
-  const LAST_SYNCED = '2026-08-22 09:30';
-  const COLLECTIONS = [
-    { id: 1, name: 'knowledge_national', vector_count: 1284, synced_date: '2026-08-22', status: '同期済み', status_badge_class: 'badge-status-ok' },
-    { id: 2, name: 'knowledge_hokkaido', vector_count: 96, synced_date: '2026-08-22', status: '同期済み', status_badge_class: 'badge-status-ok' },
-    { id: 3, name: 'knowledge_hokkaido_pending', vector_count: 0, synced_date: '未同期', status: '未同期', status_badge_class: 'badge-status-pending' },
-  ];
+  // ベクトルコレクション一覧（初期表示時に後端APIから取得する）
+  let COLLECTIONS = [];
+
+  // RAG設定（初期表示時に後端APIから取得する）
+  let RAG_SETTING = { embedding_model: '', vector_db: '', chunk_size: 0, chunk_overlap: 0 };
+
+  // 最終同期日時（初期表示時に後端APIから取得する）
+  let LAST_SYNCED = '';
+
+  // 日付フォーマット関数（YYYY-MM-DD HH:MM形式に変換する）
+  function formatDateTime(dt) {
+    if (!dt) return '';
+    // 「2026-08-08 23:34:57.739862+08:00」→「2026-08-08 23:34」に変換する
+    const m = String(dt).match(/^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})/);
+    if (m) return m[1] + ' ' + m[2];
+    // 日付のみの場合はそのまま返す
+    return String(dt).split('T')[0];
+  }
 
   // 後端API呼び出しの共通関数（CSRFトークンをヘッダーに付与する）
   function getCsrfToken() {
@@ -31,12 +42,17 @@
   async function callApi(url, row) {
     const res = await fetch(url, {
       method: 'POST',
+      credentials: 'same-origin',
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': getCsrfToken()
       },
       body: JSON.stringify({ mode: '1', actflg: '1', triggerid: url.replace('/', '').replace('.do', ''), row: row || {} })
     });
+    if (!res.ok) {
+      console.error('API error:', url, res.status, await res.text());
+      throw new Error('API ' + url + ' returned ' + res.status);
+    }
     return await res.json();
   }
 
@@ -383,6 +399,178 @@
     }
   }
 
+  // ベクトル一覧を取得するAPI（VectorsInitAPI）
+  // RAG設定も同時に取得する
+  async function loadVectors() {
+    try {
+      const data = await callApi('/vectorsinitapi.do', {});
+      console.log('[loadVectors] API response:', data);
+      // ベクトル一覧データを取得する
+      const dragB = data.dragB ? JSON.parse(data.dragB) : [];
+      console.log('[loadVectors] dragB parsed:', dragB.length, 'items');
+      COLLECTIONS = dragB.map(function (row) {
+        return {
+          id: Number(row.vector_collection_id) || 0,
+          vector_collection_id: row.vector_collection_id,
+          collection_code: row.collection_code || '',
+          name: row.name || '',
+          vector_count: Number(row.vector_count) || 0,
+          baseline_vector_count: Number(row.baseline_vector_count) || 0,
+          synced_date: row.synced_date || '未同期',
+          status: row.status || '未同期',
+          status_badge_class: row.status_badge_class || (row.status === '同期済み' ? 'badge-status-ok' : 'badge-status-pending')
+        };
+      });
+      // RAG設定を取得する
+      const ragSetting = data.ragSetting ? JSON.parse(data.ragSetting) : {};
+      if (ragSetting && ragSetting.embedding_model) {
+        RAG_SETTING = {
+          embedding_model: ragSetting.embedding_model || '',
+          vector_db: ragSetting.vector_db || '',
+          chunk_size: Number(ragSetting.chunk_size) || 0,
+          chunk_overlap: Number(ragSetting.chunk_overlap) || 0
+        };
+        LAST_SYNCED = formatDateTime(ragSetting.last_synced_at) || '';
+      }
+      render();
+    } catch (e) {
+      console.error('ベクトル一覧の取得に失敗しました', e);
+    }
+  }
+
+  // ベクトル詳細を取得するAPI（VectorDetailInitAPI）
+  async function loadVectorDetail(vecId) {
+    try {
+      const data = await callApi('/vectordetailinitapi.do', {
+        vectorcollectionid: String(vecId)
+      });
+      const dragB = data.dragB ? JSON.parse(data.dragB) : {};
+      return {
+        id: Number(dragB.vector_collection_id) || 0,
+        vector_collection_id: dragB.vector_collection_id,
+        collection_code: dragB.collection_code || '',
+        name: dragB.name || '',
+        vector_count: Number(dragB.vector_count) || 0,
+        baseline_vector_count: Number(dragB.baseline_vector_count) || 0,
+        synced_date: dragB.synced_date || '未同期',
+        status: dragB.status || '未同期',
+        status_badge_class: dragB.status_badge_class || (dragB.status === '同期済み' ? 'badge-status-ok' : 'badge-status-pending')
+      };
+    } catch (e) {
+      console.error('ベクトル詳細の取得に失敗しました', e);
+      return null;
+    }
+  }
+
+  // ベクトル編集フォーム初期データを取得するAPI（VectorFormInitAPI）
+  async function loadVectorForm(vecId) {
+    try {
+      const data = await callApi('/vectorforminitapi.do', {
+        id: String(vecId)
+      });
+      const dragB = data.dragB ? JSON.parse(data.dragB) : {};
+      return {
+        id: Number(dragB.vector_collection_id) || 0,
+        vector_collection_id: dragB.vector_collection_id,
+        collection_code: dragB.collection_code || '',
+        name: dragB.name || '',
+        vector_count: Number(dragB.vector_count) || 0,
+        baseline_vector_count: Number(dragB.baseline_vector_count) || 0,
+        synced_date: dragB.synced_date || '未同期',
+        status: dragB.status || '未同期',
+        status_badge_class: dragB.status_badge_class || (dragB.status === '同期済み' ? 'badge-status-ok' : 'badge-status-pending')
+      };
+    } catch (e) {
+      console.error('ベクトル編集フォームの取得に失敗しました', e);
+      return null;
+    }
+  }
+
+  // ベクトル新規登録フォーム初期データを取得するAPI（VectorFormNewInitAPI）
+  async function loadNewVectorForm() {
+    try {
+      const data = await callApi('/vectorformnewinitapi.do', {});
+      const ragSetting = data.ragSetting ? JSON.parse(data.ragSetting) : {};
+      if (ragSetting && ragSetting.embedding_model) {
+        RAG_SETTING = {
+          embedding_model: ragSetting.embedding_model || '',
+          vector_db: ragSetting.vector_db || '',
+          chunk_size: Number(ragSetting.chunk_size) || 0,
+          chunk_overlap: Number(ragSetting.chunk_overlap) || 0
+        };
+        LAST_SYNCED = formatDateTime(ragSetting.last_synced_at) || '';
+      }
+      render();
+    } catch (e) {
+      console.error('ベクトル新規フォームの取得に失敗しました', e);
+    }
+  }
+
+  // ベクトルコレクションを新規登録するAPI（VectorSaveAPI）
+  async function saveVector(name, vectorCount, status) {
+    try {
+      const data = await callApi('/vectorsaveapi.do', {
+        name: name,
+        vector_count: String(vectorCount || 0),
+        status: status || '未同期'
+      });
+      console.log('[saveVector] API response:', data);
+      // 後端のメッセージフィールドは「i」（JSONID_MSG）
+      const msg = data.i || data.msg || 'コレクションを登録しました';
+      if (data.e) {
+        console.error('[saveVector] Error:', data.e);
+        toastError(data.e);
+        return false;
+      }
+      toastSuccess(msg);
+      return true;
+    } catch (e) {
+      console.error('[saveVector] Exception:', e);
+      toastError('コレクションの登録に失敗しました');
+      return false;
+    }
+  }
+
+  // ベクトルコレクションを更新するAPI（VectorUpdateAPI）
+  async function updateVector(vecId, name, vectorCount, status) {
+    try {
+      const data = await callApi('/vectorupdateapi.do', {
+        vectorcollectionid: String(vecId),
+        name: name,
+        vector_count: String(vectorCount || 0),
+        status: status
+      });
+      console.log('[updateVector] API response:', data);
+      if (data.e) { toastError(data.e); return false; }
+      const msg = data.i || 'コレクションを保存しました';
+      toastSuccess(msg);
+      return true;
+    } catch (e) {
+      console.error('コレクションの更新に失敗しました', e);
+      toastError('コレクションの更新に失敗しました');
+      return false;
+    }
+  }
+
+  // ベクトルコレクションを再同期するAPI（VectorsResyncAPI）
+  async function resyncVector(vecId, vectorCount) {
+    try {
+      const data = await callApi('/vectorsresyncapi.do', {
+        vectorcollectionid: String(vecId),
+        vectorcount: String(vectorCount || 0)
+      });
+      console.log('[resyncVector] API response:', data);
+      if (data.e) { toastError(data.e); return false; }
+      const msg = data.i || 'ベクトルコレクションを再同期しました';
+      toastSuccess(msg);
+      return true;
+    } catch (e) {
+      console.error('再同期に失敗しました', e);
+      toastError('再同期に失敗しました');
+      return false;
+    }
+  }
+
   function toastSuccess(msg) {
     if (typeof Toast !== 'undefined' && Toast.success) Toast.success(msg);
     else alert(msg);
@@ -467,6 +655,7 @@
       html += detailRow('ステータス', `<select class="form-input" id="kn-doc-status">${['公開中', '審査中', '非公開'].map(s => `<option ${doc && doc.status === s ? 'selected' : (!doc && s === '審査中' ? 'selected' : '')}>${s}</option>`).join('')}</select>`);
       if (inlineMode === 'new') {
         html += detailRow('ファイル', `<input type="file" class="form-input" id="kn-doc-file">`);
+        html += detailRow('サイズ', `<span id="kn-doc-file-size" class="form-value">未選択</span>`);
       }
     }
     html += '</div></div>';
@@ -491,13 +680,13 @@
       // 編集・新規モード：選択用マスタ一覧（ENTRY_FORM_META）からセレクトボックスを生成する
       const scopeOptions = ['<option value="" ' + (!entry || !entry.prefecture_code ? 'selected' : '') + '>全国共有</option>']
         .concat((ENTRY_FORM_META.prefectureList || []).map(function (p) {
-          return `<option value="${escSafe(p.prefecture_code)}" ${entry && entry.prefecture_code === String(p.prefecture_code) ? 'selected' : ''}>${escSafe(p.name)}</option>`;
+          return `<option value="${escSafe(p.prefecture_code)}" ${entry && String(entry.prefecture_code) === String(p.prefecture_code) ? 'selected' : ''}>${escSafe(p.name)}</option>`;
         })).join('');
       const docOptions = ['<option value="">（紐付なし）</option>']
         .concat((ENTRY_FORM_META.documentList || []).map(function (d) {
-          return `<option value="${escSafe(d.knowledge_document_id)}" ${entry && entry.knowledge_document_id === String(d.knowledge_document_id) ? 'selected' : ''}>${escSafe(d.title)}</option>`;
+          return `<option value="${escSafe(d.knowledge_document_id)}" ${entry && String(entry.knowledge_document_id) === String(d.knowledge_document_id) ? 'selected' : ''}>${escSafe(d.title)}</option>`;
         })).join('');
-      const selectedThemeIds = (entry && entry.theme_ids) || (entry ? entry.theme_badges.map(function (t) { return String(t.theme_id); }) : []);
+      const selectedThemeIds = (entry && entry.theme_ids) ? entry.theme_ids.map(String) : (entry ? entry.theme_badges.map(function (t) { return String(t.theme_id); }) : []);
       const themeOptions = (ENTRY_FORM_META.themeList || []).map(function (t) {
         return `<option value="${escSafe(t.theme_id)}" ${selectedThemeIds.indexOf(String(t.theme_id)) >= 0 ? 'selected' : ''}>${escSafe(t.label)}</option>`;
       }).join('');
@@ -721,6 +910,17 @@
     if (closeBtn) closeBtn.addEventListener('click', () => {
       if (inlineMode === 'edit') { inlineMode = 'view'; render(); } else { closeInline(); }
     });
+    // ファイル選択時にファイルサイズを表示する
+    const fileInput = root.querySelector('#kn-doc-file');
+    if (fileInput) fileInput.addEventListener('change', function () {
+      const sizeEl = root.querySelector('#kn-doc-file-size');
+      if (this.files && this.files.length > 0) {
+        const kb = Math.ceil(this.files[0].size / 1024);
+        if (sizeEl) sizeEl.textContent = kb >= 1024 ? (kb / 1024).toFixed(1) + ' MB' : kb + ' KB';
+      } else {
+        if (sizeEl) sizeEl.textContent = '未選択';
+      }
+    });
     const saveBtn = root.querySelector('#kn-doc-save');
     if (saveBtn) saveBtn.addEventListener('click', () => {
       const titleEl = root.querySelector('#kn-doc-title');
@@ -730,6 +930,15 @@
       const category = (root.querySelector('#kn-doc-category') || {}).value || '';
       const format = (root.querySelector('#kn-doc-format') || {}).value || 'PDF';
       const status = (root.querySelector('#kn-doc-status') || {}).value || '審査中';
+      // ファイル入力からファイルサイズを取得する
+      const fileInput = root.querySelector('#kn-doc-file');
+      let fileSizeKb = 0;
+      let filePath = '';
+      if (fileInput && fileInput.files && fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        fileSizeKb = Math.ceil(file.size / 1024);
+        filePath = file.name;
+      }
       const badge = status === '公開中' ? 'badge-status-ok' : status === '審査中' ? 'badge-status-pending' : 'badge-status-new';
       if (inlineMode === 'new') {
         // 新規登録：後端APIで文書を登録する（DocumentSaveAPI）
@@ -739,8 +948,8 @@
           category: category,
           format: format,
           status: status,
-          file_path: '',
-          file_size_kb: 0
+          file_path: filePath,
+          file_size_kb: fileSizeKb
         }).then(function (ok) {
           if (ok) {
             inlineMode = null;
@@ -806,7 +1015,22 @@
     });
     const closeBtn = root.querySelector('#kn-entry-close');
     if (closeBtn) closeBtn.addEventListener('click', () => {
-      if (inlineMode === 'edit') { inlineMode = 'view'; render(); } else { closeInline(); }
+      if (inlineMode === 'edit') {
+        // 編集モードから表示モードに戻る場合は詳細データを再取得する（編集フォームの空値で上書きされないようにする）
+        const entry = ENTRIES[inlineIndex];
+        if (entry && entry.id) {
+          loadEntryDetail(entry.id).then(function (detail) {
+            if (detail) {
+              ENTRIES[inlineIndex] = detail;
+              inlineMode = 'view';
+              render();
+            }
+          });
+        } else {
+          inlineMode = 'view';
+          render();
+        }
+      } else { closeInline(); }
     });
     const saveBtn = root.querySelector('#kn-entry-save');
     if (saveBtn) saveBtn.addEventListener('click', () => {
@@ -841,9 +1065,14 @@
         const entry = ENTRIES[inlineIndex];
         updateEntry(entry.id, fields).then(function (ok) {
           if (ok) {
-            inlineMode = null;
-            inlineIndex = null;
-            loadEntries();
+            // 保存後に詳細データを再取得して表示モードに戻る
+            loadEntryDetail(entry.id).then(function (detail) {
+              if (detail) {
+                ENTRIES[inlineIndex] = detail;
+                inlineMode = 'view';
+                render();
+              }
+            });
           }
         });
       }
@@ -852,50 +1081,93 @@
 
   function wireVectorPanel() {
     root.querySelectorAll('.kn-vec-detail-btn').forEach((btn) => {
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener('click', async (e) => {
         e.preventDefault();
-        openInline('view', Number(btn.dataset.index));
+        const idx = Number(btn.dataset.index);
+        const col = COLLECTIONS[idx];
+        if (!col) return;
+        // ベクトル詳細を後端APIから取得する（VectorDetailInitAPI）
+        const detail = await loadVectorDetail(col.id || col.vector_collection_id);
+        if (detail) {
+          COLLECTIONS[idx] = detail;
+        }
+        openInline('view', idx);
       });
     });
     const addBtn = root.querySelector('#kn-vec-add');
-    if (addBtn) addBtn.addEventListener('click', (e) => { e.preventDefault(); openInline('new'); });
-    const resyncBtn = root.querySelector('#kn-vec-resync');
-    if (resyncBtn) resyncBtn.addEventListener('click', (e) => {
+    if (addBtn) addBtn.addEventListener('click', async (e) => {
       e.preventDefault();
-      toastSuccess('ベクトルコレクションを再同期しました（モック）');
+      // 新規フォーム初期データを後端APIから取得する（VectorFormNewInitAPI）
+      await loadNewVectorForm();
+      openInline('new');
+    });
+    const resyncBtn = root.querySelector('#kn-vec-resync');
+    if (resyncBtn) resyncBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      // 全コレクションを一括再同期する（VectorsResyncAPI）
+      let okCount = 0;
+      for (const col of COLLECTIONS) {
+        const ok = await resyncVector(col.id || col.vector_collection_id, col.vector_count);
+        if (ok) okCount++;
+      }
+      if (okCount > 0) {
+        // 再同期後に一覧を再取得する
+        await loadVectors();
+      }
     });
 
     const editBtn = root.querySelector('#kn-vec-edit');
-    if (editBtn) editBtn.addEventListener('click', () => { inlineMode = 'edit'; render(); });
+    if (editBtn) editBtn.addEventListener('click', async () => {
+      // 編集フォーム初期データを後端APIから取得する（VectorFormInitAPI）
+      const col = COLLECTIONS[inlineIndex];
+      if (col) {
+        const formData = await loadVectorForm(col.id || col.vector_collection_id);
+        if (formData) {
+          COLLECTIONS[inlineIndex] = formData;
+        }
+      }
+      inlineMode = 'edit';
+      render();
+    });
     const closeBtn = root.querySelector('#kn-vec-close');
     if (closeBtn) closeBtn.addEventListener('click', () => {
       if (inlineMode === 'edit') { inlineMode = 'view'; render(); } else { closeInline(); }
     });
     const saveBtn = root.querySelector('#kn-vec-save');
-    if (saveBtn) saveBtn.addEventListener('click', () => {
+    if (saveBtn) saveBtn.addEventListener('click', async () => {
       const name = ((root.querySelector('#kn-vec-name') || {}).value || '').trim();
       if (!name) { toastError('コレクション名は必須です'); return; }
       const count = Number((root.querySelector('#kn-vec-count') || {}).value || 0);
       const status = (root.querySelector('#kn-vec-status') || {}).value || '未同期';
-      const badge = status === '同期済み' ? 'badge-status-ok' : 'badge-status-pending';
+      console.log('[saveBtn] inlineMode:', inlineMode, 'inlineIndex:', inlineIndex, 'name:', name);
       if (inlineMode === 'new') {
-        COLLECTIONS.unshift({
-          id: Date.now(), name, vector_count: count,
-          synced_date: status === '同期済み' ? new Date().toISOString().slice(0, 10) : '未同期',
-          status, status_badge_class: badge,
-        });
-        inlineIndex = 0;
-        toastSuccess('コレクションを登録しました');
+        // 新規コレクションを後端APIに登録する（VectorSaveAPI）
+        const ok = await saveVector(name, count, status);
+        console.log('[saveBtn] saveVector result:', ok);
+        if (ok) {
+          // 登録後に一覧を再取得して登録ウィンドウを閉じる
+          await loadVectors();
+          console.log('[saveBtn] after loadVectors, COLLECTIONS:', COLLECTIONS.length, 'items');
+          inlineMode = null;
+          inlineIndex = null;
+          render();
+        }
       } else {
-        const col = COLLECTIONS[inlineIndex];
-        Object.assign(col, {
-          name, vector_count: count, status, status_badge_class: badge,
-          synced_date: status === '同期済み' ? (col.synced_date === '未同期' ? new Date().toISOString().slice(0, 10) : col.synced_date) : '未同期',
-        });
-        toastSuccess('コレクションを保存しました');
+        // 既存コレクションを後端APIで更新する（VectorUpdateAPI）
+        const col = inlineIndex != null ? COLLECTIONS[inlineIndex] : null;
+        if (!col) { toastError('コレクションが選択されていません'); return; }
+        const vecId = col.id || col.vector_collection_id;
+        if (!vecId) { toastError('コレクションIDが取得できません'); return; }
+        const ok = await updateVector(vecId, name, count, status);
+        console.log('[saveBtn] updateVector result:', ok);
+        if (ok) {
+          // 更新後に一覧を再取得して表示モードに戻る
+          await loadVectors();
+          console.log('[saveBtn] after loadVectors, COLLECTIONS:', COLLECTIONS.length, 'items');
+          inlineMode = 'view';
+          render();
+        }
       }
-      inlineMode = 'view';
-      render();
     });
   }
 
@@ -917,6 +1189,8 @@
       render();
       // 知識データタブ表示時に後端APIから最新の一覧を取得する（EntriesInitAPI）
       if (activeTab === 'entry') loadEntries();
+      // ベクトル反映タブ表示時に後端APIから最新の一覧を取得する（VectorsInitAPI）
+      if (activeTab === 'vector') loadVectors();
     });
   });
   }
@@ -952,4 +1226,6 @@
   loadDocuments();
   // 知識データタブが初期表示の場合は知識データ一覧も取得する（EntriesInitAPI）
   if (activeTab === 'entry') loadEntries();
+  // ベクトル反映タブが初期表示の場合はベクトル一覧も取得する（VectorsInitAPI）
+  if (activeTab === 'vector') loadVectors();
 })();
