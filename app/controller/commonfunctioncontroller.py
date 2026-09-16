@@ -1897,7 +1897,7 @@ def aiproposalgenerateapi() :
 def aiproposalinitapi() :
 	"""aiproposalinitapi - AI支援提案画面初期表示 - サーバー関数"""
 
-	data = request.get_json()
+	data = request.get_json() or {}
 	jsonObj = JSONWFCObject()
 
 	# validate parameter 371
@@ -1955,7 +1955,7 @@ def aiproposalregenerateapi() :
 def knowledgesearchapi() :
 	"""knowledgesearchapi - AI支援提案ナレッジを検索 - サーバー関数"""
 
-	data = request.get_json()
+	data = request.get_json() or {}
 	jsonObj = JSONWFCObject()
 
 	# validate parameter 371

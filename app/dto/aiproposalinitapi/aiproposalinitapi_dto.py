@@ -15,6 +15,7 @@ class AiproposalinitapiDto(BaseEntity):
         documentversion,
         fiscalyearid,
         prefecturecode="",
+        pagemode="",
     ):
         super().__init__(mode, actflg, triggerid, row)
         self.knowledgeentryid = knowledgeentryid
@@ -24,6 +25,7 @@ class AiproposalinitapiDto(BaseEntity):
         self.documentversion = documentversion
         self.fiscalyearid = fiscalyearid
         self.prefecturecode = prefecturecode
+        self.pagemode = pagemode
 
     @staticmethod
     def dict_to_json(d):
@@ -41,4 +43,5 @@ class AiproposalinitapiDto(BaseEntity):
             d.get("documentversion", d.get("document_version", "")),
             d.get("fiscalyearid", d.get("fiscal_year_id", "")),
             d.get("prefecturecode", d.get("prefecture_code", "")),
+            d.get("pagemode", d.get("page_mode", "")),
         )

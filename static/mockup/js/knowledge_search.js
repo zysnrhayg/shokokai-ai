@@ -2,36 +2,116 @@
   const root = document.getElementById('knowledge-search-root');
   if (!root) return;
 
-  const KNOWLEDGE_ENTRIES = [
-    { code: 'K-014', title: '業務改善助成金 活用事例集', theme_label: '賃上げ・最低賃金引上げ', badge_color: '#c0392b',
-      content: '業務改善助成金を活用して設備投資を行った事例をまとめている。最大9/10の補助率で対応でき、資金負担を抑えながら最低賃金引き上げに対応できる。対象は事業場内最低賃金と地域別最低賃金の差額が一定以内の中小企業・小規模事業者で、機械設備やPOSシステムなどの導入費用が助成対象になる。申請には賃金引上げ計画と生産性向上計画の提出が必要で、計画作成の段階から相談に乗ることで採択率を高められる。同業種での活用実績も複数あり、具体的な導入機種の選定まで支援できる。',
-      ref_info: '同業種が本助成金を活用した際の申請書類の書き方・生産性向上計画の記載例', updated_date: '2026-07-03 10:15' },
-    { code: 'K-021', title: '省力化投資による人手不足対応 事例集', theme_label: '省力化促進・人手不足', badge_color: '#2d7a4f',
-      content: '省力化補助金を使って設備を導入し、人手不足を解消した中小企業の事例を紹介している。対象はカタログに掲載された汎用性の高い省力化機器（券売機、自動倉庫、清掃ロボット等）で、通常枠より審査から交付までの期間が短いのが特徴。人手不足で業務が回らない事業者ほど効果が出やすく、導入後1年で残業時間が大きく減った例もある。申請はカタログから機種を選ぶだけで比較的容易だが、補助対象外の付帯工事費との切り分けに注意が必要。導入効果の測定方法も併せて案内できる。',
-      ref_info: '省力化補助金で設備を導入し人手不足を解消した中小企業の事例', updated_date: '2026-06-05 14:30' },
-    { code: 'K-018', title: '省エネ設備導入 補助金活用ガイド', theme_label: 'エネルギー価格・物価の高騰', badge_color: '#1a6fa8',
-      content: '空調・照明等の省エネ設備導入で使える補助金の対象要件と申請の流れをまとめたガイド。エネルギー価格高騰で光熱費負担が増している事業者向けに、LED照明や高効率空調への更新費用の一部を補助する制度で、既存設備からの省エネ率が一定以上見込めることが要件になる。申請前にエネルギー診断を受けて削減見込みを算定する必要があり、診断から交付までおおむね数か月かかる点は事前に伝えておきたい。複数年契約の電力調達見直しと組み合わせると効果が大きい。',
-      ref_info: '空調・照明等の省エネ設備導入で使える補助金の対象要件と申請の流れ', updated_date: '2026-06-19 09:50' },
-    { code: 'K-009', title: 'インボイス制度 対応チェックリスト', theme_label: 'インボイス制度', badge_color: '#5b3fa0',
-      content: 'インボイス制度対応で確認すべき請求書様式・経理体制のチェック項目をまとめたリスト。適格請求書発行事業者としての登録有無、請求書への登録番号・税率区分の記載、会計ソフトが電子帳簿保存法の要件も満たしているかを一通り確認できる構成になっている。免税事業者からの仕入れが多い事業者は経過措置の適用期限も要注意で、取引先との価格・契約条件の見直しが必要になる場合がある。チェックリストに沿って進めれば、対応漏れのまま申告時期を迎えるリスクを減らせる。',
-      ref_info: 'インボイス制度対応で確認すべき請求書様式・経理体制のチェック項目', updated_date: '2026-05-21 16:05' },
-    { code: 'K-031', title: '米国関税影響を踏まえた販路多角化事例', theme_label: '米国関税', badge_color: '#7a5230',
-      content: '米国向け輸出に依存していた事業者が販路を多角化した進め方を紹介する事例集。関税率変動の影響をまず数値でシミュレーションし、価格転嫁だけで吸収しきれない部分を東南アジアや国内新規顧客の開拓で補った例をまとめている。展示会出展補助金を使って費用負担を抑えながら新市場を試した事業者や、既存商品を輸出先ごとに仕様変更して展開した事業者の進め方も具体的に紹介する。一国依存からの脱却は時間がかかるため、段階的な計画づくりが重要になる。',
-      ref_info: '米国向け輸出に依存していた事業者が販路を多角化した進め方', updated_date: '2026-08-06 11:20' },
-    { code: 'K-011', title: '電子帳簿保存法 対応の手引き', theme_label: '電子帳簿保存法', badge_color: '#8a7a3f',
-      content: '電子帳簿保存法で求められる保存要件と社内体制整備のポイントを解説した手引き。電子取引データはタイムスタンプや訂正削除履歴が残るシステムでの保存が原則で、紙に印刷しての保存では要件を満たさない点が誤解されやすい。スキャナ保存制度を使えば紙の書類も電子化して保管スペースを削減でき、必要な書類をすぐ検索できるようになる。誰が対応しても同じ運用になるよう、保存規程を整備しておくことが属人化を防ぐ鍵になる。会計システム側のタイムスタンプ対応状況も併せて確認するとよい。',
-      ref_info: '電子帳簿保存法で求められる保存要件と社内体制整備のポイント', updated_date: '2026-04-14 13:40' },
-    { code: 'K-026', title: '小規模事業者のデジタル化支援まとめ', theme_label: 'デジタル化', badge_color: '#2d6a8f',
-      content: '小規模事業者がITツールを導入する際に使える支援策の一覧と選び方をまとめている。会計・受発注業務をクラウド化すれば場所を選ばず業務ができるようになり、キャッシュレス決済の導入は顧客の利便性向上と機会損失の防止につながる。IT導入補助金は対象ツールがあらかじめ登録された制度から選ぶ形式のため、業務の課題を整理してから適したツールを絞り込むのが近道になる。社内にデジタル人材を育てておけば、外部委託に頼らず自走できる体制を作りやすい。',
-      ref_info: '小規模事業者がITツールを導入する際に使える支援策の一覧と選び方', updated_date: '2026-07-28 08:55' },
-    { code: 'K-005', title: 'コロナ後の販路回復支援事例集', theme_label: '新型コロナ', badge_color: '#6a6a6a',
-      content: 'コロナ後の販路回復に向けて新商品開発・新規顧客開拓を行った事例をまとめている。既存の主力商品だけでは客足が戻りきらなかった事業者が、新商品開発や新サービス展開で新しい客層を取り込んだ進め方を紹介する。コロナ融資の返済負担が重い場合は、借換保証制度等で月々の返済額を軽くしながら販路回復に投資する順序が有効だった例もある。事業再構築を伴う新分野展開では、補助金を活用しながら新しい収益の柱を作った事例も収録している。',
-      ref_info: 'コロナ後の販路回復に向けて新商品開発・新規顧客開拓を行った事例', updated_date: '2026-03-30 15:10' },
-  ];
-
   const MAX_RESULTS = 4;
+  let allEntries = [];
   let searchResults = null;
   let lastKeyword = '';
+  let loading = false;
+  let loadSeq = 0;
+  let pendingSearch = false;
+
+  function parseThemeBadges(raw) {
+    if (!raw) return [];
+    if (Array.isArray(raw)) return raw;
+    if (typeof raw === 'string') {
+      try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        return [];
+      }
+    }
+    return [];
+  }
+
+  function firstSentence(text) {
+    const body = String(text || '').trim();
+    if (!body) return '';
+    const idx = body.indexOf('。');
+    return idx === -1 ? body : body.slice(0, idx + 1);
+  }
+
+  function formatDateTime(dt) {
+    if (!dt) return '';
+    const m = String(dt).match(/^(\d{4}-\d{2}-\d{2})(?:[ T](\d{2}:\d{2}))?/);
+    if (m) return m[2] ? (m[1] + ' ' + m[2]) : m[1];
+    return String(dt);
+  }
+
+  function mapRow(row) {
+    const title = String(row.title || '').trim();
+    const content = String(row.content || '').trim();
+    const code = String(row.knowledge_code || '').trim();
+    const badges = parseThemeBadges(row.theme_badges);
+    return {
+      code: code,
+      title: title,
+      content: content,
+      theme_badges: badges,
+      ref_info: firstSentence(content),
+      updated_date: formatDateTime(row.updated_date)
+    };
+  }
+
+  function toastError(msg) {
+    try {
+      if (typeof Toast !== 'undefined' && Toast.error) Toast.error(msg);
+      else window.alert(msg);
+    } catch (e) {
+      window.alert(msg);
+    }
+  }
+
+  function postInit() {
+    const body = Object.assign({
+      mode: '1',
+      actflg: '1',
+      triggerid: 'aiproposalinitapi',
+      pagemode: 'search',
+    }, (window.ApiClient && window.ApiClient.orgContext) ? window.ApiClient.orgContext() : {});
+    if (window.ApiClient && typeof window.ApiClient.post === 'function') {
+      return window.ApiClient.post('/aiproposalinitapi.do', body);
+    }
+    return Promise.reject(new Error('ApiClient unavailable'));
+  }
+
+  function alignResults() {
+    if (typeof alignCardBottomToManualInput === 'function') {
+      requestAnimationFrame(() => {
+        alignCardBottomToManualInput(root.querySelector('#ks-results'), false);
+      });
+    }
+  }
+
+  function loadEntries() {
+    const seq = ++loadSeq;
+    loading = true;
+    renderResults();
+    postInit().then(function (result) {
+      if (seq !== loadSeq) return;
+      loading = false;
+      const data = (result && result.data) || {};
+      if (!result || !result.ok || data.e) {
+        allEntries = [];
+        toastError(data.e || 'ナレッジ一覧の取得に失敗しました');
+        renderResults();
+        return;
+      }
+      const rows = Array.isArray(data.entries) ? data.entries : [];
+      allEntries = rows.map(mapRow);
+      if (pendingSearch) {
+        runSearch();
+        return;
+      }
+      renderResults();
+    }).catch(function () {
+      if (seq !== loadSeq) return;
+      loading = false;
+      allEntries = [];
+      toastError('ナレッジ一覧の取得に失敗しました');
+      renderResults();
+    });
+  }
 
   function highlightText(text, keyword) {
     if (!keyword) return esc(text);
@@ -55,6 +135,17 @@
     const lead = body.slice(0, idx + 1);
     const rest = body.slice(idx + 1);
     return `<strong>${highlightText(lead, keyword)}</strong>${rest ? `<br><br>${highlightText(rest, keyword)}` : ''}`;
+  }
+
+  function entryMatches(entry, keyword) {
+    if (!keyword) return true;
+    const kw = keyword.toLowerCase();
+    if ((entry.title || '').toLowerCase().includes(kw)) return true;
+    if ((entry.content || '').toLowerCase().includes(kw)) return true;
+    if ((entry.code || '').toLowerCase().includes(kw)) return true;
+    return (entry.theme_badges || []).some(function (t) {
+      return String(t.label || '').toLowerCase().includes(kw);
+    });
   }
 
   function render() {
@@ -88,47 +179,71 @@
       </div>
     `;
     const keywordEl = root.querySelector('#ks-keyword');
+    keywordEl.value = lastKeyword;
     root.querySelector('#ks-search-btn').addEventListener('click', runSearch);
-    keywordEl.addEventListener('keydown', e => { if (e.key === 'Enter') runSearch(); });
+    keywordEl.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      if (e.isComposing || e.keyCode === 229) return;
+      e.preventDefault();
+      runSearch();
+    });
     root.querySelector('#ks-clear-btn').addEventListener('click', () => {
       keywordEl.value = '';
       lastKeyword = '';
+      pendingSearch = false;
       searchResults = null;
       renderResults();
       keywordEl.focus();
     });
+    loading = true;
     renderResults();
     keywordEl.focus();
     if (typeof window.__applyRoleAccentColor === 'function') window.__applyRoleAccentColor();
-
-    if (typeof alignCardBottomToManualInput === 'function') {
-      requestAnimationFrame(() => {
-        alignCardBottomToManualInput(root.querySelector('#ks-results'), false);
-      });
-    }
+    alignResults();
+    loadEntries();
   }
 
   function runSearch() {
-    const rawKeyword = root.querySelector('#ks-keyword').value.trim();
-    const keyword = rawKeyword.toLowerCase();
+    const keywordEl = root.querySelector('#ks-keyword');
+    const rawKeyword = keywordEl ? keywordEl.value.trim() : '';
     lastKeyword = rawKeyword;
-    searchResults = keyword
-      ? KNOWLEDGE_ENTRIES.filter(e => e.title.toLowerCase().includes(keyword) || e.content.toLowerCase().includes(keyword) || e.theme_label.toLowerCase().includes(keyword))
-      : KNOWLEDGE_ENTRIES.slice();
+    if (loading) {
+      pendingSearch = true;
+      return;
+    }
+    pendingSearch = false;
+    searchResults = allEntries.filter(function (e) { return entryMatches(e, rawKeyword); });
     renderResults();
+  }
+
+  function renderThemeBadges(entry) {
+    const badges = entry.theme_badges || [];
+    if (!badges.length) return '';
+    return badges.map(function (t) {
+      const color = t.badge_class || '#1a6fa8';
+      return `<span class="badge" style="--badge-color:${esc(color)}">${highlightText(t.label || '', lastKeyword)}</span>`;
+    }).join(' ');
   }
 
   function renderResults() {
     const resultsEl = root.querySelector('#ks-results');
     const countEl = root.querySelector('#ks-result-count');
+    if (!resultsEl || !countEl) return;
+    if (loading) {
+      countEl.textContent = '';
+      resultsEl.innerHTML = `<div class="text-muted text-sm" style="grid-column:1/-1">ナレッジを読み込んでいます…</div>`;
+      return;
+    }
     if (!searchResults) {
       countEl.textContent = '';
       resultsEl.innerHTML = `<div class="text-muted text-sm" style="grid-column:1/-1">上の欄にキーワードを入力し「ナレッジを検索」を押してください。</div>`;
+      alignResults();
       return;
     }
     if (!searchResults.length) {
       countEl.textContent = '';
       resultsEl.innerHTML = `<div class="text-muted text-sm" style="grid-column:1/-1">該当するナレッジが見つかりませんでした。別のキーワードをお試しください。</div>`;
+      alignResults();
       return;
     }
 
@@ -142,13 +257,20 @@
           <div class="proposal-card__title">${highlightText(e.title, lastKeyword)}</div>
         </div>
         <div class="proposal-card__body">${formatKnowledgeBody(e.content, lastKeyword)}</div>
-        <div class="proposal-card__meta"><span class="badge" style="--badge-color:${e.badge_color}">${esc(e.theme_label)}</span></div>
-        <div class="proposal-card__meta" style="margin-top:var(--space-2)"><strong>📚 参照したナレッジ：</strong>${esc(e.code)}「${esc(e.title)}」<br><strong>🔍 参照した情報：</strong>${esc(e.ref_info)}</div>
+        <div class="proposal-card__meta">${renderThemeBadges(e)}</div>
+        <div class="proposal-card__meta" style="margin-top:var(--space-2)"><strong>📚 参照したナレッジ：</strong>${esc(e.code)}${e.title ? '「' + esc(e.title) + '」' : ''}${e.ref_info ? '<br><strong>🔍 参照した情報：</strong>' + esc(e.ref_info) : ''}</div>
         <div class="proposal-card__meta"><strong>更新日時：</strong>${esc(e.updated_date)}</div>
       </div>
     `).join('');
+    alignResults();
   }
 
-  window.__renderKnowledgeSearch = () => { searchResults = null; lastKeyword = ''; render(); };
-  render();
+  window.__renderKnowledgeSearch = () => {
+    searchResults = null;
+    lastKeyword = '';
+    pendingSearch = false;
+    loading = false;
+    allEntries = [];
+    render();
+  };
 })();
