@@ -225,7 +225,7 @@
     }
 
     // ------------------------------------------------------------------
-    // 帳票出力ボタン（FORMEXPORTAPI）：v_output_f_excelからExcel出力する
+    // 帳票出力ボタン（FORMEXPORTAPI）：v_output_reports_csvからExcel出力する
     // ------------------------------------------------------------------
     const exportBtn = document.getElementById('mi-form-export-btn');
     const formSelect = document.getElementById('mi-form');
@@ -243,7 +243,7 @@
             'Content-Type': 'application/json',
             'X-CSRFToken': csrfToken,
           },
-          body: JSON.stringify({ formcode: formSelect.value, reportid: state.lastDraftReportId }),
+          body: JSON.stringify({ formcode: formSelect.value, reportid: state.lastDraftReportId || '', source: (function(){ var f = document.getElementById('mi-entry-form'); return f ? (f.getAttribute('data-screen') || '') : ''; })() }),
         }).then((response) => {
           var ct = response.headers.get('content-type') || '';
           if (ct.indexOf('application/vnd.openxmlformats') >= 0 || ct.indexOf('application/octet-stream') >= 0) {
@@ -253,8 +253,16 @@
               var a = document.createElement('a');
               a.href = url;
               var disposition = response.headers.get('Content-Disposition') || '';
-              var m = disposition.match(/filename[^;=\n]*=(["']?)([^;"']*)\1/);
-              a.download = (m && m[2]) ? m[2] : 'F_相談受付票.xlsx';
+              // filename*=UTF-8''エンコード形式を優先的に解析する（日文ファイル名対応）
+              var mStar = disposition.match(/filename\*=UTF-8''([^;]+)/i);
+              var m = disposition.match(/filename=([^;]+)/i);
+              var fileName = '';
+              if (mStar && mStar[1]) {
+                try { fileName = decodeURIComponent(mStar[1].replace(/["']/g, '')); } catch (e) { fileName = mStar[1].replace(/["']/g, ''); }
+              } else if (m && m[1]) {
+                try { fileName = decodeURIComponent(m[1].replace(/["']/g, '')); } catch (e) { fileName = m[1].replace(/["']/g, ''); }
+              }
+              a.download = fileName || ('Report_' + (formSelect.value || '') + '.xlsx');
               document.body.appendChild(a);
               a.click();
               document.body.removeChild(a);
@@ -451,7 +459,7 @@
             return;
           }
           if (!isDraft) {
-
+            e.preventDefault();
             if (overviewEl && contentEl && !overviewEl.value.trim() && contentEl.value.trim()) {
               overviewEl.value = aiSummarize(contentEl.value);
             }
@@ -471,12 +479,41 @@
               if (!hasTheme) missingLabels.push('支援テーマ');
             }
             if (missingLabels.length) {
-              e.preventDefault();
               Toast.error(`必須項目（※）が未入力です。ご確認ください（未入力: ${missingLabels.join('、')}）`);
               const firstInvalid = document.querySelector('.is-invalid');
               if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
               return;
             }
+            // 登録する：FORMNEWSAVEAPI（実データ登録）へ接続
+            const checkedThemes = [...document.querySelectorAll('.mi-theme-checkbox:checked')].map((c) => c.value).join(',');
+            var elById = function(id) { var el = document.getElementById(id); return el ? el.value : ''; };
+            const payload = {
+              formcode: elById('mi-form'),
+              reportdate: elById('mi-date'),
+              timestart: elById('mi-time-start'),
+              timeend: elById('mi-time-end'),
+              staffmaincode: elById('mi-staff-main'),
+              staffsubcode: elById('mi-staff-sub'),
+              themecodes: checkedThemes,
+              industry: elById('mi-industry'),
+              businessname: elById('mi-jigyosho'),
+              businessperson: elById('mi-tantosha'),
+              content: contentEl ? contentEl.value : '',
+              summary: overviewEl ? overviewEl.value : '',
+              status: '登録済み',
+            };
+            var submitSuccess = false;
+            callApi('./formnewsaveapi.do', payload).then((data) => {
+              if (data.e) { Toast.error(data.e); return; }
+              submitSuccess = true;
+              state.lastDraftReportId = data.dragReportId || '';
+              Toast.success(data.i || '報告書を登録しました');
+            }).catch(() => Toast.error('通信エラーが発生しました')).finally(() => {
+              // 失敗時のみsubmitボタンを再び有効化する（成功時は二重登録防止のため無効維持）
+              if (!submitSuccess) {
+                miForm.querySelectorAll('button[type="submit"]').forEach((btn) => { btn.disabled = false; });
+              }
+            });
           }
           setTimeout(() => {
             miForm.querySelectorAll('button[type="submit"]').forEach((btn) => { btn.disabled = true; });
@@ -796,10 +833,22 @@
   }
 
   // ==========================================================================
-  // 起動：AiInputInitAPIで帳票・支援テーマ・担当者を実データ取得してから配線する
+  // 起動：画面初期表示APIで帳票・支援テーマ・担当者を実データ取得してから配線する
+  // data-screen属性に応じてAPIを切替する：
+  //   ai-input（相談を受ける）→ aiinputinitapi.do
+  //   manual-input（報告書を作る）→ formnewinitapi.do
   // API取得に失敗した場合は画面定義（HTML）のまま配線のみ行う
   // ==========================================================================
-  callApi('./aiinputinitapi.do', {}).then((data) => {
+  var initApiUrl = './aiinputinitapi.do';
+  var screenType = '';
+  var miEntryForm = document.getElementById('mi-entry-form');
+  if (miEntryForm && miEntryForm.getAttribute) {
+    screenType = miEntryForm.getAttribute('data-screen') || '';
+  }
+  if (screenType === 'manual-input') {
+    initApiUrl = './formnewinitapi.do';
+  }
+  callApi(initApiUrl, {}).then((data) => {
     applyInitData(
       parseJson(data.dragForms, []),
       parseJson(data.dragThemes, []),

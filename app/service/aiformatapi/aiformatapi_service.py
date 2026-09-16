@@ -19,7 +19,8 @@ import utils.string_util
 class AiformatapiService :
 
 	# 整形前の不要語（フィラー）を除去するためのパターン
-	FILLER_PATTERN = r"(えーと|えっと|あのー|あの、|うーん、|まあ、|そのー|その、)"
+	# フィラー直後の読点（、）も併せて除去する
+	FILLER_PATTERN = r"(えーと|えっと|あのー|あの、|うーん、|まあ、|そのー|その、)[、,]?"
 
 	#	#
 	# 報告書編集文字起こし AI整形
@@ -50,6 +51,8 @@ class AiformatapiService :
 			#AI整形処理：フィラー除去・空白正規化・句読点の整え・文単位の改行を行う。
 			formatted = source_text
 			formatted = re.sub(AiformatapiService.FILLER_PATTERN, "", formatted)
+			# 先頭の余分な読点・空白を除去する
+			formatted = re.sub(r"^[、,]\s*", "", formatted)
 			formatted = re.sub(r"[ \t\u3000]+", " ", formatted)
 			formatted = formatted.replace(",", "、").replace("、 ", "、")
 			formatted = formatted.replace(".", "。").replace("。 ", "。")
