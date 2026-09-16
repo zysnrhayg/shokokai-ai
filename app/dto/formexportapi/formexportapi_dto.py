@@ -1,10 +1,14 @@
 from utils.base_entity import BaseEntity
 
 class FormexportapiDto(BaseEntity):
-    def __init__(self, mode, actflg, triggerid, row, formcode="", report_id=""):
+    # 傾聴内容変換AI帳票出力用DTO
+    # フィールド名はプロジェクト規約に従いcamelCaseとする（formcode/reportid/prefecturecode/shokokaicd）
+    def __init__(self, mode, actflg, triggerid, row, formcode="", reportid="", prefecturecode="", shokokaicd=""):
         super().__init__(mode, actflg, triggerid, row)
         self.formcode = formcode
-        self.report_id = report_id
+        self.reportid = reportid
+        self.prefecturecode = prefecturecode
+        self.shokokaicd = shokokaicd
 
     @staticmethod
     def dict_to_json(d):
@@ -16,4 +20,7 @@ class FormexportapiDto(BaseEntity):
             d.get("triggerid", ""),
             d.get("row", ""),
             d.get("formcode", ""),
-            d.get("report_id", ""))
+            # report_id（スネークケース）での送信も許容する
+            d.get("reportid", d.get("report_id", "")),
+            d.get("prefecturecode", ""),
+            d.get("shokokaicd", ""))

@@ -19,6 +19,7 @@ class JigyoshomeinokohokakonosodanrirekinamesapiService:
         utils.config.global_log.debug(str(threading.current_thread().native_id) + ": start")
         try:
             api_dto = ApiJigyoshomeinokohokakonosodanrirekinamesDto.dict_to_json({})
+            # 組織情報（都道府県コード／商工会コード）を取得
             pref = utils.string_util.changeNullToBlank(
                 getattr(jigyoshomeinokohokakonosodanrirekinamesapi_dto, "prefecturecode", "")
                 or session.get("PREFECTURE_CODE")
@@ -29,19 +30,11 @@ class JigyoshomeinokohokakonosodanrirekinamesapiService:
                 or session.get("SHOKOKAI_CD")
                 or ""
             )
-            keyword = utils.string_util.changeNullToBlank(
-                getattr(jigyoshomeinokohokakonosodanrirekinamesapi_dto, "keyword", None)
-                or getattr(jigyoshomeinokohokakonosodanrirekinamesapi_dto, "xx", None)
-                or ""
-            )
             api_dto.prefecturecode = pref
             api_dto.shokokaicd = shokokai
             api_dto.limit = utils.string_util.changeNullToBlank(
                 getattr(jigyoshomeinokohokakonosodanrirekinamesapi_dto, "limit", "")
             ) or "20"
-            api_dto.keyword = keyword
-            api_dto.businessname = keyword
-            api_dto.xx = keyword
 
             rows = ApiJigyoshomeinokohokakonosodanrirekinamesDao().api_jigyoshomeinokohokakonosodanrirekinames(api_dto) or []
             map_list = []
@@ -53,7 +46,7 @@ class JigyoshomeinokohokakonosodanrirekinamesapiService:
                         "last_report_date": row.get("last_report_date") or "",
                     }
                 )
-            jsonObj.setHtml("dragB", json.dumps(map_list, ensure_ascii=False))
+            jsonObj.setHtml("dragB", json.dumps(map_list, default=str, ensure_ascii=False))
             jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_SUCCESS)
         except Exception as e:
             utils.config.global_log.error(e)

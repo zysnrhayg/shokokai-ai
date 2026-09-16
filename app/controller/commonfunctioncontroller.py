@@ -63,6 +63,7 @@ from app.dto.monthlyfiscalyearapi.monthlyfiscalyearapi_dto import Monthlyfiscaly
 from app.dto.monthlyexportapi.monthlyexportapi_dto import MonthlyexportapiDto
 from app.dto.monthlycsvexportapi.monthlycsvexportapi_dto import MonthlycsvexportapiDto
 from app.service.aiformatapi.aiformatapi_service import AiformatapiService
+from app.service.aiinputinitapi.aiinputinitapi_service import AiinputinitapiService
 from app.service.draftsaveapi.draftsaveapi_service import DraftsaveapiService
 from app.service.voiceextendapi.voiceextendapi_service import VoiceextendapiService
 from app.service.voiceinsertcontentapi.voiceinsertcontentapi_service import VoiceinsertcontentapiService
@@ -1156,8 +1157,16 @@ def formexportapi() :
 	formexportapi_dto = FormexportapiDto.dict_to_json(data)
 	formexportapiVar_service = FormexportapiService()
 
-	formexportapiVar_service.formexportapi(formexportapi_dto, jsonObj)
+	# サービスでExcel生成し、ファイルパスを取得する
+	file_path = formexportapiVar_service.formexportapi(formexportapi_dto, jsonObj)
 
+	# 成功時はExcelファイルをダウンロード応答として返す
+	result = jsonObj.getJsonObj()
+	if result.get("WF_RUNRESULT") == "1" and file_path:
+		file_name = result.get("dragFileName", "export.xlsx")
+		return send_file(file_path, as_attachment=True, download_name=file_name,
+		                 mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+	# 失敗時はJSONエラーを返す
 	return jsonObj.toJsonString()
 
 
@@ -1261,7 +1270,7 @@ def voicerecordapi() :
 def voiceuploadapi() :
 	"""voiceuploadapi - 傾聴内容変換AI音声ファイル アップロード - サーバー関数"""
 
-	data = request.get_json()
+	# 音声ファイルはmultipart/form-dataで受付する（JSON送信の場合はJSONとして処理する）
 	jsonObj = JSONWFCObject()
 
 	# validate parameter 371
@@ -1269,7 +1278,14 @@ def voiceuploadapi() :
 
 #UnitedControllerBuilder 963
 
-	voiceuploadapi_dto = VoiceuploadapiDto.dict_to_json(data)
+	if request.files and 'audio_file' in request.files :
+		# multipart送信：音声ファイルをDTOへ設定する
+		voiceuploadapi_dto = VoiceuploadapiDto.dict_to_json(request.form.to_dict() or {})
+		voiceuploadapi_dto.audiofile = request.files['audio_file']
+	else :
+		data = request.get_json(silent=True) or {}
+		voiceuploadapi_dto = VoiceuploadapiDto.dict_to_json(data)
+
 	voiceuploadapiVar_service = VoiceuploadapiService()
 
 	voiceuploadapiVar_service.voiceuploadapi(voiceuploadapi_dto, jsonObj)
