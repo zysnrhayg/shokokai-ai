@@ -10,6 +10,7 @@ class MonthlyexportapiDto(BaseEntity):
         self.rolecode = kwargs.get("rolecode", "")
         self.prefecturecode = kwargs.get("prefecturecode", "")
         self.shokokaicd = kwargs.get("shokokaicd", "")
+        self.reportid = kwargs.get("reportid", "")
 
     @staticmethod
     def dict_to_json(d):
@@ -26,4 +27,5 @@ class MonthlyexportapiDto(BaseEntity):
             rolecode=d.get("rolecode", d.get("role_code", "")),
             prefecturecode=d.get("prefecturecode", d.get("prefecture_code", "")),
             shokokaicd=d.get("shokokaicd", d.get("shokokai_cd", "")),
+            reportid=d.get("reportid", d.get("report_id", "")),
         )

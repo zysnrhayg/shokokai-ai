@@ -13,9 +13,7 @@ class ReportsinitapiService:
             sho_pref = scope["prefecture_code"] or scope["role_prefecture_code"]
             if scope["role"] == "national" and not sho_pref:
                 sho_pref = ""
-            default_ym = reportsinitapi_dto.yearmonth or reports_api.default_year_month(years)
-            if not reportsinitapi_dto.yearmonth:
-                reportsinitapi_dto.yearmonth = default_ym
+            default_ym = reports_api.default_year_month(years)
             fy_id = years[0]["fiscal_year_id"] if years else ""
             jsonObj.setValue("fiscalyears", years)
             jsonObj.setValue("prefectures", reports_api.prefectures())
@@ -25,7 +23,8 @@ class ReportsinitapiService:
             jsonObj.setValue("defaultyearmonth", default_ym)
             jsonObj.setValue("prefecturecode", scope["role_prefecture_code"] or scope["prefecture_code"])
             jsonObj.setValue("shokokaicd", scope["role_shokokai_cd"] or scope["shokokai_cd"])
-            rows = reports_api.fetch_reports(reportsinitapi_dto, years)
+            # 顧客設計: get_visible_reports（ロール範囲のみ）。絞込はクライアントJS
+            rows = reports_api.list_visible_reports(reportsinitapi_dto)
             reports_api.set_list_result(jsonObj, rows)
         except Exception as e:
             utils.config.global_log.error(e)

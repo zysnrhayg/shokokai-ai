@@ -17,9 +17,7 @@
   let periodType = 'monthly'; // 'monthly' | 'annual'
   let loading = false;
   let initDone = false;
-  let listReqSeq = 0; // 一覧再取得の競合防止
-
-  const ANNUAL_FORM_CODES = ['H', 'I-1', 'I-7', 'I-8'];
+  let initReqSeq = 0;
 
   const detailByKey = new Map();
   const totalByMonth = new Map();
@@ -83,7 +81,7 @@
   }
 
   function buildPayload(extra) {
-    var body = { rolecode: currentUiRole() };
+    var body = { rolecode: currentUiRole(), periodtype: periodType };
     if (window.ApiClient && typeof window.ApiClient.orgContext === 'function') {
       var org = window.ApiClient.orgContext() || {};
       if (org.prefecturecode) body.prefecturecode = org.prefecturecode;
@@ -108,15 +106,75 @@
       detail_rows: data.detail_rows || [],
       total_rows: data.total_rows || [],
       export_forms: data.export_forms || [],
+      export_forms_by_year: data.export_forms_by_year || {},
+      report_form_months: data.report_form_months || [],
     };
     if (!opts.keepSelection) {
       selectedYear = DATA.current_fiscal_year_code;
       selectedMonth = null;
-    } else if (data.current_fiscal_year_code) {
+    } else if (data.current_fiscal_year_code && !selectedYear) {
       selectedYear = data.current_fiscal_year_code;
     }
     rebuildMaps();
     return true;
+  }
+
+  function currentFyObj() {
+    var years = DATA.fiscal_years || [];
+    return years.find(function (f) { return f.fiscal_year_code === selectedYear; }) || years[0] || null;
+  }
+
+  function fyMonthList(fy) {
+    if (!fy) return [];
+    return monthRange(fy.start_month, fy.end_month);
+  }
+
+  function hasKpiInMonth(ym) {
+    if (!ym) return false;
+    return (DATA.detail_rows || []).some(function (r) {
+      return r.year_month === ym && (Number(r.support_count) || 0) > 0;
+    });
+  }
+
+  function hasKpiInYear(fy) {
+    var months = fyMonthList(fy);
+    if (!months.length) {
+      return (DATA.detail_rows || []).some(function (r) {
+        return (Number(r.support_count) || 0) > 0;
+      });
+    }
+    var set = {};
+    months.forEach(function (m) { set[m] = true; });
+    return (DATA.detail_rows || []).some(function (r) {
+      return set[r.year_month] && (Number(r.support_count) || 0) > 0;
+    });
+  }
+
+  function hasReportForm(formCode, ym) {
+    return (DATA.report_form_months || []).some(function (r) {
+      if (r.form_code !== formCode) return false;
+      if (!ym) return true;
+      return r.year_month === ym;
+    });
+  }
+
+  function formsForCurrentSelection() {
+    var byYear = DATA.export_forms_by_year || {};
+    var formsSrc = byYear[selectedYear] || DATA.export_forms || [];
+    var wantGroup = periodType === 'annual' ? 'annual' : 'monthly';
+    var fy = currentFyObj();
+    var kpiOk = periodType === 'annual'
+      ? hasKpiInYear(fy)
+      : hasKpiInMonth(selectedMonth);
+    if (!kpiOk) return [];
+    return formsSrc.filter(function (f) {
+      if ((f.period_group || 'monthly') !== wantGroup) return false;
+      var code = f.form_code || '';
+      if (code === 'F' || code.indexOf('G-') === 0) {
+        return hasReportForm(code, periodType === 'monthly' ? selectedMonth : '');
+      }
+      return true;
+    });
   }
 
   function reiwaLabel(yearMonth) {
@@ -130,23 +188,24 @@
         <div class="cat-lbl">📄 帳票は指定した条件で出力、CSVは条件に関係なく一覧を出力します</div>
 
         <div class="card" id="monthly-filter-card">
-          <div class="card-header" id="monthly-filter-header">
+          <div class="card-header" id="monthly-filter-header"${periodType === 'annual' ? ' class="is-annual"' : ''}>
             <div class="filter-row">
-              <div class="filter-field"><div class="filter-field__label">出力種別</div>
+              <div class="filter-field" style="order:1;"><div class="filter-field__label">出力種別</div>
                 <div class="flex items-center gap-md" style="height:36px; box-sizing:border-box;">
                   <label class="flex items-center gap-xs" style="white-space:nowrap;cursor:pointer;"><input type="radio" name="f-period-type" value="monthly"${periodType === 'monthly' ? ' checked' : ''}> 月次</label>
                   <label class="flex items-center gap-xs" style="white-space:nowrap;cursor:pointer;"><input type="radio" name="f-period-type" value="annual"${periodType === 'annual' ? ' checked' : ''}> 年次</label>
                 </div>
               </div>
               <div class="filter-field" id="monthly-year-month-field"></div>
-              <div class="filter-field" style="margin-left:auto;">
+              <div class="filter-field" id="monthly-export-field">
                 <div class="filter-field__label">帳票出力</div>
-                <div class="flex items-center gap-xs" id="monthly-export-groups"></div>
+                <div class="flex items-center flex-wrap gap-xs" id="monthly-export-groups"></div>
               </div>
-              <div class="filter-field" style="border-left:1px solid var(--gold-border); padding-left:var(--space-6);">
+              <div class="filter-row__spacer" aria-hidden="true"></div>
+              <div class="filter-field monthly-csv-field" style="border-left:1px solid var(--gold-border); padding-left:var(--space-6);">
                 <div class="filter-field__label">&nbsp;</div>
                 <div class="flex items-center gap-md">
-                  <button type="button" class="btn btn-outline btn-sm" id="monthly-csv-btn">⬇ 一覧をCSVに出力する</button>
+                  <button type="button" class="btn btn-outline btn-sm" id="monthly-csv-btn" style="background:var(--surface-hover)">⬇ 一覧をCSVに出力する</button>
                 </div>
               </div>
             </div>
@@ -170,13 +229,16 @@
         selectedMonth = null;
       }
       periodType = nextType;
-      renderExportGroup();
+      var headerEl = root.querySelector('#monthly-filter-header');
+      if (headerEl) headerEl.classList.toggle('is-annual', periodType === 'annual');
+      // 顧客設計: 一覧は全期間埋め込みのため API 再取得しない
+      // 実施年月の既定選択後に帳票ボタンを描画する
       renderYearMonthField();
-      // 月次↔年次：DB からテーマ一覧を取り直す（月次は実施年月で0件テーマ除外）
-      refreshListFromDb();
+      renderExportGroup();
+      renderTable();
     }));
-    renderExportGroup();
     renderYearMonthField();
+    renderExportGroup();
 
     root.querySelector('#monthly-csv-btn').addEventListener('click', downloadCsv);
 
@@ -218,12 +280,21 @@
     return false;
   }
 
+  function exportFormMeta(formCode) {
+    var forms = formsForCurrentSelection();
+    return forms.find(function (f) {
+      return f.form_code === formCode;
+    }) || ((DATA.export_forms_by_year || {})[selectedYear] || []).find(function (f) {
+      return f.form_code === formCode;
+    });
+  }
+
   function exportForm(formCode, formLabel) {
-    var isAnnual = ANNUAL_FORM_CODES.indexOf(formCode) >= 0;
+    var meta = exportFormMeta(formCode);
     var payload = buildPayload({
       formcode: formCode,
       fiscalyearcode: selectedYear || DATA.current_fiscal_year_code || '',
-      yearmonth: isAnnual ? '' : (selectedMonth || ''),
+      yearmonth: (meta && meta.requires_yearmonth) ? (selectedMonth || '') : '',
     });
     var csrf = window.ApiClient && window.ApiClient.getCsrfToken
       ? window.ApiClient.getCsrfToken()
@@ -261,90 +332,22 @@
       });
   }
 
-  function refreshListFromDb() {
-    var extra = {
-      fiscalyearcode: selectedYear || DATA.current_fiscal_year_code || '',
-    };
-    // 月次のみ yearmonth を渡し、当該月 support_count=0 のテーマをサーバ側で除外
-    if (periodType === 'monthly' && selectedMonth) {
-      extra.yearmonth = selectedMonth;
-    }
-    var seq = ++listReqSeq;
-    postMonthlyApi('./monthlyinitapi.do', buildPayload(extra))
-      .then(function (result) {
-        if (seq !== listReqSeq) return; // 古い応答は捨てる
-        var data = (result && result.data) || {};
-        if (data.e) {
-          toastError(String(data.e).trim());
-          renderTable();
-          return;
-        }
-        if (!result.ok || !applyInitData(data, { keepSelection: true })) {
-          renderTable();
-          return;
-        }
-        renderExportGroup();
-        renderTable();
-      })
-      .catch(function () {
-        if (seq !== listReqSeq) return;
-        toastError('一覧の更新に失敗しました');
-        renderTable();
-      });
-  }
-
   function switchFiscalYear(yearCode) {
-    if (!yearCode || yearCode === selectedYear) {
-      selectedYear = yearCode;
-      renderTable();
-      return;
+    // 顧客設計: 選択年度の切替はクライアント側 JS（API 再取得しない）
+    if (!yearCode) return;
+    selectedYear = yearCode;
+    if (periodType === 'monthly') {
+      selectedMonth = null;
     }
-    var prevYear = selectedYear;
-    var extra = { fiscalyearcode: yearCode };
-    if (periodType === 'monthly' && selectedMonth) {
-      extra.yearmonth = selectedMonth;
-    }
-    postMonthlyApi('./monthlyfiscalyearapi.do', buildPayload(extra))
-      .then(function (result) {
-        var data = (result && result.data) || {};
-        if (data.e) {
-          toastError(String(data.e).trim());
-          selectedYear = prevYear;
-          renderYearMonthField();
-          renderTable();
-          return;
-        }
-        if (!result.ok || !applyInitData(data, { keepSelection: true })) {
-          selectedYear = prevYear;
-          renderYearMonthField();
-          renderTable();
-          return;
-        }
-        selectedYear = DATA.current_fiscal_year_code || yearCode;
-        render();
-        // 年次：対象年度切替後も DB 一覧を再取得（年度合計0のテーマ除外）
-        // 月次：実施年月条件で再取得
-        refreshListFromDb();
-      })
-      .catch(function () {
-        toastError('年度切替に失敗しました');
-        selectedYear = prevYear;
-        renderYearMonthField();
-        renderTable();
-      });
+    renderYearMonthField();
+    renderExportGroup();
+    renderTable();
   }
 
   function renderExportGroup() {
     const groupsEl = root.querySelector('#monthly-export-groups');
     if (!groupsEl) return;
-    const formsSrc = DATA.export_forms || [];
-    if (!formsSrc.length) {
-      groupsEl.innerHTML = '<span class="text-muted text-sm">出力できる帳票がありません</span>';
-      return;
-    }
-    const checked = root.querySelector('input[name="f-period-type"]:checked');
-    const isAnnual = checked && checked.value === 'annual';
-    const forms = formsSrc.filter(f => ANNUAL_FORM_CODES.includes(f.form_code) === isAnnual);
+    const forms = formsForCurrentSelection();
     groupsEl.innerHTML = forms.length
       ? forms.map(f => `<button type="button" class="btn btn-outline btn-sm" data-export-form="${esc(f.form_code)}" data-export-label="${esc(f.full_label)}">${esc(f.short_label)}</button>`).join('')
       : `<span class="text-muted text-sm">出力できる帳票がありません</span>`;
@@ -394,7 +397,8 @@
       if (monthEl) {
         monthEl.addEventListener('change', (e) => {
           selectedMonth = e.target.value;
-          refreshListFromDb();
+          // 顧客設計: 一覧データは埋め込み済み。実施年月は帳票ボタン判定のみ更新
+          renderExportGroup();
         });
       }
     }
@@ -526,11 +530,13 @@
   }
 
   function loadInit() {
-    if (loading) return;
+    // 役割切替・再入室で連続呼出されても、最新リクエストのみ反映する
+    var seq = ++initReqSeq;
     loading = true;
     render();
     postMonthlyApi('./monthlyinitapi.do', buildPayload())
       .then(function (result) {
+        if (seq !== initReqSeq) return;
         loading = false;
         initDone = true;
         var data = (result && result.data) || {};
@@ -544,13 +550,11 @@
           render();
           return;
         }
+        // 顧客設計: 全期間埋め込み。以降の年度／年月切替はクライアント側のみ
         render();
-        // 月次初期：実施年月確定後に DB で0件テーマを除外
-        if (periodType === 'monthly' && selectedMonth) {
-          refreshListFromDb();
-        }
       })
       .catch(function () {
+        if (seq !== initReqSeq) return;
         loading = false;
         initDone = true;
         if (!MOCK_DATA) toastError('実績確認・帳票出力の初期表示に失敗しました');

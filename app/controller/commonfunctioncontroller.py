@@ -1,4 +1,4 @@
-from flask import Blueprint, Flask, request, jsonify, redirect, url_for, render_template,session, Response, send_file
+from flask import Blueprint, Flask, request, jsonify, redirect, url_for, render_template,session, Response, send_file, after_this_request
 import io
 from datetime import datetime
 from flask_login import login_user, login_required, logout_user
@@ -967,11 +967,19 @@ def monthlyexportapi() :
 
 	monthlyexportapiVar_service.monthlyexportapi(monthlyexportapi_dto, jsonObj)
 
-	# 成功時は設定ディレクトリ上のファイルをそのまま返す（顧客アップロード想定）
+	# 成功時は app/monthly/routes.export_excel → render_aggregate_excel で生成した Excel を返す
 	payload = jsonObj.getJsonObj()
 	filepath = payload.pop("filepath", None) if isinstance(payload, dict) else None
 	filename = payload.get("filename") if isinstance(payload, dict) else None
 	if filepath and payload.get("e") in (None, "") and os.path.isfile(filepath):
+		@after_this_request
+		def _remove_generated_export(response):
+			try:
+				os.remove(filepath)
+			except OSError:
+				pass
+			return response
+
 		return send_file(
 			filepath,
 			as_attachment=True,

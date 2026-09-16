@@ -6,6 +6,7 @@ class MonthlyfiscalyearapiDto(BaseEntity):
         super().__init__(mode, actflg, triggerid, row)
         self.fiscalyearcode = kwargs.get("fiscalyearcode", "")
         self.yearmonth = kwargs.get("yearmonth", "")
+        self.periodtype = kwargs.get("periodtype", "")
         self.rolecode = kwargs.get("rolecode", "")
         self.prefecturecode = kwargs.get("prefecturecode", "")
         self.shokokaicd = kwargs.get("shokokaicd", "")
@@ -21,6 +22,7 @@ class MonthlyfiscalyearapiDto(BaseEntity):
             d.get("row", ""),
             fiscalyearcode=d.get("fiscalyearcode", d.get("fiscal_year_code", "")),
             yearmonth=d.get("yearmonth", d.get("year_month", "")),
+            periodtype=d.get("periodtype", d.get("period_type", "")),
             rolecode=d.get("rolecode", d.get("role_code", "")),
             prefecturecode=d.get("prefecturecode", d.get("prefecture_code", "")),
             shokokaicd=d.get("shokokaicd", d.get("shokokai_cd", "")),

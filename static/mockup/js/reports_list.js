@@ -23,6 +23,7 @@
   var loading = false;
   var pendingSearch = null;
   var keywordTimer = null;
+  var allRows = [];
   var lastRows = [];
 
   function esc(s) {
@@ -271,6 +272,76 @@
     return true;
   }
 
+  function yearMonthOf(row) {
+    var d = String(row.report_date || '');
+    return d.length >= 7 ? d.slice(0, 7) : '';
+  }
+
+  function fyRangeForCode(code) {
+    for (var i = 0; i < FISCAL_YEARS.length; i++) {
+      var fy = FISCAL_YEARS[i];
+      if (fy.fiscal_year_code === code) {
+        return { start: fy.start_month || '', end: fy.end_month || '' };
+      }
+    }
+    return null;
+  }
+
+  // 顧客設計: 絞込・並び替えは get_visible_reports 結果に対してクライアント側で実施
+  function filterRowsLocally() {
+    var role = currentUiRole();
+    var pref = elPref && elPref.value ? elPref.value : '';
+    var sho = elShokokai && elShokokai.value ? elShokokai.value : '';
+    if (pref === '00') pref = '';
+    var yearVal = elYearMonth ? elYearMonth.value : '';
+    var formVal = elForm ? elForm.value : '';
+    if (formVal === '全様式') formVal = '';
+    var themeVal = elTheme ? elTheme.value : '';
+    var keyword = elKeyword ? elKeyword.value.trim().toLowerCase() : '';
+    var draftOnly = elIncludeDraft && elIncludeDraft.checked;
+    var unprintedOnly = elUnprintedOnly && elUnprintedOnly.checked;
+    var fyStart = '';
+    var fyEnd = '';
+    var exactYm = '';
+    if (yearVal && yearVal.indexOf('FY:') === 0) {
+      var range = fyRangeForCode(yearVal.slice(3));
+      if (range) { fyStart = range.start; fyEnd = range.end; }
+    } else if (yearVal) {
+      exactYm = yearVal;
+    }
+    return (allRows || []).filter(function (r) {
+      if (role === 'national') {
+        if (pref && r.prefecture_code !== pref) return false;
+        if (sho && r.shokokai_cd !== sho) return false;
+      } else if (role === 'pref') {
+        if (sho && r.shokokai_cd !== sho) return false;
+      }
+      var ym = yearMonthOf(r);
+      if (exactYm && ym !== exactYm) return false;
+      if (!exactYm && fyStart && fyEnd && ym && (ym < fyStart || ym > fyEnd)) return false;
+      var fc = r.form_code || '';
+      if (formVal === '様式F' && fc !== 'F') return false;
+      if (formVal === '全様式G' && (!fc || fc === 'F' || fc.indexOf('H') === 0 || fc.indexOf('I') === 0)) return false;
+      if (formVal && formVal !== '様式F' && formVal !== '全様式G' && fc !== formVal) return false;
+      if (themeVal && r.theme_label !== themeVal && r.theme_code !== themeVal) return false;
+      if (keyword) {
+        var blob = [
+          r.summary, r.content, r.staff_main_name, r.staff_sub_name, r.staff_label, r.report_code
+        ].join(' ').toLowerCase();
+        if (blob.indexOf(keyword) < 0) return false;
+      }
+      if (draftOnly && r.status !== '下書き') return false;
+      if (unprintedOnly && r.printed) return false;
+      return true;
+    });
+  }
+
+  function loadSearch(withToast) {
+    var rows = filterRowsLocally();
+    renderRows(rows);
+    if (withToast) toastOk('絞り込みを更新しました（全' + rows.length + '件）');
+  }
+
   function flushPendingSearch() {
     if (!pendingSearch) return;
     var next = pendingSearch;
@@ -296,37 +367,14 @@
           return;
         }
         applyInitOptions(result.data);
-        renderRows(parseDragB(result.data));
+        allRows = parseDragB(result.data);
+        loadSearch(false);
         flushPendingSearch();
       })
       .catch(function () {
         loading = false;
         toastError('報告書一覧の初期表示に失敗しました');
-        renderRows([]);
-        flushPendingSearch();
-      });
-  }
-
-  function loadSearch(withToast) {
-    if (loading) {
-      pendingSearch = { withToast: !!withToast };
-      return;
-    }
-    loading = true;
-    postReportsApi('./reportssearchapi.do', buildFilterPayload())
-      .then(function (result) {
-        if (!handleResult(result, '報告書一覧の検索に失敗しました')) {
-          flushPendingSearch();
-          return;
-        }
-        var rows = parseDragB(result.data);
-        renderRows(rows);
-        if (withToast) toastOk('絞り込みを更新しました（全' + rows.length + '件）');
-        flushPendingSearch();
-      })
-      .catch(function () {
-        loading = false;
-        toastError('報告書一覧の検索に失敗しました');
+        allRows = [];
         renderRows([]);
         flushPendingSearch();
       });
@@ -371,16 +419,16 @@
       });
   }
 
-  function downloadCsvFromRows(rows) {
-    var header = ['様式', '実施日', '支援テーマ', '内容', '担当'];
+  var CSV_VIEW_COLUMNS = [
+    '様式', '都道府県連', '商工会', '報告書番号', '支援テーマ', '業種', '実施日',
+    '開始時刻', '終了時刻', '事業所名', '担当者名', '概要', '内容',
+    '音声入力の変換結果', '担当（主）', '担当（副）', '登録日'
+  ];
+
+  function downloadCsvFromRows(rows, columns) {
+    var header = (columns && columns.length) ? columns : CSV_VIEW_COLUMNS;
     var lines = [header].concat((rows || []).map(function (r) {
-      return [
-        r.form_short_label || r.form_code || '',
-        r.report_date || '',
-        r.theme_label || '',
-        (r.status === '下書き' ? '【下書き】' : '') + (r.content || r.summary || ''),
-        r.staff_label || '',
-      ];
+      return header.map(function (col) { return r[col] != null ? r[col] : ''; });
     })).map(function (cols) {
       return cols.map(function (v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; }).join(',');
     });
@@ -408,8 +456,17 @@
           toastError('CSV出力に失敗しました');
           return;
         }
-        downloadCsvFromRows(parseDragB(data));
-        // CSV出力後は印刷済みになるため、一覧を再取得（未印刷のみに反映）
+        downloadCsvFromRows(parseDragB(data), data.csvcolumns);
+        // CSV出力後は printed_at 更新済み → ローカル一覧も印刷済みにして再絞込
+        var exported = parseDragB(data) || [];
+        var idSet = {};
+        exported.forEach(function (r) { if (r.report_id != null) idSet[String(r.report_id)] = true; });
+        allRows.forEach(function (r) {
+          if (idSet[String(r.report_id)]) {
+            r.printed = true;
+            r.printed_at = r.printed_at || (new Date()).toISOString().slice(0, 10);
+          }
+        });
         loadSearch(false);
       })
       .catch(function () {
@@ -462,7 +519,6 @@
   };
 
   window.__renderReports = function () {
-    if (!optionsReady) loadInit();
-    else loadSearch(false);
+    loadInit();
   };
 })();
