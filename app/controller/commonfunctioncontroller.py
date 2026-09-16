@@ -136,6 +136,12 @@ from app.dto.formnewsaveapi.formnewsaveapi_dto import FormnewsaveapiDto
 from app.service.formnewsaveapi.formnewsaveapi_service import FormnewsaveapiService
 from app.dto.reportsinitapi.reportsinitapi_dto import ReportsinitapiDto
 from app.service.reportsinitapi.reportsinitapi_service import ReportsinitapiService
+from app.dto.reportssearchapi.reportssearchapi_dto import ReportssearchapiDto
+from app.service.reportssearchapi.reportssearchapi_service import ReportssearchapiService
+from app.dto.reportscsvexportapi.reportscsvexportapi_dto import ReportscsvexportapiDto
+from app.service.reportscsvexportapi.reportscsvexportapi_service import ReportscsvexportapiService
+from app.dto.reportdetailinitapi.reportdetailinitapi_dto import ReportdetailinitapiDto
+from app.service.reportdetailinitapi.reportdetailinitapi_service import ReportdetailinitapiService
 
 
 commonfunction_route = Blueprint('commonfunction_route', __name__)

@@ -1,6 +1,6 @@
 from utils.base_entity import BaseEntity
 
-class ReportsinitapiDto(BaseEntity):
+class ReportscsvexportapiDto(BaseEntity):
     def __init__(self, mode, actflg, triggerid, row, **kwargs):
         super().__init__(mode, actflg, triggerid, row)
         self.rolecode = kwargs.get("rolecode", "")
@@ -20,7 +20,7 @@ class ReportsinitapiDto(BaseEntity):
     def dict_to_json(d):
         if d is None:
             d = {}
-        return ReportsinitapiDto(
+        return ReportscsvexportapiDto(
             d.get("mode", ""),
             d.get("actflg", ""),
             d.get("triggerid", ""),

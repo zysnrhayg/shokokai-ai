@@ -106,6 +106,22 @@
     if (userInfo && userid) {
       userInfo.textContent = userid + (username ? '：' + username : '');
     }
+    var roleEl = document.getElementById('org-role-select');
+    if (roleEl) {
+      var loginPref = (data && (data.prefecturecode || data.prefecture_code))
+        || (typeof localStorage !== 'undefined' && localStorage.getItem('prefecture_code'))
+        || '';
+      var loginSho = (data && (data.shokokaicd || data.shokokai_cd))
+        || (typeof localStorage !== 'undefined' && localStorage.getItem('shokokai_cd'))
+        || '';
+      var nextRole = 'shokokai';
+      if (loginPref === '00') nextRole = 'national';
+      else if (loginSho === '0021') nextRole = 'pref';
+      if (roleEl.value !== nextRole) {
+        roleEl.value = nextRole;
+        roleEl.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }
   }
 
   function route() {
@@ -171,7 +187,7 @@
       document.getElementById('app-title').textContent = '報告書を見る';
       document.getElementById('app-subtitle').textContent = '受付票と各種報告書を見れます';
 
-      if (typeof window.__resetReportsFilters === 'function') window.__resetReportsFilters();
+      if (typeof window.__renderReports === 'function') window.__renderReports();
 
       requestAnimationFrame(() => {
         alignCardBottomToManualInput(document.querySelector('#view-reports .card.card--fill'), true);

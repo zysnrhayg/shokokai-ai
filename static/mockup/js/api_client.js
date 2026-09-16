@@ -22,7 +22,7 @@
         } catch (e) {
           data = { e: text };
         }
-        if (data && data.r && !data.dragB && !data.account && !data.useraccountid && !data.proposals && !data.themes && !data.industries && !data.heatmap && !data.monthly_stats && !data.rows && !data.excludedkeys && !data.recent_reports) {
+        if (data && data.r && !data.dragB && !data.account && !data.useraccountid && !data.proposals && !data.themes && !data.industries && !data.heatmap && !data.monthly_stats && !data.rows && !data.excludedkeys && !data.recent_reports && !data.fiscalyears && !data.report) {
           data.e = data.e || 'セッションが切れました。再ログインしてください';
         }
         if (response.status === 403) {

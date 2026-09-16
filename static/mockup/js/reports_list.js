@@ -1,144 +1,468 @@
 (function () {
-    var rows = Array.prototype.slice.call(document.querySelectorAll('#reports-tbody tr'));
-    var elYearMonth = document.getElementById('f-yearmonth');
-    var elPref = document.getElementById('reports-f-pref');
-    var elShokokai = document.getElementById('reports-f-shokokai');
-    var elForm = document.getElementById('f-form');
-    var elTheme = document.getElementById('f-theme');
-    var elIncludeDraft = document.getElementById('f-include-draft');
-    var elUnprintedOnly = document.getElementById('f-unprinted-only');
-    var elKeyword = document.getElementById('f-keyword');
-    var elCount = document.getElementById('reports-count');
+  var tbody = document.getElementById('reports-tbody');
+  if (!tbody) return;
 
-    var roleSelectEl = document.getElementById('org-role-select');
-    function isFederationRole() {
-      var role = roleSelectEl ? roleSelectEl.value : 'shokokai';
-      return role === 'national' || role === 'pref';
+  var elYearMonth = document.getElementById('f-yearmonth');
+  var elPref = document.getElementById('reports-f-pref');
+  var elShokokai = document.getElementById('reports-f-shokokai');
+  var elForm = document.getElementById('f-form');
+  var elTheme = document.getElementById('f-theme');
+  var elIncludeDraft = document.getElementById('f-include-draft');
+  var elUnprintedOnly = document.getElementById('f-unprinted-only');
+  var elKeyword = document.getElementById('f-keyword');
+  var elCount = document.getElementById('reports-count');
+  var roleSelectEl = document.getElementById('org-role-select');
+
+  var FISCAL_YEARS = [];
+  var PREFECTURES = [];
+  var SHOKOKAI_OPTIONS = [];
+  var FORMS = [];
+  var THEMES = [];
+  var DEFAULT_YEAR_MONTH = '';
+  var optionsReady = false;
+  var loading = false;
+  var pendingSearch = null;
+  var keywordTimer = null;
+  var lastRows = [];
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function getCsrfToken() {
+    if (window.ApiClient && typeof window.ApiClient.getCsrfToken === 'function') {
+      return window.ApiClient.getCsrfToken();
     }
-    rows.forEach(function (tr) {
-      var viewLink = tr.querySelector('.col-action a.btn');
-      if (!viewLink) return;
-      viewLink.addEventListener('click', function (e) {
-        e.preventDefault();
-        var cells = tr.children;
-        var badgeElV = cells[0] ? cells[0].querySelector('.badge') : null;
-        var formCodeV = badgeElV ? badgeElV.textContent.trim().split(/\s/)[0] : '';
-        var formOptionV = document.querySelector('#mi-form option[value="' + CSS.escape(formCodeV) + '"]');
-        var destScreenV = (formOptionV && formOptionV.dataset.screens) || (formCodeV === 'F' ? 'ai-input' : 'manual-input');
-        var themeLabelV = cells[2] ? cells[2].textContent.trim() : '';
-        var themeCheckboxV = Array.prototype.find.call(
-          document.querySelectorAll('.mi-theme-checkbox'),
-          (cb) => cb.dataset.label === themeLabelV
-        );
-        var staffTextV = cells[4] ? cells[4].textContent.trim() : '';
-        var staffPartsV = staffTextV.split('／').map(s => s.trim());
+    var el = document.querySelector('input[name="csrf_token"]');
+    return el ? el.value : '';
+  }
+
+  function currentUiRole() {
+    return roleSelectEl ? roleSelectEl.value : 'shokokai';
+  }
+
+  function isFederationRole() {
+    var role = currentUiRole();
+    return role === 'national' || role === 'pref';
+  }
+
+  function orgFromClient() {
+    if (window.ApiClient && typeof window.ApiClient.orgContext === 'function') {
+      return window.ApiClient.orgContext() || {};
+    }
+    return {};
+  }
+
+  function toastError(msg) {
+    try {
+      if (typeof Toast !== 'undefined' && Toast.error) Toast.error(msg);
+      else window.alert(msg);
+    } catch (e) {
+      window.alert(msg);
+    }
+  }
+
+  function toastOk(msg) {
+    try {
+      if (typeof Toast !== 'undefined' && Toast.success) Toast.success(msg);
+      else window.alert(msg);
+    } catch (e) {
+      window.alert(msg);
+    }
+  }
+
+  function parseDragB(data) {
+    var raw = data && data.dragB;
+    if (raw == null || raw === '') return [];
+    if (Array.isArray(raw)) return raw;
+    if (typeof raw === 'string') {
+      try { return JSON.parse(raw); } catch (e) { return []; }
+    }
+    return [];
+  }
+
+  function postReportsApi(url, body) {
+    if (window.ApiClient && typeof window.ApiClient.post === 'function') {
+      return window.ApiClient.post(url, body);
+    }
+    return fetch(url, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCsrfToken(),
+      },
+      body: JSON.stringify(body || {}),
+    }).then(function (response) {
+      return response.text().then(function (text) {
+        var data = null;
+        try { data = text ? JSON.parse(text) : {}; } catch (e) { data = { e: text }; }
+        return { ok: response.ok, status: response.status, data: data || {} };
+      });
+    });
+  }
+
+  function buildFilterPayload() {
+    var role = currentUiRole();
+    // national/pref: only use visible filter dropdowns (never localStorage org).
+    // localStorage may keep login org '00' which has no reports.
+    var pref = '';
+    var sho = '';
+    if (role === 'national') {
+      pref = elPref && elPref.value ? elPref.value : '';
+      sho = elShokokai && elShokokai.value ? elShokokai.value : '';
+      if (pref === '00') pref = '';
+    } else if (role === 'pref') {
+      sho = elShokokai && elShokokai.value ? elShokokai.value : '';
+    }
+    var formVal = elForm ? elForm.value : '';
+    if (formVal === '全様式') formVal = '';
+    return {
+      rolecode: role,
+      prefecturecode: pref,
+      shokokaicd: sho,
+      yearmonth: elYearMonth ? elYearMonth.value : '',
+      form: formVal,
+      theme: elTheme ? elTheme.value : '',
+      keyword: elKeyword ? elKeyword.value.trim() : '',
+      includedraft: elIncludeDraft && elIncludeDraft.checked ? '1' : '',
+      unprintedonly: elUnprintedOnly && elUnprintedOnly.checked ? '1' : '',
+    };
+  }
+
+  function fitSelects() {
+    if (typeof SelectWidth === 'undefined') return;
+    SelectWidth.fit(elYearMonth);
+    SelectWidth.fit(elPref);
+    SelectWidth.fit(elShokokai);
+    SelectWidth.fit(elForm);
+    SelectWidth.fit(elTheme);
+    SelectWidth.fitPlaceholder(elKeyword);
+  }
+
+  function fillYearMonth(keepValue) {
+    if (!elYearMonth) return;
+    var cur = keepValue ? elYearMonth.value : (DEFAULT_YEAR_MONTH || '');
+    var html = '';
+    FISCAL_YEARS.forEach(function (fy) {
+      html += '<option value="FY:' + esc(fy.fiscal_year_code) + '">' + esc(fy.label) + '</option>';
+      (fy.months || []).forEach(function (m) {
+        html += '<option value="' + esc(m.value) + '">' + esc(m.label) + '</option>';
+      });
+    });
+    elYearMonth.innerHTML = html || elYearMonth.innerHTML;
+    if (cur && Array.prototype.some.call(elYearMonth.options, function (o) { return o.value === cur; })) {
+      elYearMonth.value = cur;
+    } else if (DEFAULT_YEAR_MONTH) {
+      elYearMonth.value = DEFAULT_YEAR_MONTH;
+    }
+  }
+
+  function fillPref(keepValue) {
+    if (!elPref) return;
+    var cur = keepValue ? elPref.value : '';
+    elPref.innerHTML = '<option value="">全都道府県</option>' + PREFECTURES.map(function (p) {
+      return '<option value="' + esc(p.prefecture_code) + '">' + esc(p.name) + '</option>';
+    }).join('');
+    if (cur && Array.prototype.some.call(elPref.options, function (o) { return o.value === cur; })) elPref.value = cur;
+  }
+
+  function fillShokokai(keepValue) {
+    if (!elShokokai) return;
+    var cur = keepValue ? elShokokai.value : '';
+    var pref = elPref && elPref.value ? elPref.value : '';
+    var list = SHOKOKAI_OPTIONS.filter(function (s) {
+      return !pref || s.prefecture_code === pref;
+    });
+    elShokokai.innerHTML = '<option value="">全商工会</option>' + list.map(function (s) {
+      return '<option value="' + esc(s.shokokai_cd) + '">' + esc(s.name) + '</option>';
+    }).join('');
+    if (cur && Array.prototype.some.call(elShokokai.options, function (o) { return o.value === cur; })) elShokokai.value = cur;
+  }
+
+  function fillForm(keepValue) {
+    if (!elForm) return;
+    var cur = keepValue ? elForm.value : '全様式';
+    var html = '<option value="全様式">全様式（F・G）</option>';
+    var hasF = FORMS.some(function (f) { return f.form_code === 'F'; });
+    var hasG = FORMS.some(function (f) { return f.form_code && f.form_code.indexOf('G') === 0; });
+    if (hasF) html += '<option value="様式F">F 相談受付票</option>';
+    if (hasG) html += '<option value="全様式G">様式G（全種類）</option>';
+    FORMS.forEach(function (f) {
+      if (f.form_code === 'F') return;
+      html += '<option value="' + esc(f.form_code) + '">' + esc(f.full_label || f.short_label || f.form_code) + '</option>';
+    });
+    elForm.innerHTML = html;
+    if (cur && Array.prototype.some.call(elForm.options, function (o) { return o.value === cur; })) elForm.value = cur;
+  }
+
+  function fillTheme(keepValue) {
+    if (!elTheme) return;
+    var cur = keepValue ? elTheme.value : '';
+    elTheme.innerHTML = '<option value="">全テーマ</option>' + THEMES.map(function (t) {
+      return '<option value="' + esc(t.label) + '">' + esc(t.label) + '</option>';
+    }).join('');
+    if (cur && Array.prototype.some.call(elTheme.options, function (o) { return o.value === cur; })) elTheme.value = cur;
+  }
+
+  function applyInitOptions(data) {
+    if (!data) return;
+    if (Array.isArray(data.fiscalyears)) FISCAL_YEARS = data.fiscalyears;
+    if (Array.isArray(data.prefectures)) PREFECTURES = data.prefectures;
+    if (Array.isArray(data.shokokaioptions)) SHOKOKAI_OPTIONS = data.shokokaioptions;
+    if (Array.isArray(data.forms)) FORMS = data.forms;
+    if (Array.isArray(data.themes)) THEMES = data.themes;
+    if (data.defaultyearmonth) DEFAULT_YEAR_MONTH = String(data.defaultyearmonth);
+    fillYearMonth(false);
+    fillPref(true);
+    fillShokokai(true);
+    fillForm(true);
+    fillTheme(true);
+    fitSelects();
+    optionsReady = true;
+  }
+
+  function renderRows(rows) {
+    lastRows = rows || [];
+    if (!tbody) return;
+    if (!lastRows.length) {
+      tbody.innerHTML = '<tr><td colspan="6" class="text-muted">該当する報告書はありません</td></tr>';
+      if (elCount) elCount.textContent = '全0件';
+      return;
+    }
+    tbody.innerHTML = lastRows.map(function (r) {
+      var badge = r.form_badge_class || '#1a6fa8';
+      var statusHtml = r.status === '下書き'
+        ? '<span class="badge badge-status-pending">下書き</span> '
+        : '';
+      var content = statusHtml + esc(r.content || r.summary || '');
+      return '<tr data-report-id="' + esc(r.report_id) + '"'
+        + ' data-form="' + esc(r.form_code) + '"'
+        + ' data-theme="' + esc(r.theme_label) + '"'
+        + ' data-status="' + esc(r.status) + '">'
+        + '<td><span class="badge" style="--badge-color:' + esc(badge) + '">' + esc(r.form_short_label || r.form_code) + '</span></td>'
+        + '<td>' + esc(r.report_date) + '</td>'
+        + '<td>' + esc(r.theme_label) + '</td>'
+        + '<td>' + content + '</td>'
+        + '<td>' + esc(r.staff_label) + '</td>'
+        + '<td class="col-action"><a class="btn btn-primary btn-sm" href="#" data-report-view="' + esc(r.report_id) + '">閲覧</a></td>'
+        + '</tr>';
+    }).join('');
+    if (elCount) elCount.textContent = '全' + lastRows.length + '件';
+  }
+
+  function handleResult(result, failMsg) {
+    loading = false;
+    var data = (result && result.data) || {};
+    if (data.e) {
+      toastError(String(data.e).trim());
+      renderRows([]);
+      return false;
+    }
+    if (!result.ok) {
+      toastError(failMsg);
+      renderRows([]);
+      return false;
+    }
+    return true;
+  }
+
+  function flushPendingSearch() {
+    if (!pendingSearch) return;
+    var next = pendingSearch;
+    pendingSearch = null;
+    loadSearch(next.withToast);
+  }
+
+  function loadInit() {
+    if (loading) return;
+    loading = true;
+    tbody.innerHTML = '<tr><td colspan="6" class="text-muted">読み込み中...</td></tr>';
+    var payload = buildFilterPayload();
+    payload.yearmonth = '';
+    payload.form = '';
+    payload.theme = '';
+    payload.keyword = '';
+    payload.includedraft = '';
+    payload.unprintedonly = '';
+    postReportsApi('./reportsinitapi.do', payload)
+      .then(function (result) {
+        if (!handleResult(result, '報告書一覧の初期表示に失敗しました')) {
+          flushPendingSearch();
+          return;
+        }
+        applyInitOptions(result.data);
+        renderRows(parseDragB(result.data));
+        flushPendingSearch();
+      })
+      .catch(function () {
+        loading = false;
+        toastError('報告書一覧の初期表示に失敗しました');
+        renderRows([]);
+        flushPendingSearch();
+      });
+  }
+
+  function loadSearch(withToast) {
+    if (loading) {
+      pendingSearch = { withToast: !!withToast };
+      return;
+    }
+    loading = true;
+    postReportsApi('./reportssearchapi.do', buildFilterPayload())
+      .then(function (result) {
+        if (!handleResult(result, '報告書一覧の検索に失敗しました')) {
+          flushPendingSearch();
+          return;
+        }
+        var rows = parseDragB(result.data);
+        renderRows(rows);
+        if (withToast) toastOk('絞り込みを更新しました（全' + rows.length + '件）');
+        flushPendingSearch();
+      })
+      .catch(function () {
+        loading = false;
+        toastError('報告書一覧の検索に失敗しました');
+        renderRows([]);
+        flushPendingSearch();
+      });
+  }
+
+  function destScreenForForm(formCode) {
+    var formOption = document.querySelector('#mi-form option[value="' + String(formCode || '').replace(/"/g, '\\"') + '"]');
+    if (formOption && formOption.dataset.screens) return formOption.dataset.screens;
+    return formCode === 'F' ? 'ai-input' : 'manual-input';
+  }
+
+  function openReport(reportId) {
+    if (!reportId) return;
+    postReportsApi('./reportdetailinitapi.do', { reportid: String(reportId) })
+      .then(function (result) {
+        var data = (result && result.data) || {};
+        if (data.e) {
+          toastError(String(data.e).trim());
+          return;
+        }
+        if (!result.ok || !data.report) {
+          toastError('報告書詳細の取得に失敗しました');
+          return;
+        }
+        var d = data.report;
         window.__miPendingPrefill = {
-          content: cells[3] ? cells[3].textContent.trim() : '',
-          themeCodes: themeCheckboxV ? [themeCheckboxV.value] : [],
-          businessName: '',
-          reportDate: cells[1] ? cells[1].textContent.trim() : '',
-          staffMainName: staffPartsV[0] || '',
-          staffSubName: staffPartsV[1] || '',
-          formCode: formCodeV,
-          timeStart: '',
-          timeEnd: '',
+          content: d.content || d.summary || '',
+          themeCodes: Array.isArray(d.theme_codes) ? d.theme_codes : (d.primary_theme_code ? [d.primary_theme_code] : []),
+          businessName: d.business_name || '',
+          reportDate: d.report_date || '',
+          staffMainName: d.staff_main_name || '',
+          staffSubName: d.staff_sub_name || '',
+          formCode: d.form_code || '',
+          timeStart: d.time_start || '',
+          timeEnd: d.time_end || '',
           readOnly: isFederationRole(),
         };
-        location.hash = '#' + destScreenV;
+        location.hash = '#' + destScreenForForm(d.form_code);
+      })
+      .catch(function () {
+        toastError('報告書詳細の取得に失敗しました');
       });
+  }
+
+  function downloadCsvFromRows(rows) {
+    var header = ['様式', '実施日', '支援テーマ', '内容', '担当'];
+    var lines = [header].concat((rows || []).map(function (r) {
+      return [
+        r.form_short_label || r.form_code || '',
+        r.report_date || '',
+        r.theme_label || '',
+        (r.status === '下書き' ? '【下書き】' : '') + (r.content || r.summary || ''),
+        r.staff_label || '',
+      ];
+    })).map(function (cols) {
+      return cols.map(function (v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; }).join(',');
     });
-    if (typeof SelectWidth !== 'undefined') {
-      SelectWidth.fit(elYearMonth);
-      SelectWidth.fit(elPref);
-      SelectWidth.fit(elShokokai);
-      SelectWidth.fit(elForm);
-      SelectWidth.fit(elTheme);
+    var blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = '報告書を見る_' + (typeof formatTimestamp === 'function' ? formatTimestamp(new Date()) : Date.now()) + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toastOk('CSVを出力しました（' + (rows || []).length + '件）');
+  }
 
-      SelectWidth.fitPlaceholder(elKeyword);
-    }
-
-    function matchesYearMonth(rowYearMonth, val) {
-
-      if (val.indexOf('FY:') === 0) return true;
-      return rowYearMonth === val;
-    }
-    function matchesForm(rowForm, val) {
-      if (val === '全様式') return true;
-      if (val === '様式F') return rowForm === 'F';
-      if (val === '全様式G') return rowForm.indexOf('G-') === 0;
-      return rowForm === val;
-    }
-    function applyFilter() {
-      var yearMonthVal = elYearMonth.value;
-      var formVal = elForm.value;
-      var themeVal = elTheme.value;
-      var includeDraft = elIncludeDraft.checked;
-      var unprintedOnly = elUnprintedOnly.checked;
-      var keyword = elKeyword.value.trim();
-      var visible = 0;
-      rows.forEach(function (tr) {
-        var ok = matchesYearMonth(tr.dataset.yearmonth, yearMonthVal)
-          && matchesForm(tr.dataset.form, formVal)
-          && (themeVal === '' || tr.dataset.theme === themeVal)
-          && (!includeDraft || tr.dataset.status === '下書き')
-          && (!unprintedOnly || tr.dataset.printed === 'false')
-          && (keyword === '' || tr.dataset.search.indexOf(keyword) !== -1);
-        tr.style.display = ok ? '' : 'none';
-        if (ok) visible++;
+  function exportCsv() {
+    postReportsApi('./reportscsvexportapi.do', buildFilterPayload())
+      .then(function (result) {
+        var data = (result && result.data) || {};
+        if (data.e) {
+          toastError(String(data.e).trim());
+          return;
+        }
+        if (!result.ok) {
+          toastError('CSV出力に失敗しました');
+          return;
+        }
+        downloadCsvFromRows(parseDragB(data));
+        // CSV出力後は印刷済みになるため、一覧を再取得（未印刷のみに反映）
+        loadSearch(false);
+      })
+      .catch(function () {
+        toastError('CSV出力に失敗しました');
       });
-      if (elCount) elCount.textContent = '全' + visible + '件';
-      return visible;
-    }
+  }
 
-    function applyFilterWithFeedback() {
-      var visible = applyFilter();
-      Toast.success('絞り込みを更新しました（全' + visible + '件）');
-    }
-    [elYearMonth, elForm, elTheme, elIncludeDraft, elUnprintedOnly].forEach(function (el) {
-      el.addEventListener('change', applyFilterWithFeedback);
+  tbody.addEventListener('click', function (e) {
+    var link = e.target.closest('[data-report-view]');
+    if (!link) return;
+    e.preventDefault();
+    openReport(link.getAttribute('data-report-view'));
+  });
+
+  [elYearMonth, elForm, elTheme, elIncludeDraft, elUnprintedOnly].forEach(function (el) {
+    if (!el) return;
+    el.addEventListener('change', function () { loadSearch(true); });
+  });
+  if (elPref) {
+    elPref.addEventListener('change', function () {
+      fillShokokai(false);
+      fitSelects();
+      loadSearch(true);
     });
-    elKeyword.addEventListener('input', applyFilter);
-    applyFilter();
+  }
+  if (elShokokai) {
+    elShokokai.addEventListener('change', function () { loadSearch(true); });
+  }
+  if (elKeyword) {
+    elKeyword.addEventListener('input', function () {
+      if (keywordTimer) clearTimeout(keywordTimer);
+      keywordTimer = setTimeout(function () { loadSearch(false); }, 400);
+    });
+  }
 
-    window.__resetReportsFilters = function () {
-      [elYearMonth, elPref, elShokokai, elForm, elTheme].forEach(function (sel) {
-        Array.prototype.forEach.call(sel.options, function (opt) { opt.selected = opt.defaultSelected; });
-      });
-      elIncludeDraft.checked = elIncludeDraft.defaultChecked;
-      elUnprintedOnly.checked = elUnprintedOnly.defaultChecked;
-      elKeyword.value = elKeyword.defaultValue;
-      if (typeof SelectWidth !== 'undefined') {
-        SelectWidth.fit(elYearMonth);
-        SelectWidth.fit(elPref);
-        SelectWidth.fit(elShokokai);
-        SelectWidth.fit(elForm);
-        SelectWidth.fit(elTheme);
-      }
-      applyFilter();
-    };
+  var csvBtn = document.getElementById('reports-csv-btn');
+  if (csvBtn) csvBtn.addEventListener('click', exportCsv);
 
-    var csvBtn = document.getElementById('reports-csv-btn');
-    if (csvBtn) {
-      csvBtn.addEventListener('click', function () {
-        var header = ['様式', '実施日', '支援テーマ', '内容', '担当'];
-        var visibleRows = rows.filter(function (tr) { return tr.style.display !== 'none'; });
-        var lines = [header].concat(visibleRows.map(function (tr) {
-          return Array.prototype.slice.call(tr.children).slice(0, 5).map(function (td) {
-            return td.textContent.trim();
-          });
-        })).map(function (cols) {
-          return cols.map(function (v) { return '"' + v.replace(/"/g, '""') + '"'; }).join(',');
-        });
-        var blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
-        var url = URL.createObjectURL(blob);
-        var a = document.createElement('a');
-        a.href = url;
-        a.download = '報告書を見る_' + formatTimestamp(new Date()) + '.csv';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        Toast.success('CSVを出力しました（表示中の' + visibleRows.length + '件）');
-      });
-    }
-  })();
+  window.__resetReportsFilters = function () {
+    if (elYearMonth) elYearMonth.value = DEFAULT_YEAR_MONTH || (elYearMonth.options[0] ? elYearMonth.options[0].value : '');
+    if (elPref) elPref.value = '';
+    fillShokokai(false);
+    if (elForm) elForm.value = '全様式';
+    if (elTheme) elTheme.value = '';
+    if (elIncludeDraft) elIncludeDraft.checked = false;
+    if (elUnprintedOnly) elUnprintedOnly.checked = false;
+    if (elKeyword) elKeyword.value = '';
+    fitSelects();
+    loadSearch(false);
+  };
+
+  window.__renderReports = function () {
+    if (!optionsReady) loadInit();
+    else loadSearch(false);
+  };
+})();
