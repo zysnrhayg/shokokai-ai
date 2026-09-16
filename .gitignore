@@ -56,3 +56,8 @@ instance/flask_session/
 # Project-specific
 .DS_Store
 Thumbs.db
+
+# 帳票配布ディレクトリ：展開済み xlsx はローカル生成物（同梱は dummy_templates.zip のみ）
+data/monthly_report_exports/*.xlsx
+data/monthly_report_exports/*.xls
+data/monthly_report_exports/dummy/

@@ -6,13 +6,13 @@ import utils.config
 from app.common import monthly_api
 
 
-class MonthlyfiscalyearapiService:
-    def monthlyfiscalyearapi(self, monthlyfiscalyearapi_dto, jsonObj):
+class MonthlycsvexportapiService:
+    def monthlycsvexportapi(self, monthlycsvexportapi_dto, jsonObj):
         utils.config.global_log.debug(str(threading.current_thread().native_id) + ": start")
         try:
-            payload = monthly_api.build_fiscal_year_payload(session, monthlyfiscalyearapi_dto)
-            monthly_api.set_json_success(jsonObj, payload)
+            rows, filename = monthly_api.build_list_csv(session, monthlycsvexportapi_dto)
+            monthly_api.set_csv_result(jsonObj, rows, filename)
         except Exception as e:
             utils.config.global_log.error(e)
-            monthly_api.fail(jsonObj, "年度切替に失敗しました")
+            monthly_api.fail(jsonObj, "一覧CSV出力に失敗しました")
         utils.config.global_log.debug(str(threading.current_thread().native_id) + ": end")

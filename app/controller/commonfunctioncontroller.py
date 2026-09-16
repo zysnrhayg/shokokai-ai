@@ -50,6 +50,7 @@ from app.service.vectorupdateapi.vectorupdateapi_service import VectorupdateapiS
 from app.service.monthlyinitapi.monthlyinitapi_service import MonthlyinitapiService
 from app.service.monthlyfiscalyearapi.monthlyfiscalyearapi_service import MonthlyfiscalyearapiService
 from app.service.monthlyexportapi.monthlyexportapi_service import MonthlyexportapiService
+from app.service.monthlycsvexportapi.monthlycsvexportapi_service import MonthlycsvexportapiService
 from app.dto.vectordetailinitapi.vectordetailinitapi_dto import VectordetailinitapiDto
 from app.dto.vectorforminitapi.vectorforminitapi_dto import VectorforminitapiDto
 from app.dto.vectorformnewinitapi.vectorformnewinitapi_dto import VectorformnewinitapiDto
@@ -60,6 +61,7 @@ from app.dto.vectorupdateapi.vectorupdateapi_dto import VectorupdateapiDto
 from app.dto.monthlyinitapi.monthlyinitapi_dto import MonthlyinitapiDto
 from app.dto.monthlyfiscalyearapi.monthlyfiscalyearapi_dto import MonthlyfiscalyearapiDto
 from app.dto.monthlyexportapi.monthlyexportapi_dto import MonthlyexportapiDto
+from app.dto.monthlycsvexportapi.monthlycsvexportapi_dto import MonthlycsvexportapiDto
 from app.service.aiformatapi.aiformatapi_service import AiformatapiService
 from app.service.draftsaveapi.draftsaveapi_service import DraftsaveapiService
 from app.service.voiceextendapi.voiceextendapi_service import VoiceextendapiService
@@ -963,6 +965,44 @@ def monthlyexportapi() :
 	monthlyexportapiVar_service = MonthlyexportapiService()
 
 	monthlyexportapiVar_service.monthlyexportapi(monthlyexportapi_dto, jsonObj)
+
+	# 成功時は設定ディレクトリ上のファイルをそのまま返す（顧客アップロード想定）
+	payload = jsonObj.getJsonObj()
+	filepath = payload.pop("filepath", None) if isinstance(payload, dict) else None
+	filename = payload.get("filename") if isinstance(payload, dict) else None
+	if filepath and payload.get("e") in (None, "") and os.path.isfile(filepath):
+		return send_file(
+			filepath,
+			as_attachment=True,
+			download_name=filename or os.path.basename(filepath),
+			mimetype="application/octet-stream",
+		)
+
+	# エラー時は JSON（Content-Type を明示し、FE が blob 誤ダウンロードしないようにする）
+	return Response(
+		jsonObj.toJsonString(),
+		mimetype="application/json; charset=utf-8",
+	)
+
+
+
+#
+# monthlycsvexportapi - 実績確認一覧CSV出力 - サーバー関数
+# @param monthlycsvexportapi_dto（fiscalyearcode / 組織；条件に関係なく一覧）
+# @param result
+# @throws Exception
+#
+
+@commonfunction_route.route("/monthlycsvexportapi.do", methods=['POST'])
+
+def monthlycsvexportapi() :
+	"""monthlycsvexportapi - 実績確認一覧CSV出力（条件に関係なく・DB）"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	monthlycsvexportapi_dto = MonthlycsvexportapiDto.dict_to_json(data)
+	MonthlycsvexportapiService().monthlycsvexportapi(monthlycsvexportapi_dto, jsonObj)
 
 	return jsonObj.toJsonString()
 

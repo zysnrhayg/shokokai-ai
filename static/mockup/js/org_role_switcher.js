@@ -45,6 +45,12 @@
   roleSelect.addEventListener('change', () => {
     applyOrgRole(roleSelect.value);
     if (typeof window.__renderHomeForRole === 'function') window.__renderHomeForRole(roleSelect.value);
+    // 実績確認画面にいる場合はホームへ飛ばさずデータを再読込
+    if ((location.hash || '').replace(/^#/, '') === 'monthly'
+        && typeof window.__renderMonthly === 'function') {
+      window.__renderMonthly();
+      return;
+    }
     location.hash = '#home';
   });
   applyOrgRole(roleSelect.value);
