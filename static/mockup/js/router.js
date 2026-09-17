@@ -71,12 +71,23 @@
     var box = document.getElementById('login-notice-items');
     if (!box) return;
     box.innerHTML = '';
-    (notices || []).forEach(function (row) {
+    var rows = Array.isArray(notices) ? notices : [];
+    var shown = 0;
+    rows.forEach(function (row) {
+      var content = (row && row.content) || '';
+      if (!content) return;
       var item = document.createElement('div');
       item.className = 'login-notice__item';
-      item.textContent = row.content || '';
-      if (item.textContent) box.appendChild(item);
+      item.textContent = content;
+      box.appendChild(item);
+      shown += 1;
     });
+    if (!shown) {
+      var empty = document.createElement('div');
+      empty.className = 'login-notice__item';
+      empty.textContent = 'お知らせはありません';
+      box.appendChild(empty);
+    }
   }
 
   function initLoginPage() {
@@ -102,9 +113,11 @@
       var pref = (data && (data.prefecturecode || data.prefecture_code)) || '';
       var shokokai = (data && (data.shokokaicd || data.shokokai_cd)) || '';
       var accountId = (data && (data.useraccountid || data.user_account_id)) || '';
+      var rolecode = (data && (data.rolecode || data.role_code)) || '';
       if (pref) localStorage.setItem('prefecture_code', pref);
       if (shokokai) localStorage.setItem('shokokai_cd', shokokai);
       if (accountId) localStorage.setItem('user_account_id', String(accountId));
+      if (rolecode) localStorage.setItem('rolecode', rolecode);
     }
     if (typeof window.__applySessionProfile === 'function') {
       window.__applySessionProfile({
@@ -122,15 +135,18 @@
     }
     var roleEl = document.getElementById('org-role-select');
     if (roleEl) {
-      var loginPref = (data && (data.prefecturecode || data.prefecture_code))
-        || (typeof localStorage !== 'undefined' && localStorage.getItem('prefecture_code'))
-        || '';
-      var loginSho = (data && (data.shokokaicd || data.shokokai_cd))
-        || (typeof localStorage !== 'undefined' && localStorage.getItem('shokokai_cd'))
-        || '';
-      var nextRole = 'shokokai';
-      if (loginPref === '00') nextRole = 'national';
-      else if (loginSho === '0021') nextRole = 'pref';
+      var nextRole = (data && (data.rolecode || data.role_code)) || '';
+      if (!nextRole) {
+        var loginPref = (data && (data.prefecturecode || data.prefecture_code))
+          || (typeof localStorage !== 'undefined' && localStorage.getItem('prefecture_code'))
+          || '';
+        var loginSho = (data && (data.shokokaicd || data.shokokai_cd))
+          || (typeof localStorage !== 'undefined' && localStorage.getItem('shokokai_cd'))
+          || '';
+        nextRole = 'shokokai';
+        if (loginPref === '00') nextRole = 'national';
+        else if (loginSho === '0021') nextRole = 'pref';
+      }
       if (roleEl.value !== nextRole) {
         roleEl.value = nextRole;
         roleEl.dispatchEvent(new Event('change', { bubbles: true }));
@@ -262,10 +278,18 @@
       var errorEl = document.getElementById('login-error');
       var prefecture = prefectureEl ? prefectureEl.value.trim() : '';
       var userid = userIdEl ? userIdEl.value.trim() : '';
-      var pwd = passwordEl ? passwordEl.value.trim() : '';
+      var pwd = passwordEl ? passwordEl.value : '';
       var remember = rememberEl && rememberEl.checked;
-      if (!prefecture || !userid || !pwd) {
-        showLoginError('⚠ 入力内容をご確認ください');
+      if (!prefecture) {
+        showLoginError('県を選択してください。');
+        return;
+      }
+      if (!userid) {
+        showLoginError('ユーザーIDを入力してください。');
+        return;
+      }
+      if (!String(pwd || '').trim()) {
+        showLoginError('パスワードを入力してください。');
         return;
       }
       if (errorEl) errorEl.style.display = 'none';
@@ -290,10 +314,10 @@
           location.hash = '#home';
           return;
         }
-        var msg = data.i || data.e || data.c || '⚠ 入力内容をご確認ください';
+        var msg = data.i || data.e || data.c || 'ユーザーIDまたはパスワードが正しくありません。';
         showLoginError(msg);
       }).catch(function () {
-        showLoginError('⚠ ログインに失敗しました。しばらくしてから再度お試しください');
+        showLoginError('ログインに失敗しました。しばらくしてから再度お試しください。');
       });
     });
   }

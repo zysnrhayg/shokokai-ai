@@ -5,14 +5,17 @@ from flask import request, session
 
 import utils.config
 import utils.json_constant
-import utils.session_constant
 import utils.string_util
+from app.common.session import apply_login_session, resolve_fe_role
 from app.dao.api105_authenticateuser.api105_authenticateuser_dao import Api105AuthenticateuserDao
 from app.dao.api106_gettrusteddevice.api106_gettrusteddevice_dao import Api106GettrusteddeviceDao
 from app.dto.api105_authenticateuser.api105_authenticateuser_dto import Api105AuthenticateuserDto
 from app.dto.api106_gettrusteddevice.api106_gettrusteddevice_dto import Api106GettrusteddeviceDto
 from logger import currentLog
 from utils.encrypt import verify_password
+
+# 顧客設計：認証失敗は共通メッセージ（存在有無／パスワード不一致を区別しない）
+LOGIN_AUTH_FAIL_MSG = "ユーザーIDまたはパスワードが正しくありません。"
 
 
 def _is_true(value):
@@ -45,29 +48,31 @@ def _parse_locked_until(value):
 
 
 def apply_staff_login_session(account, remember=False):
+    """互換ラッパ：顧客設計＋既存キーを session に載せる。"""
+    profile = apply_login_session(account, remember)
     loginid = utils.string_util.changeNullToBlank(account.get("user_id"))
-    name = utils.string_util.changeNullToBlank(account.get("shokuin_kj")) or loginid
-    session[utils.session_constant.LANGUAGE_ID] = "JPN"
-    session[utils.session_constant.USER_ID] = loginid
-    session["LOGIN_USER_ID"] = loginid
-    session[utils.session_constant.APP_USER_ID] = loginid
-    session["USER_ACCOUNT_ID"] = utils.string_util.changeNullToBlank(account.get("user_account_id"))
-    session["PREFECTURE_CODE"] = utils.string_util.changeNullToBlank(account.get("prefecture_code"))
-    session["SHOKOKAI_CD"] = utils.string_util.changeNullToBlank(account.get("shokokai_cd"))
-    session["ORGID"] = utils.string_util.changeNullToBlank(account.get("shokokai_cd"))
-    session[utils.session_constant.USER_FLG] = "OK"
-    session["USER_NAME1"] = name
-    session["USER_NAME2"] = name
-    session.pop("PENDING_LOGIN", None)
-    session.permanent = _is_true(remember)
-    # 顧客設計: 組織名・ユーザーを session に載せる
-    try:
-        from app.common.session import refresh_session_profile
-
-        refresh_session_profile()
-    except Exception as e:
-        utils.config.global_log.error(e)
     utils.config.global_log = currentLog.getLog(loginid)
+    return profile
+
+
+def _set_login_success_payload(jsonObj, account, profile):
+    role = (profile or {}).get("rolecode") or resolve_fe_role(
+        account.get("prefecture_code"), account.get("shokokai_cd")
+    )
+    jsonObj.setValue("need_mfa", False)
+    jsonObj.setValue("username", (profile or {}).get("username") or account.get("shokuin_kj") or account.get("user_id") or "")
+    jsonObj.setValue("userid", account.get("user_id") or "")
+    jsonObj.setValue("orgname", (profile or {}).get("orgname") or session.get("ORG_NAME") or "")
+    jsonObj.setValue("useraccountid", account.get("user_account_id") or "")
+    jsonObj.setValue("user_account_id", account.get("user_account_id") or "")
+    jsonObj.setValue("prefecturecode", account.get("prefecture_code") or "")
+    jsonObj.setValue("shokokaicd", account.get("shokokai_cd") or "")
+    jsonObj.setValue("permissionlevel", (profile or {}).get("permissionlevel") or account.get("permission_level") or "")
+    jsonObj.setValue("email", (profile or {}).get("email") or account.get("email") or "")
+    jsonObj.setValue("rolecode", role)
+    # 権限（組織）に応じた初期画面＝ホーム（ロール付き）
+    jsonObj.setScript("OK", "./#home")
+    jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_SUCCESS)
 
 
 class LoginapiService:
@@ -79,8 +84,17 @@ class LoginapiService:
         remember = loginapi_dto.remember
         utils.config.global_log.debug("loginapi start")
         try:
-            if utils.string_util.isNullOrBlank(prefecture_code) or utils.string_util.isNullOrBlank(user_id) or utils.string_util.isNullOrBlank(input_password):
-                jsonObj.setValue(utils.json_constant.JSONID_MSG, "⚠ 入力内容をご確認ください")
+            # 入力チェック（必須）：県は既存維持、ユーザーID／パスワードは顧客設計どおり必須
+            if utils.string_util.isNullOrBlank(prefecture_code):
+                jsonObj.setValue(utils.json_constant.JSONID_MSG, "県を選択してください。")
+                jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_FAIL)
+                return
+            if utils.string_util.isNullOrBlank(user_id):
+                jsonObj.setValue(utils.json_constant.JSONID_MSG, "ユーザーIDを入力してください。")
+                jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_FAIL)
+                return
+            if utils.string_util.isNullOrBlank(input_password):
+                jsonObj.setValue(utils.json_constant.JSONID_MSG, "パスワードを入力してください。")
                 jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_FAIL)
                 return
 
@@ -89,20 +103,20 @@ class LoginapiService:
             api105_authenticateuser.userid = user_id
             rows = Api105AuthenticateuserDao().api105_authenticateuser(api105_authenticateuser) or []
             if not rows:
-                jsonObj.setValue(utils.json_constant.JSONID_MSG, "会員Noかパスワードが間違っています。")
+                jsonObj.setValue(utils.json_constant.JSONID_MSG, LOGIN_AUTH_FAIL_MSG)
                 jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_FAIL)
                 return
 
             rec = rows[0]
             locked_until = _parse_locked_until(utils.string_util.dict_get(rec, "locked_until"))
             if locked_until and locked_until > datetime.now(timezone.utc):
-                jsonObj.setValue(utils.json_constant.JSONID_MSG, "ユーザーはロックされました。システム管理者に連絡してください。")
+                jsonObj.setValue(utils.json_constant.JSONID_MSG, LOGIN_AUTH_FAIL_MSG)
                 jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_FAIL)
                 return
 
             stored_password = utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "password"))
             if utils.string_util.isNullOrBlank(stored_password) or not verify_password(input_password, stored_password):
-                jsonObj.setValue(utils.json_constant.JSONID_MSG, "会員Noかパスワードが間違っています。")
+                jsonObj.setValue(utils.json_constant.JSONID_MSG, LOGIN_AUTH_FAIL_MSG)
                 jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_FAIL)
                 return
 
@@ -112,6 +126,9 @@ class LoginapiService:
                 "shokokai_cd": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "shokokai_cd")),
                 "user_id": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "user_id")) or user_id,
                 "shokuin_kj": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "shokuin_kj")),
+                "email": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "email")),
+                "permission_level": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "permission_level")),
+                "core_linked": utils.string_util.dict_get(rec, "core_linked"),
                 "totp_secret": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "totp_secret")),
                 "is_mfa_enabled": utils.string_util.dict_get(rec, "is_mfa_enabled"),
                 "remember": remember,
@@ -134,17 +151,8 @@ class LoginapiService:
                 jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_SUCCESS)
                 return
 
-            apply_staff_login_session(account, remember)
-            jsonObj.setValue("need_mfa", False)
-            jsonObj.setValue("username", session.get("USER_NAME1") or account["shokuin_kj"] or account["user_id"])
-            jsonObj.setValue("userid", account["user_id"])
-            jsonObj.setValue("orgname", session.get("ORG_NAME") or "")
-            jsonObj.setValue("useraccountid", account["user_account_id"])
-            jsonObj.setValue("user_account_id", account["user_account_id"])
-            jsonObj.setValue("prefecturecode", account["prefecture_code"])
-            jsonObj.setValue("shokokaicd", account["shokokai_cd"])
-            jsonObj.setScript("OK", "./#home")
-            jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_SUCCESS)
+            profile = apply_staff_login_session(account, remember)
+            _set_login_success_payload(jsonObj, account, profile)
         except Exception as e:
             utils.config.global_log.error(e)
             jsonObj.setValue(utils.json_constant.JSONID_ERR, "ログインに失敗しました。")

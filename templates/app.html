@@ -871,20 +871,20 @@
       <div class="login-brand">商工会<span>AI</span>システム</div>
 
       <div class="login-step-title">ログイン</div>
-      <div class="login-error" id="login-error" style="display:none">⚠ 入力内容をご確認ください</div>
+      <div class="login-error" id="login-error" style="display:none">ユーザーIDまたはパスワードが正しくありません。</div>
 
-      <form id="login-form">
+      <form id="login-form" novalidate>
         <div class="login-field">
           <label class="login-label" for="login-prefecture">県</label>
-          <select class="form-input" id="login-prefecture"></select>
+          <select class="form-input" id="login-prefecture" required></select>
         </div>
         <div class="login-field">
-          <label class="login-label" for="login-user-id">ユーザID</label>
-          <input class="form-input" id="login-user-id" placeholder="ユーザID" autocomplete="username">
+          <label class="login-label" for="login-user-id">ユーザーID <span class="detail-row__required">※</span></label>
+          <input class="form-input" id="login-user-id" name="userid" placeholder="ユーザーID" autocomplete="username" required>
         </div>
         <div class="login-field">
-          <label class="login-label" for="login-password">パスワード</label>
-          <input class="form-input" type="password" id="login-password" placeholder="パスワード" autocomplete="current-password">
+          <label class="login-label" for="login-password">パスワード <span class="detail-row__required">※</span></label>
+          <input class="form-input" type="password" id="login-password" name="password" placeholder="パスワード" autocomplete="current-password" required>
         </div>
         <div class="login-checkbox-field">
           <label><input type="checkbox" id="login-remember"> ログイン状態を保持する</label>
@@ -958,6 +958,6 @@
 <script src="{{ url_for('static', filename='mockup/js/accounts.js') }}?v=10"></script>
 <script src="{{ url_for('static', filename='mockup/js/knowledge.js') }}"></script>
 <script src="{{ url_for('static', filename='mockup/js/knowledge_search.js') }}?v=7"></script>
-<script src="{{ url_for('static', filename='mockup/js/router.js') }}?v=11"></script>
+<script src="{{ url_for('static', filename='mockup/js/router.js') }}?v=12"></script>
 </body>
 </html>

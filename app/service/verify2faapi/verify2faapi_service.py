@@ -3,7 +3,11 @@ from flask import session
 import utils.config
 import utils.json_constant
 import utils.string_util
-from app.service.loginapi.loginapi_service import apply_staff_login_session, _is_true
+from app.service.loginapi.loginapi_service import (
+    apply_staff_login_session,
+    _is_true,
+    _set_login_success_payload,
+)
 
 DEV_FIXED_OTP = "123456"
 
@@ -28,16 +32,8 @@ class Verify2faapiService:
             remember = pending.get("remember")
             if _is_true(remember_device):
                 remember = True
-            apply_staff_login_session(pending, remember)
-            jsonObj.setValue("username", session.get("USER_NAME1") or pending.get("shokuin_kj") or pending.get("user_id") or "")
-            jsonObj.setValue("userid", pending.get("user_id") or "")
-            jsonObj.setValue("orgname", session.get("ORG_NAME") or "")
-            jsonObj.setValue("useraccountid", pending.get("user_account_id") or "")
-            jsonObj.setValue("user_account_id", pending.get("user_account_id") or "")
-            jsonObj.setValue("prefecturecode", pending.get("prefecture_code") or "")
-            jsonObj.setValue("shokokaicd", pending.get("shokokai_cd") or "")
-            jsonObj.setScript("OK", "./#home")
-            jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_SUCCESS)
+            profile = apply_staff_login_session(pending, remember)
+            _set_login_success_payload(jsonObj, pending, profile)
         except Exception as e:
             utils.config.global_log.error(e)
             jsonObj.setValue(utils.json_constant.JSONID_ERR, "認証に失敗しました。")

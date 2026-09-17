@@ -19,6 +19,7 @@ FE_ROLE_TO_NOTICE = {
     "national": "zenkoku",
     "pref": "ken",
     "shokokai": "shokokai",
+    "login": "login",
 }
 
 
