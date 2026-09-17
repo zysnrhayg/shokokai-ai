@@ -15,9 +15,11 @@ import resources.messages
 from app.dao.api119_getreportforms.api119_getreportforms_dao import Api119GetreportformsDao
 from app.dao.api120_getthemes.api120_getthemes_dao import Api120GetthemesDao
 from app.dao.api121_getstaffoptions.api121_getstaffoptions_dao import Api121GetstaffoptionsDao
+from app.dao.api124_getindustries.api124_getindustries_dao import Api124GetindustriesDao
 from app.dto.api119_getreportforms.api119_getreportforms_dto import Api119GetreportformsDto
 from app.dto.api120_getthemes.api120_getthemes_dto import Api120GetthemesDto
 from app.dto.api121_getstaffoptions.api121_getstaffoptions_dto import Api121GetstaffoptionsDto
+from app.dto.api124_getindustries.api124_getindustries_dto import Api124GetindustriesDto
 from app.dto.formnewinitapi.formnewinitapi_dto import FormnewinitapiDto
 from utils.save_data_check_utils import SaveDataCheckUtil
 import utils.string_util
@@ -80,11 +82,10 @@ class FormnewinitapiService :
 			if api120_getthemeslistVar != None :
 				for rec in api120_getthemeslistVar :
 					themes_array.append({
-						"theme_id": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "theme_id")),
-						"theme_code": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "theme_code")),
-						"label": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "label")),
-						"filter_group": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "filter_group")),
-					})
+				"theme_id": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "theme_id")),
+				"theme_code": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "theme_code")),
+				"label": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "label")),
+			})
 
 			#関数「API121_GetStaffOptions」：担当者一覧を取得する
 			api121_getstaffoptions = Api121GetstaffoptionsDto.dict_to_json({})
@@ -104,10 +105,28 @@ class FormnewinitapiService :
 						"shokuin_kj": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "shokuin_kj")),
 					})
 
+			#関数「API124_GetIndustries」：業種一覧を取得する
+			api124_getindustries = Api124GetindustriesDto.dict_to_json({})
+			api124_getindustries.fiscalyearid = FISCAL_YEAR_ID
+			api124_getindustriesList = Api124GetindustriesDao().api124_getindustries(api124_getindustries)
+			api124_getindustrieslistVar = None
+			if api124_getindustriesList != None :
+				api124_getindustrieslistVar = api124_getindustriesList.fetchall() if hasattr(api124_getindustriesList, 'fetchall') else api124_getindustriesList
+
+			#業種一覧をJSON配列に変換する
+			industries_array = []
+			if api124_getindustrieslistVar != None :
+				for rec in api124_getindustrieslistVar :
+					industries_array.append({
+						"industry_code": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "industry_code")),
+						"label": utils.string_util.changeNullToBlank(utils.string_util.dict_get(rec, "label")),
+					})
+
 			#取得結果をフロントエンドへ返却する
 			jsonObj.setValue("dragForms", forms_array)
 			jsonObj.setValue("dragThemes", themes_array)
 			jsonObj.setValue("dragStaff", staff_array)
+			jsonObj.setValue("dragIndustries", industries_array)
 			jsonObj.setValue(utils.json_constant.JSONID_MSG, "初期データの取得が完了しました")
 			jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_SUCCESS)
 			#処理終了。

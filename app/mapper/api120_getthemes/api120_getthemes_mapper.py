@@ -9,8 +9,6 @@ class api120_getthemesMapper:
             """SELECT theme_id
      , theme_code
      , label
-     , theme_code AS filter_group
-     , badge_class
 FROM mst_theme
 WHERE deleted_at IS NULL
 <iffiscal_year_id> AND fiscal_year_id = CAST(:fiscal_year_id AS integer) </iffiscal_year_id>

@@ -81,7 +81,7 @@
   // ==========================================================================
   // 画面初期表示（AiInputInitAPI）：帳票・支援テーマ・担当者を実データで再構築する
   // ==========================================================================
-  function applyInitData(forms, themes, staff) {
+  function applyInitData(forms, themes, staff, industries) {
 
     // 帳票select（mi-form）をmst_formの実データで再構築する（data-screens属性は既存値を維持）
     var formSelect = document.getElementById('mi-form');
@@ -102,6 +102,32 @@
         if (screensMap[f.form_code]) opt.setAttribute('data-screens', screensMap[f.form_code]);
         formSelect.appendChild(opt);
       });
+
+      // 再構築後に現在の画面に応じた帳票絞込を再適用する
+      var entryForm = document.getElementById('mi-entry-form');
+      var currentScreen = entryForm ? (entryForm.getAttribute('data-screen') || '') : '';
+      if (currentScreen) {
+        var allowedValues = [];
+        Array.prototype.forEach.call(formSelect.options, function (opt) {
+          if (!opt.value) return;
+          var allowed = (opt.getAttribute('data-screens') || '').split(',');
+          var isAllowed = allowed.indexOf(currentScreen) >= 0;
+          opt.hidden = !isAllowed;
+          opt.disabled = !isAllowed;
+          if (isAllowed) allowedValues.push(opt.value);
+        });
+        var ph = formSelect.querySelector('option[value=""]');
+        if (ph) {
+          ph.hidden = allowedValues.length === 1;
+          ph.disabled = allowedValues.length === 1;
+        }
+        if (allowedValues.length === 1) {
+          formSelect.value = allowedValues[0];
+        } else if (allowedValues.indexOf(formSelect.value) < 0) {
+          formSelect.value = '';
+        }
+        if (typeof SelectWidth !== 'undefined') SelectWidth.fit(formSelect);
+      }
     }
 
     // 支援テーマcheckbox（mst_themeの実データ）で再構築する
@@ -141,6 +167,24 @@
           sel.appendChild(opt);
         });
       });
+    }
+
+    // 業種select（mi-industry）をmst_industryの実データで再構築する
+    if (industries && industries.length) {
+      var indSelect = document.getElementById('mi-industry');
+      if (indSelect) {
+        var indPlaceholder = document.createElement('option');
+        indPlaceholder.value = '';
+        indPlaceholder.textContent = '業種を選択してください';
+        indSelect.innerHTML = '';
+        indSelect.appendChild(indPlaceholder);
+        industries.forEach(function (i) {
+          var opt = document.createElement('option');
+          opt.value = i.industry_code || '';
+          opt.textContent = i.label || i.industry_code || '';
+          indSelect.appendChild(opt);
+        });
+      }
     }
   }
 
@@ -901,6 +945,7 @@
       parseJson(data.dragForms, []),
       parseJson(data.dragThemes, []),
       parseJson(data.dragStaff, []),
+      parseJson(data.dragIndustries, []),
     );
     initWiring();
   }).catch(() => initWiring());

@@ -1,7 +1,7 @@
 #BasicService.vm
 #make Service templete
 # 傾聴内容変換AI画面初期表示サービス
-# 帳票様式（API119）・支援テーマ（API120）・担当者選択肢（API121）を実データ（DB）から取得する
+# 帳票様式（API119）・支援テーマ（API120）・担当者選択肢（API121）・業種（API124）を実データ（DB）から取得する
 import json
 import utils.config
 import threading
@@ -12,9 +12,11 @@ from app.dto.aiinputinitapi.aiinputinitapi_dto import AiinputinitapiDto
 from app.dao.api119_getreportforms.api119_getreportforms_dao import Api119GetreportformsDao
 from app.dao.api120_getthemes.api120_getthemes_dao import Api120GetthemesDao
 from app.dao.api121_getstaffoptions.api121_getstaffoptions_dao import Api121GetstaffoptionsDao
+from app.dao.api124_getindustries.api124_getindustries_dao import Api124GetindustriesDao
 from app.dto.api119_getreportforms.api119_getreportforms_dto import Api119GetreportformsDto
 from app.dto.api120_getthemes.api120_getthemes_dto import Api120GetthemesDto
 from app.dto.api121_getstaffoptions.api121_getstaffoptions_dto import Api121GetstaffoptionsDto
+from app.dto.api124_getindustries.api124_getindustries_dto import Api124GetindustriesDto
 import utils.string_util
 import utils.mysqldb_utils
 
@@ -65,10 +67,16 @@ class AiinputinitapiService :
 			api121_getstaffoptions.shokokaicd = shokokai_cd
 			staff_rows = Api121GetstaffoptionsDao().api121_getstaffoptions(api121_getstaffoptions) or []
 
+			#関数「API124_GetIndustries」：業種一覧を取得する（実データ：mst_industry）。
+			api124_getindustries = Api124GetindustriesDto.dict_to_json({})
+			api124_getindustries.fiscalyearid = fiscal_year_id
+			industry_rows = Api124GetindustriesDao().api124_getindustries(api124_getindustries) or []
+
 			#取得結果をJSON形式でフロントエンドへ返却する（日付型は文字列化しておく）。
 			jsonObj.setHtml("dragForms", json.dumps(form_rows, default=str, ensure_ascii=False))
 			jsonObj.setHtml("dragThemes", json.dumps(theme_rows, default=str, ensure_ascii=False))
 			jsonObj.setHtml("dragStaff", json.dumps(staff_rows, default=str, ensure_ascii=False))
+			jsonObj.setHtml("dragIndustries", json.dumps(industry_rows, default=str, ensure_ascii=False))
 			jsonObj.setHtml("dragFiscalYear", fiscal_year_id)
 			jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_SUCCESS)
 			#処理終了。

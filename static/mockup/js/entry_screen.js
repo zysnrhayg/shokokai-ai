@@ -22,6 +22,8 @@ function applyEntryScreen(screenId, hashQuery) {
   const entryForm = document.getElementById('mi-entry-form');
   if (entryForm) {
 
+    entryForm.setAttribute('data-screen', screenId);
+
     entryForm.querySelectorAll('input, select, textarea, button').forEach((el) => { el.disabled = false; });
     entryForm.querySelectorAll('label.btn, label.import-zone, label.mi-expert-panel__dropzone').forEach((el) => {
       el.style.opacity = '';

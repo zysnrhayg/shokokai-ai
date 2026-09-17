@@ -8,4 +8,4 @@ class api119_getreportformsMapper:
         params = ["fiscalyearid"]
         values = [fiscalyearid]
         # バインド名はDAO側のキー（fiscalyearid）と一致させること
-        return utils.sql_utils.formatSQL("""SELECT form_code , full_label , short_label , badge_class , fiscal_year_id FROM mst_form WHERE :fiscalyearid = fiscal_year_id AND deleted_at IS NULL AND badge_class IS NOT NULL ORDER BY form_code""",params,values)
+        return utils.sql_utils.formatSQL("""SELECT form_code , full_label , short_label FROM mst_form WHERE :fiscalyearid = fiscal_year_id AND deleted_at IS NULL AND badge_class IS NOT NULL ORDER BY form_code""",params,values)

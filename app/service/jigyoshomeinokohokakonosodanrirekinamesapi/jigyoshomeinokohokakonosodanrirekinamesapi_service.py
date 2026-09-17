@@ -35,6 +35,9 @@ class JigyoshomeinokohokakonosodanrirekinamesapiService:
             api_dto.limit = utils.string_util.changeNullToBlank(
                 getattr(jigyoshomeinokohokakonosodanrirekinamesapi_dto, "limit", "")
             ) or "20"
+            api_dto.keyword = utils.string_util.changeNullToBlank(
+                getattr(jigyoshomeinokohokakonosodanrirekinamesapi_dto, "keyword", "")
+            ) or "%"
 
             rows = ApiJigyoshomeinokohokakonosodanrirekinamesDao().api_jigyoshomeinokohokakonosodanrirekinames(api_dto) or []
             map_list = []
