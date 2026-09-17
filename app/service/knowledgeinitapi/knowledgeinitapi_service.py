@@ -13,6 +13,7 @@ import resources.messages
 from app.dao.api_genponbunshoichiran.api_genponbunshoichiran_dao import ApiGenponbunshoichiranDao
 from app.dto.api_genponbunshoichiran.api_genponbunshoichiran_dto import ApiGenponbunshoichiranDto
 from app.dto.knowledgeinitapi.knowledgeinitapi_dto import KnowledgeinitapiDto
+from app.accounts.services import resolve_account_role
 from utils.save_data_check_utils import SaveDataCheckUtil
 import utils.string_util
 
@@ -30,6 +31,11 @@ class KnowledgeinitapiService :
 	def knowledgeinitapi(self,knowledgeinitapi_dto,jsonObj) :
 			
 		api_genponbunshoichiran = ApiGenponbunshoichiranDto.dict_to_json({}) #CommonFunction 110
+		# 顧客設計：県連ロールのみ prefecture_code（全国共有 IS NULL または自県）で絞込。全国ロールは絞込なし。
+		if resolve_account_role() == "pref":
+			api_genponbunshoichiran.prefecturecode = utils.string_util.changeNullToBlank(session.get("PREFECTURE_CODE"))
+		else:
+			api_genponbunshoichiran.prefecturecode = ""
 		api_genponbunshoichiranList = None #ResultGenerator 72
 		#ResultGenerator 80
 		SHUTOKUKENSUU = ""
