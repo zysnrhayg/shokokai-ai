@@ -13,6 +13,7 @@ import resources.messages
 from app.dao.api_chishikidetaichiran.api_chishikidetaichiran_dao import ApiChishikidetaichiranDao
 from app.dto.api_chishikidetaichiran.api_chishikidetaichiran_dto import ApiChishikidetaichiranDto
 from app.dto.entriesinitapi.entriesinitapi_dto import EntriesinitapiDto
+from app.accounts.services import resolve_account_role
 from utils.save_data_check_utils import SaveDataCheckUtil
 import utils.string_util
 
@@ -30,6 +31,9 @@ class EntriesinitapiService :
 	def entriesinitapi(self,entriesinitapi_dto,jsonObj) :
 
 		api_chishikidetaichiran = ApiChishikidetaichiranDto.dict_to_json({}) #CommonFunction 110
+		# 県連ロールの場合、全国共有（prefecture_code IS NULL）＋自県分のみに絞込
+		if resolve_account_role() == "pref" :
+			api_chishikidetaichiran.prefecturecode = utils.string_util.changeNullToBlank(session.get("PREFECTURE_CODE"))
 		api_chishikidetaichiranList = None #ResultGenerator 72
 		#UltimateGeniuBean 115
 		utils.config.global_log.debug(str(threading.current_thread().native_id)+ ": start")
