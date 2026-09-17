@@ -7,11 +7,9 @@ import utils.json_constant
 from flask import session
 from app.dao.api100_getprefecturenames.api100_getprefecturenames_dao import Api100GetprefecturenamesDao
 from app.dao.api102_getshokokai.api102_getshokokai_dao import Api102GetshokokaiDao
-from app.dao.api_ichiranteburushiborikomi.api_ichiranteburushiborikomi_dao import ApiIchiranteburushiborikomiDao
 from app.dto.api100_getprefecturenames.api100_getprefecturenames_dto import Api100GetprefecturenamesDto
 from app.dto.api102_getshokokai.api102_getshokokai_dto import Api102GetshokokaiDto
-from app.dto.api_ichiranteburushiborikomi.api_ichiranteburushiborikomi_dto import ApiIchiranteburushiborikomiDto
-from app.common.account_list_row import account_row_to_selmap
+from app.accounts.services import get_federation_shokokai_cd, get_visible_accounts, resolve_account_role
 import utils.string_util
 import utils.mysqldb_utils
 
@@ -35,22 +33,15 @@ def _jsonable_rows(rows):
 
 class AccountsinitapiService:
 
-    # アカウント一覧画面初期表示（絞込選択肢 + 初期一覧）
+    # アカウント一覧画面初期表示（絞込選択肢 + ロール別可視一覧）
     def accountsinitapi(self, accountsinitapi_dto, jsonObj):
-        PREFECTURE_CODE = utils.string_util.changeNullToBlank(accountsinitapi_dto.prefecturecode)
-        SHOKOKAI_CD = utils.string_util.changeNullToBlank(accountsinitapi_dto.shokokaicd)
-        ONLY_FEDERATION = utils.string_util.changeNullToBlank(accountsinitapi_dto.onlyfederation)
-        EXCLUDE_FEDERATION = utils.string_util.changeNullToBlank(accountsinitapi_dto.excludefederation)
-
         utils.config.global_log.debug(str(threading.current_thread().native_id) + ": start")
         try:
-            if not PREFECTURE_CODE:
-                PREFECTURE_CODE = utils.string_util.changeNullToBlank(session.get("PREFECTURE_CODE"))
-            # 商工会ロールで未指定なら session の組織に限定
-            if not SHOKOKAI_CD:
-                role = utils.string_util.changeNullToBlank(accountsinitapi_dto.rolecode)
-                if role == "shokokai":
-                    SHOKOKAI_CD = utils.string_util.changeNullToBlank(session.get("SHOKOKAI_CD"))
+            role = resolve_account_role(
+                utils.string_util.changeNullToBlank(accountsinitapi_dto.rolecode)
+            )
+            session_pref = utils.string_util.changeNullToBlank(session.get("PREFECTURE_CODE"))
+            federation_cd = get_federation_shokokai_cd()
 
             # 都道府県マスタ
             pref_rows = Api100GetprefecturenamesDao().api100_getprefecturenames(
@@ -81,11 +72,20 @@ ORDER BY permission_level
                 permission_levels = ["管理者", "一般職員"]
             jsonObj.setValue("permissionlevels", permission_levels)
 
-            # 商工会選択肢
+            # 商工会選択肢（全国=全件 / 県連=自県・県連除く / 商工会=不要だが自組織のみ）
             api102 = Api102GetshokokaiDto.dict_to_json({})
-            api102.prefecturecode = PREFECTURE_CODE
-            api102.onlyfederation = ONLY_FEDERATION
-            api102.excludefederation = EXCLUDE_FEDERATION
+            if role == "national":
+                api102.prefecturecode = ""
+                api102.onlyfederation = ""
+                api102.excludefederation = ""
+            elif role == "pref":
+                api102.prefecturecode = session_pref
+                api102.onlyfederation = ""
+                api102.excludefederation = federation_cd
+            else:
+                api102.prefecturecode = session_pref
+                api102.onlyfederation = ""
+                api102.excludefederation = ""
             shokokai_rows = Api102GetshokokaiDao().api102_getshokokai(api102) or []
             shokokai_opts = []
             for rec in shokokai_rows:
@@ -100,22 +100,16 @@ ORDER BY permission_level
                 )
             jsonObj.setValue("shokokaioptions", shokokai_opts)
 
-            # 初期一覧（県で絞り、商工会指定時のみさらに絞る）
-            api_list = ApiIchiranteburushiborikomiDto.dict_to_json({})
-            api_list.mstuseraccountprefecturecode = PREFECTURE_CODE
-            api_list.mstuseraccountshokokaicd = SHOKOKAI_CD
-            api_list.limit = ""
-            api_list.offset = ""
-            list_rows = ApiIchiranteburushiborikomiDao().api_ichiranteburushiborikomi(api_list)
-            if list_rows is not None and hasattr(list_rows, "fetchall"):
-                list_rows = list_rows.fetchall()
-            map_list = []
-            if list_rows:
-                for entity in list_rows:
-                    map_list.append(account_row_to_selmap(entity))
+            # 初期一覧（ロール可視範囲のみ。UI絞込は accountsfilterapi で DB 再取得）
+            map_list, role, pref, sho = get_visible_accounts(
+                role,
+                getattr(accountsinitapi_dto, "limit", ""),
+                getattr(accountsinitapi_dto, "offset", ""),
+            )
             jsonObj.setHtml("dragB", json.dumps(map_list, ensure_ascii=False))
-            jsonObj.setValue("prefecturecode", PREFECTURE_CODE)
-            jsonObj.setValue("shokokaicd", SHOKOKAI_CD)
+            jsonObj.setValue("rolecode", role)
+            jsonObj.setValue("prefecturecode", pref)
+            jsonObj.setValue("shokokaicd", sho)
             jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_SUCCESS)
         except Exception as e:
             utils.config.global_log.error(e)

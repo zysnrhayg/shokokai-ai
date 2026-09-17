@@ -461,10 +461,13 @@
       root.querySelectorAll('.ap-apply-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           const p = proposals[Number(btn.dataset.index)];
-
           const businessName = root.querySelector('#ap-business-name').value.trim();
-          window.__miPendingPrefill = { content: `${p.title}\n${p.body}`, themeCodes: lastThemeCodes, businessName };
-          location.hash = '#manual-input';
+          // 顧客設計：クリック時は SQL なし。提案文をクエリパラメータで報告書作成画面へ渡す
+          const params = new URLSearchParams();
+          params.set('content', `${p.title}\n${p.body}`);
+          if (lastThemeCodes.length) params.set('themes', lastThemeCodes.join(','));
+          if (businessName) params.set('business_name', businessName);
+          location.hash = '#manual-input?' + params.toString();
         });
       });
     }

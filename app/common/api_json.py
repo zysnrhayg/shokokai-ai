@@ -10,6 +10,8 @@ def jsonable_row(rec):
             out[key] = value.isoformat()
         elif value is None:
             out[key] = ""
+        elif isinstance(value, dict):
+            out[key] = jsonable_row(value)
         elif isinstance(value, list):
             out[key] = [
                 jsonable_row(v) if isinstance(v, dict) else ("" if v is None else v)

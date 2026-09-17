@@ -1,7 +1,7 @@
 from utils.base_entity import BaseEntity
 
 class AccountsaveapiDto(BaseEntity):
-    def __init__(self, mode, actflg, triggerid, row, prefecturecode, shokokaicd, userid, shokuinkj, email, password, permissionlevel, status):
+    def __init__(self, mode, actflg, triggerid, row, prefecturecode, shokokaicd, userid, shokuinkj, email, password, permissionlevel, status, qualificationcodes=""):
         super().__init__(mode, actflg, triggerid, row)
         self.prefecturecode = prefecturecode
         self.shokokaicd = shokokaicd
@@ -11,6 +11,7 @@ class AccountsaveapiDto(BaseEntity):
         self.password = password
         self.permissionlevel = permissionlevel
         self.status = status
+        self.qualificationcodes = qualificationcodes
 
     @staticmethod
     def dict_to_json(d):
@@ -28,4 +29,5 @@ class AccountsaveapiDto(BaseEntity):
             d.get("email", ""),
             d.get("password", ""),
             d.get("permissionlevel", d.get("permission_level", "")),
-            d.get("status", ""))
+            d.get("status", ""),
+            d.get("qualificationcodes", d.get("qualification_codes", "")))

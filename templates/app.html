@@ -26,9 +26,9 @@
               <option value="pref">県連</option>
               <option value="shokokai" selected>商工会</option>
             </select>
-            <div><div class="org-name" id="org-name-display">札幌商工会連合会</div></div>
+            <div><div class="org-name" id="org-name-display">－</div></div>
           </div>
-          <div class="user-info">012：小島 直樹</div>
+          <div class="user-info">－</div>
         </div>
       </div>
       <div class="nav-section" id="nav-section-home">
@@ -84,11 +84,10 @@
           <div class="card notice-card">
             <div class="notice-panel">
               <div class="kpi-notice-list">
-                <div class="notice-item">2026年7月分の月次報告の提出締め切りは2026年8月25日です</div>
-                <div class="notice-item"><a href="#reports" class="notice-item-link">下書きのまま保存されている報告書が3件あります</a></div>
+                <div class="notice-item">お知らせはありません</div>
               </div>
               <div style="border-left:1px solid var(--gold-border); padding-left:var(--space-7);">
-                <div class="notice-stat__main">今月の支援件数<span class="value">127件</span><span class="notice-stat__change">▲前月比 +12件</span></div>
+                <div class="notice-stat__main">今月の支援件数<span class="value">－</span><span class="notice-stat__change">－</span></div>
               </div>
             </div>
           </div>
@@ -872,20 +871,20 @@
       <div class="login-brand">商工会<span>AI</span>システム</div>
 
       <div class="login-step-title">ログイン</div>
-      <div class="login-error" id="login-error" style="display:none">⚠ 入力内容をご確認ください</div>
+      <div class="login-error" id="login-error" style="display:none">ユーザーIDまたはパスワードが正しくありません。</div>
 
-      <form id="login-form">
+      <form id="login-form" novalidate>
         <div class="login-field">
           <label class="login-label" for="login-prefecture">県</label>
-          <select class="form-input" id="login-prefecture"></select>
+          <select class="form-input" id="login-prefecture" required></select>
         </div>
         <div class="login-field">
-          <label class="login-label" for="login-user-id">ユーザID</label>
-          <input class="form-input" id="login-user-id" placeholder="ユーザID" autocomplete="username">
+          <label class="login-label" for="login-user-id">ユーザーID <span class="detail-row__required">※</span></label>
+          <input class="form-input" id="login-user-id" name="userid" placeholder="ユーザーID" autocomplete="username" required>
         </div>
         <div class="login-field">
-          <label class="login-label" for="login-password">パスワード</label>
-          <input class="form-input" type="password" id="login-password" placeholder="パスワード" autocomplete="current-password">
+          <label class="login-label" for="login-password">パスワード <span class="detail-row__required">※</span></label>
+          <input class="form-input" type="password" id="login-password" name="password" placeholder="パスワード" autocomplete="current-password" required>
         </div>
         <div class="login-checkbox-field">
           <label><input type="checkbox" id="login-remember"> ログイン状態を保持する</label>
@@ -941,24 +940,24 @@
 <script src="{{ url_for('static', filename='mockup/js/dom_utils.js') }}"></script>
 <script src="{{ url_for('static', filename='mockup/js/nav_toggle.js') }}"></script>
 <script src="{{ url_for('static', filename='mockup/js/role_accent.js') }}"></script>
-<script src="{{ url_for('static', filename='mockup/js/org_role_switcher.js') }}?v=2"></script>
-<script src="{{ url_for('static', filename='mockup/js/dashboard.js') }}?v=8"></script>
+<script src="{{ url_for('static', filename='mockup/js/org_role_switcher.js') }}?v=4"></script>
+<script src="{{ url_for('static', filename='mockup/js/dashboard.js') }}?v=9"></script>
 <script src="{{ url_for('static', filename='mockup/js/layout_sync.js') }}"></script>
 <script id="monthly-data" type="application/json">{{ monthly_data|default('{}', true)|safe }}</script>
 <script src="{{ url_for('static', filename='mockup/js/entry_form_wiring.js') }}"></script>
 <script src="{{ url_for('static', filename='mockup/js/expert_import_modal.js') }}"></script>
-<script src="{{ url_for('static', filename='mockup/js/ai_proposal.js') }}?v=4"></script>
-<script src="{{ url_for('static', filename='mockup/js/monthly.js') }}?v=22"></script>
+<script src="{{ url_for('static', filename='mockup/js/ai_proposal.js') }}?v=5"></script>
+<script src="{{ url_for('static', filename='mockup/js/monthly.js') }}?v=23"></script>
 <script src="{{ url_for('static', filename='mockup/js/reports_annual_csv.js') }}"></script>
-<script src="{{ url_for('static', filename='mockup/js/entry_screen.js') }}"></script>
+<script src="{{ url_for('static', filename='mockup/js/entry_screen.js') }}?v=2"></script>
 <script src="{{ url_for('static', filename='mockup/js/expert_import_wire.js') }}"></script>
-<script src="{{ url_for('static', filename='mockup/js/reports_list.js') }}?v=8"></script>
+<script src="{{ url_for('static', filename='mockup/js/reports_list.js') }}?v=9"></script>
 <script src="{{ url_for('static', filename='mockup/js/entry_history.js') }}"></script>
 <script src="{{ url_for('static', filename='mockup/js/entry_jigyosho_autocomplete.js') }}"></script>
 <script src="{{ url_for('static', filename='mockup/js/entry_detail_info.js') }}"></script>
-<script src="{{ url_for('static', filename='mockup/js/accounts.js') }}?v=7"></script>
+<script src="{{ url_for('static', filename='mockup/js/accounts.js') }}?v=10"></script>
 <script src="{{ url_for('static', filename='mockup/js/knowledge.js') }}"></script>
-<script src="{{ url_for('static', filename='mockup/js/knowledge_search.js') }}?v=5"></script>
-<script src="{{ url_for('static', filename='mockup/js/router.js') }}?v=8"></script>
+<script src="{{ url_for('static', filename='mockup/js/knowledge_search.js') }}?v=7"></script>
+<script src="{{ url_for('static', filename='mockup/js/router.js') }}?v=12"></script>
 </body>
 </html>

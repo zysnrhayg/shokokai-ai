@@ -10,6 +10,7 @@ from datetime import datetime, timezone, timedelta
 import utils.date_util
 from utils.jsonwfc_object import JSONWFCObject
 import resources.messages
+from app.accounts.write_helpers import find_live_account_id, replace_account_qualifications
 from app.dao.api132_updateaccount.api132_updateaccount_dao import Api132UpdateaccountDao
 from app.dto.accountupdateapi.accountupdateapi_dto import AccountupdateapiDto
 from app.dto.api132_updateaccount.api132_updateaccount_dto import Api132UpdateaccountDto
@@ -40,6 +41,7 @@ class AccountupdateapiService :
 		PASSWORD = accountupdateapi_dto.password#GeninusClientScript 1318
 		PERMISSION_LEVEL = accountupdateapi_dto.permissionlevel#GeninusClientScript 1318
 		STATUS = accountupdateapi_dto.status#GeninusClientScript 1318
+		QUALIFICATION_CODES = getattr(accountupdateapi_dto, "qualificationcodes", "")
 		api132_updateaccount = Api132UpdateaccountDto.dict_to_json({}) #CommonFunction 110
 		KOUSHINKENSUU = ""
 		#UltimateGeniuBean 115
@@ -52,6 +54,11 @@ class AccountupdateapiService :
 			#以下の処理を行う。
 			
 			#関数「API132_UpdateAccount」の「db_API132_UpdateAccount」メソッドを行う,パラメータは「prefecture_code,shokokai_cd,user_id,shokuin_kj,email,status,permission_level,password,user_account_id」。
+
+			if find_live_account_id(PREFECTURE_CODE, USER_ID, exclude_user_account_id=USER_ACCOUNT_ID):
+				jsonObj.setValue(utils.json_constant.JSONID_ERR, "このユーザIDは既に使用されています")
+				jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_FAIL)
+				return
 			
 			# prefecture_code
 			api132_updateaccount.prefecturecode = PREFECTURE_CODE #ArgumentGenerator 274
@@ -100,6 +107,7 @@ class AccountupdateapiService :
 			#GeniusClientScript 983
 			if KOUSHINKENSUU.replace(" ", "") == "1" : #GeniusContion 823
 				#GeniusContion 823
+				replace_account_qualifications(USER_ACCOUNT_ID, QUALIFICATION_CODES)
 				#「更新しました」メッセージを表示する。
 				jsonObj.setValue(utils.json_constant.JSONID_MSG, "更新しました")
 				#処理終了。

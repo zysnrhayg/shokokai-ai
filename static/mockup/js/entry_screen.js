@@ -1,4 +1,23 @@
-function applyEntryScreen(screenId) {
+function prefillFromHashQuery(hashQuery) {
+  if (!hashQuery) return null;
+  let params;
+  try {
+    params = new URLSearchParams(hashQuery);
+  } catch (e) {
+    return null;
+  }
+  const content = params.get('content');
+  if (content == null || content === '') return null;
+  const themesRaw = params.get('themes') || '';
+  const themeCodes = themesRaw.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+  return {
+    content: content,
+    themeCodes: themeCodes,
+    businessName: params.get('business_name') || '',
+  };
+}
+
+function applyEntryScreen(screenId, hashQuery) {
 
   const entryForm = document.getElementById('mi-entry-form');
   if (entryForm) {
@@ -26,9 +45,16 @@ function applyEntryScreen(screenId) {
     }
   }
 
-  if (['manual-input', 'ai-input', 'expert-import'].includes(screenId) && window.__miPendingPrefill) {
-    const prefill = window.__miPendingPrefill;
-    window.__miPendingPrefill = null;
+  let prefill = null;
+  if (['manual-input', 'ai-input', 'expert-import'].includes(screenId)) {
+    if (window.__miPendingPrefill) {
+      prefill = window.__miPendingPrefill;
+      window.__miPendingPrefill = null;
+    } else {
+      prefill = prefillFromHashQuery(hashQuery);
+    }
+  }
+  if (prefill) {
     const contentEl = document.getElementById('mi-content');
     if (contentEl) contentEl.value = prefill.content;
     if (prefill.themeCodes && prefill.themeCodes.length) {

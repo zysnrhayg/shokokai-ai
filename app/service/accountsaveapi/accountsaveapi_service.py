@@ -10,6 +10,7 @@ from datetime import datetime, timezone, timedelta
 import utils.date_util
 from utils.jsonwfc_object import JSONWFCObject
 import resources.messages
+from app.accounts.write_helpers import find_live_account_id, replace_account_qualifications
 from app.dao.api131_insertaccount.api131_insertaccount_dao import Api131InsertaccountDao
 from app.dto.accountsaveapi.accountsaveapi_dto import AccountsaveapiDto
 from app.dto.api131_insertaccount.api131_insertaccount_dto import Api131InsertaccountDto
@@ -39,6 +40,7 @@ class AccountsaveapiService :
 		PASSWORD = accountsaveapi_dto.password#GeninusClientScript 1318
 		PERMISSION_LEVEL = accountsaveapi_dto.permissionlevel#GeninusClientScript 1318
 		STATUS = accountsaveapi_dto.status#GeninusClientScript 1318
+		QUALIFICATION_CODES = getattr(accountsaveapi_dto, "qualificationcodes", "")
 		CORE_LINKED = False
 		api131_insertaccount = Api131InsertaccountDto.dict_to_json({}) #CommonFunction 110
 		#_dto api131_insertaccount_dto = None #ResultGenerator 119
@@ -55,6 +57,11 @@ class AccountsaveapiService :
 			#以下の処理を行う。
 			
 			#関数「API131_InsertAccount」の「db_API131_InsertAccount」メソッドを行う,パラメータは「prefecture_code,shokokai_cd,user_id,shokuin_kj,email,status,core_linked,permission_level,password」,戻り値設定は「<user_account_id>=user_account_id」を設定する。
+
+			if find_live_account_id(PREFECTURE_CODE, USER_ID):
+				jsonObj.setValue(utils.json_constant.JSONID_ERR, "このユーザIDは既に使用されています")
+				jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_FAIL)
+				return
 			
 			# prefecture_code
 			api131_insertaccount.prefecturecode = PREFECTURE_CODE #ArgumentGenerator 274
@@ -104,6 +111,7 @@ class AccountsaveapiService :
 			#GeniusClientScript 983
 			if TOUROKUKENSUU.replace(" ", "") == "1" : #GeniusContion 823
 				#GeniusContion 823
+				replace_account_qualifications(USERACCOUNTID, QUALIFICATION_CODES)
 				#「登録しました」メッセージを表示する。
 				jsonObj.setValue("useraccountid", USERACCOUNTID)
 				jsonObj.setValue("user_account_id", USERACCOUNTID)

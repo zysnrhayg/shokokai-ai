@@ -23,8 +23,10 @@ class ReportsinitapiService:
             jsonObj.setValue("defaultyearmonth", default_ym)
             jsonObj.setValue("prefecturecode", scope["role_prefecture_code"] or scope["prefecture_code"])
             jsonObj.setValue("shokokaicd", scope["role_shokokai_cd"] or scope["shokokai_cd"])
-            # 顧客設計: get_visible_reports（ロール範囲のみ）。絞込はクライアントJS
-            rows = reports_api.list_visible_reports(reportsinitapi_dto)
+            # 初期表示もサーバ側絞込（デフォルト年度を適用）
+            if not (getattr(reportsinitapi_dto, "yearmonth", None) or "").strip() and default_ym:
+                reportsinitapi_dto.yearmonth = default_ym
+            rows = reports_api.fetch_reports(reportsinitapi_dto, years)
             reports_api.set_list_result(jsonObj, rows)
         except Exception as e:
             utils.config.global_log.error(e)

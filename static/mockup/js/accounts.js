@@ -11,10 +11,13 @@
   let SHOKOKAI_OPTIONS = [];
   let ORG_NAME = '—';
 
-  const CURRENT_USER_ACCOUNT_ID = Number(
-    (typeof localStorage !== 'undefined' && localStorage.getItem('user_account_id')) || 0
-  ) || null;
+  function currentUserAccountId() {
+    var raw = (typeof localStorage !== 'undefined' && localStorage.getItem('user_account_id')) || '';
+    var n = Number(raw);
+    return n > 0 ? n : null;
+  }
 
+  // ACCOUNTS: サーバ（ロール可視範囲 + UI絞込）から取得した一覧
   let ACCOUNTS = [];
   let nextAccountId = 1;
   let loadingAccounts = false;
@@ -118,8 +121,7 @@
     var searchEl = root.querySelector('#f-search');
     var prefEl = root.querySelector('#accounts-f-pref');
     var shokokaiEl = root.querySelector('#accounts-f-shokokai');
-    var role = currentUiRole();
-    var org = orgFromClient();
+    var uiRole = currentUiRole();
 
     var permissionlevel = '';
     if (roleEl && roleEl.value && roleEl.value !== '全ロール') {
@@ -131,13 +133,18 @@
       else if (statusEl.value === '0' || statusEl.value === '利用停止') status = '0';
     }
 
-    var pref = prefEl && prefEl.value ? prefEl.value : '';
-    var sho = shokokaiEl && shokokaiEl.value ? shokokaiEl.value : '';
-    if (!pref) pref = org.prefecturecode || '';
-    if (role === 'shokokai' && !sho) sho = org.shokokaicd || '';
+    // 県/商工会は UI 絞込として送る（ロール可視範囲の内側で DB が適用）
+    var pref = '';
+    var sho = '';
+    if (uiRole === 'national') {
+      pref = prefEl && prefEl.value ? prefEl.value : '';
+      sho = shokokaiEl && shokokaiEl.value ? shokokaiEl.value : '';
+    } else if (uiRole === 'pref') {
+      sho = shokokaiEl && shokokaiEl.value ? shokokaiEl.value : '';
+    }
 
     return {
-      rolecode: role,
+      rolecode: uiRole,
       prefecturecode: pref,
       shokokaicd: sho,
       permissionlevel: permissionlevel,
@@ -148,14 +155,7 @@
   }
 
   function buildInitPayload() {
-    var payload = buildFilterPayload();
-    return {
-      rolecode: payload.rolecode,
-      prefecturecode: payload.prefecturecode,
-      shokokaicd: payload.rolecode === 'shokokai' ? payload.shokokaicd : '',
-      onlyfederation: '',
-      excludefederation: '',
-    };
+    return { rolecode: currentUiRole() };
   }
 
   function applyInitOptions(data) {
@@ -196,9 +196,8 @@
   function fillPrefSelect(keepValue) {
     var el = root.querySelector('#accounts-f-pref');
     if (!el) return;
+    // 全国連の「全都道府県」は空のまま（DB 側で絞らない）
     var cur = keepValue ? el.value : '';
-    var org = orgFromClient();
-    if (!cur && currentUiRole() !== 'national') cur = org.prefecturecode || '';
     el.innerHTML = '<option value="">全都道府県</option>' + PREFECTURE_OPTIONS.map(function (p) {
       return '<option value="' + esc(p.code) + '">' + esc(p.name) + '</option>';
     }).join('');
@@ -300,7 +299,7 @@
         fillRoleSelect(true);
         fillPrefSelect(true);
         fillShokokaiSelect(true);
-        // 選択肢反映後、現在の絞込条件（ステータス等）で一覧を再取得
+        // 選択肢反映後、現在の UI 絞込条件で DB 再取得
         loadAccountsFromApi(done);
       })
       .catch(function () {
@@ -399,7 +398,7 @@
   }
 
   function renderRows() {
-    // 絞込はサーバ側（accountsfilterapi / accountsinitapi）済み
+    // 絞込はサーバ側（accountsfilterapi / DB）済み
     const filtered = ACCOUNTS.map(joinRow);
 
     const inlinePanelRow = `<tr class="am-inline-row"><td colspan="8">${buildDetailPanelHtml()}</td></tr>`;
@@ -439,7 +438,7 @@
     if (prefEl) {
       prefEl.addEventListener('change', function () {
         fillShokokaiSelect(false);
-        loadAccountsInit(function () { renderRows(); });
+        loadAccountsFromApi(function () { renderRows(); });
       });
     }
     const shoEl = root.querySelector('#accounts-f-shokokai');
@@ -640,7 +639,7 @@
       ? `<div class="flex items-center gap-sm" style="justify-content:flex-end;margin-top:var(--space-6)">
           <button type="button" class="btn btn-primary btn-sm" id="am-edit">編集する</button>
           <button type="button" class="btn btn-outline btn-sm" id="am-close">閉じる</button>
-          ${account && account.user_account_id !== CURRENT_USER_ACCOUNT_ID ? `<button type="button" class="btn btn-danger btn-sm" id="am-delete" style="margin-left:var(--space-8);">削除</button>` : ''}
+          ${account && currentUserAccountId() && Number(account.user_account_id) !== currentUserAccountId() ? `<button type="button" class="btn btn-danger btn-sm" id="am-delete" style="margin-left:var(--space-8);">削除</button>` : ''}
         </div>`
       : `<div class="flex items-center gap-sm" style="justify-content:flex-end;margin-top:var(--space-6)">
           <button type="button" class="btn btn-outline btn-sm" id="am-cancel">キャンセル</button>
@@ -663,6 +662,10 @@
     if (deleteBtn) deleteBtn.addEventListener('click', () => {
       const account = currentAccount();
       if (!account) return;
+      if (currentUserAccountId() && Number(account.user_account_id) === currentUserAccountId()) {
+        toastError('自分自身のアカウントは削除できません');
+        return;
+      }
       if (!confirm(`${account.shokuin_kj}（${account.user_id}）を削除しますか？`)) return;
       postAccountsApi('./accountdeleteapi.do', { useraccountid: String(account.user_account_id) })
         .then(function (result) {
@@ -714,6 +717,13 @@
     const status = statusEl ? String(statusEl.value) : String(account ? account.status : 1);
     const password = passwordEl ? passwordEl.value : '';
     const org = defaultOrgContext();
+    var quals = [];
+    var qualEls = root.querySelectorAll('.am-qualification');
+    if (qualEls.length) {
+      qualEls.forEach(function (cb) { if (cb.checked) quals.push(cb.value); });
+    } else if (account && account.qualification_codes) {
+      quals = account.qualification_codes.slice();
+    }
 
     if (inlineMode === 'new') {
       const payload = {
@@ -725,6 +735,7 @@
         password: password,
         permissionlevel: permission_level,
         status: status,
+        qualificationcodes: JSON.stringify(quals),
       };
       if (!payload.prefecturecode) {
         toastError('県コードが取得できません。ログイン時の県を確認してください');
@@ -760,6 +771,7 @@
       password: password,
       permissionlevel: permission_level,
       status: status,
+      qualificationcodes: JSON.stringify(quals),
     };
     postAccountsApi('./accountupdateapi.do', payload)
       .then(function (result) {

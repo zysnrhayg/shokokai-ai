@@ -1,6 +1,8 @@
 import utils.config
 import threading
 import utils.json_constant
+from flask import session
+from app.accounts.services import resolve_account_role
 from app.common.api_json import entries_to_proposals
 from app.knowledge.services import get_entries_with_themes
 import utils.string_util
@@ -28,8 +30,15 @@ def _keyword_candidates(*texts):
     return uniq
 
 
+def _pref_filter_for_kenren():
+    """顧客設計：県連ロールのみ prefecture_code で絞る。"""
+    if resolve_account_role() != "pref":
+        return ""
+    return utils.string_util.changeNullToBlank(session.get("PREFECTURE_CODE"))
+
+
 def _fetch_entries(keyword):
-    return get_entries_with_themes(keyword=keyword, prefecture_code="")
+    return get_entries_with_themes(keyword=keyword, prefecture_code=_pref_filter_for_kenren())
 
 
 class AiproposalregenerateapiService:

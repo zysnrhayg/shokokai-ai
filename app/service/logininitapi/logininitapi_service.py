@@ -2,9 +2,7 @@ import utils.config
 import threading
 import utils.json_constant
 from app.dao.api100_getprefecturenames.api100_getprefecturenames_dao import Api100GetprefecturenamesDao
-from app.dao.api_kihonnonshiraseichiran.api_kihonnonshiraseichiran_dao import ApiKihonnonshiraseichiranDao
 from app.dto.api100_getprefecturenames.api100_getprefecturenames_dto import Api100GetprefecturenamesDto
-from app.dto.api_kihonnonshiraseichiran.api_kihonnonshiraseichiran_dto import ApiKihonnonshiraseichiranDto
 
 
 def _jsonable_rows(rows):
@@ -28,15 +26,16 @@ class LogininitapiService:
 
     def logininitapi(self, logininitapi_dto, jsonObj):
         api100_getprefecturenames = Api100GetprefecturenamesDto.dict_to_json({})
-        api_kihonnonshiraseichiran = ApiKihonnonshiraseichiranDto.dict_to_json({})
         utils.config.global_log.debug(str(threading.current_thread().native_id) + ": start")
         try:
             prefecture_rows = Api100GetprefecturenamesDao().api100_getprefecturenames(api100_getprefecturenames)
-            api_kihonnonshiraseichiran.rolecode = "login"
-            notice_rows = ApiKihonnonshiraseichiranDao().api_kihonnonshiraseichiran(api_kihonnonshiraseichiran)
+            # ホーム／ダッシュボードと同じ get_active_notices（日付補完＋有効期間）
+            from app.common.dashboard_api import fetch_notices
+
+            notices = fetch_notices("login")
 
             jsonObj.setValue("prefectures", _jsonable_rows(prefecture_rows))
-            jsonObj.setValue("notices", _jsonable_rows(notice_rows))
+            jsonObj.setValue("notices", notices)
             jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_SUCCESS)
         except Exception as e:
             utils.config.global_log.error(e)

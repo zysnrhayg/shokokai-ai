@@ -6,7 +6,9 @@ class api105_authenticateuserMapper:
         params = ["prefecture_code", "user_id"]
         values = [prefecture_code, user_id]
         return utils.sql_utils.formatSQL(
-            """SELECT user_account_id , prefecture_code , shokokai_cd , user_id , shokuin_kj , password , status , totp_secret , is_mfa_enabled , failed_login_count , locked_until
+            """SELECT user_account_id , prefecture_code , shokokai_cd , user_id , shokuin_kj
+     , email , password , status , core_linked , permission_level
+     , totp_secret , is_mfa_enabled , failed_login_count , locked_until
 FROM mst_user_account ua
 WHERE ua.prefecture_code = :prefecture_code
 AND lower(ua.user_id) = lower(:user_id)
