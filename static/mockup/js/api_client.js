@@ -34,6 +34,35 @@
     });
   }
 
+  function postMultipartApi(url, formData) {
+    // multipart/form-data送信（ファイルアップロード用）。Content-Typeはブラウザへ自動設定させる
+    return fetch(url, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'X-CSRFToken': getCsrfToken(),
+      },
+      body: formData,
+    }).then(function (response) {
+      return response.text().then(function (text) {
+        var data = null;
+        try {
+          data = text ? JSON.parse(text) : {};
+        } catch (e) {
+          data = { e: text };
+        }
+        if (data && data.r) {
+          data.e = data.e || 'セッションが切れました。再ログインしてください';
+        }
+        if (response.status === 403) {
+          data = data || {};
+          data.e = data.e || data.message || 'CSRFエラーです。ページを再読み込み（Ctrl+F5）してから再ログインしてください';
+        }
+        return { ok: response.ok, status: response.status, data: data || {} };
+      });
+    });
+  }
+
   function orgContext() {
     var pref = (typeof localStorage !== 'undefined' && localStorage.getItem('prefecture_code')) || '';
     var shokokai = (typeof localStorage !== 'undefined' && localStorage.getItem('shokokai_cd')) || '';
@@ -50,6 +79,7 @@
 
   global.ApiClient = {
     post: postApi,
+    postMultipart: postMultipartApi,
     getCsrfToken: getCsrfToken,
     orgContext: orgContext,
   };

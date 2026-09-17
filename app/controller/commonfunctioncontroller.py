@@ -137,6 +137,8 @@ from app.dto.aisummarizeapi.aisummarizeapi_dto import AisummarizeapiDto
 from app.service.aisummarizeapi.aisummarizeapi_service import AisummarizeapiService
 from app.dto.formnewsaveapi.formnewsaveapi_dto import FormnewsaveapiDto
 from app.service.formnewsaveapi.formnewsaveapi_service import FormnewsaveapiService
+from app.dto.expertimportapi.expertimportapi_dto import ExpertimportapiDto
+from app.service.expertimportapi.expertimportapi_service import ExpertimportapiService
 from app.dto.reportsinitapi.reportsinitapi_dto import ReportsinitapiDto
 from app.service.reportsinitapi.reportsinitapi_service import ReportsinitapiService
 from app.dto.reportssearchapi.reportssearchapi_dto import ReportssearchapiDto
@@ -1393,7 +1395,7 @@ def documentformnewinitapi() :
 def documentsaveapi() :
 	"""documentsaveapi - ナレッジ文書新規画面登録ボタン - サーバー関数"""
 
-	data = request.get_json()
+	# 文書ファイルはmultipart/form-dataで受付する（JSON送信の場合はJSONとして処理する）
 	jsonObj = JSONWFCObject()
 
 	# validate parameter 371
@@ -1401,7 +1403,16 @@ def documentsaveapi() :
 
 #UnitedControllerBuilder 963
 
+	data = request.get_json(silent=True)
+	if data is None :
+		# multipart送信：フォーム値をrowへ設定する
+		data = {'row': request.form.to_dict()}
+
 	documentsaveapi_dto = DocumentsaveapiDto.dict_to_json(data)
+	if request.files and 'file' in request.files :
+		# アップロードされた文書ファイルをDTOへ設定する
+		documentsaveapi_dto.docfile = request.files['file']
+
 	documentsaveapiVar_service = DocumentsaveapiService()
 
 	documentsaveapiVar_service.documentsaveapi(documentsaveapi_dto, jsonObj)
@@ -1732,7 +1743,7 @@ def formnewinitapi() :
 def formnewsaveapi() :
 	"""formnewsaveapi - 報告書新規画面登録ボタン - サーバー関数"""
 
-	data = request.get_json()
+	# 添付ファイルはmultipart/form-dataで受付する（JSON送信の場合はJSONとして処理する）
 	jsonObj = JSONWFCObject()
 
 	# validate parameter 371
@@ -1740,10 +1751,40 @@ def formnewsaveapi() :
 
 #UnitedControllerBuilder 963
 
+	data = request.get_json(silent=True)
+	if data is None :
+		# multipart送信：フォーム値をDTOへ設定する
+		data = request.form.to_dict()
+
 	formnewsaveapi_dto = FormnewsaveapiDto.dict_to_json(data)
+	if request.files :
+		# 添付ファイル（複数可）をDTOへ設定する
+		formnewsaveapi_dto.attachments = request.files.getlist('attachments')
+
 	formnewsaveapiVar_service = FormnewsaveapiService()
 
 	formnewsaveapiVar_service.formnewsaveapi(formnewsaveapi_dto, jsonObj)
+
+	return jsonObj.toJsonString()
+
+
+
+#
+# expertimportapi - 専門家報告取込 - サーバー関数
+#
+
+@commonfunction_route.route("/expertimportapi.do", methods=['POST'])
+
+def expertimportapi() :
+	"""expertimportapi - 専門家報告取込 - サーバー関数"""
+
+	data = request.get_json()
+	jsonObj = JSONWFCObject()
+
+	expertimportapi_dto = ExpertimportapiDto.dict_to_json(data)
+	expertimportapiVar_service = ExpertimportapiService()
+
+	expertimportapiVar_service.expertimportapi(expertimportapi_dto, jsonObj)
 
 	return jsonObj.toJsonString()
 
@@ -2062,15 +2103,31 @@ def dashboardheatmappageapi() :
 def draftsaveapi() :
 	"""draftsaveapi - 報告書編集下書き保存 - サーバー関数"""
 
-	data = request.get_json() or {}
+	# 添付ファイルはmultipart/form-dataで受付する（JSON送信の場合はJSONとして処理する）
 	jsonObj = JSONWFCObject()
 
 	# validate parameter 371
 
-	
+	data = request.get_json(silent=True)
+	if data is None :
+		# multipart送信：報告書項目一式（JSON文字列）をDTOへ設定する
+		data = {}
+		if 'houkokushokoumokuisshiki' in request.form :
+			try :
+				data['houkokushokoumokuisshiki'] = json.loads(request.form['houkokushokoumokuisshiki'])
+			except (ValueError, TypeError) :
+				data['houkokushokoumokuisshiki'] = {}
+		elif request.form :
+			data['houkokushokoumokuisshiki'] = request.form.to_dict()
+
+
 #UnitedControllerBuilder 963
 
 	draftsaveapi_dto = DraftsaveapiDto.dict_to_json(data)
+	if request.files :
+		# 添付ファイル（複数可）をDTOへ設定する
+		draftsaveapi_dto.attachments = request.files.getlist('attachments')
+
 	draftsaveapiVar_service = DraftsaveapiService()
 
 	draftsaveapiVar_service.draftsaveapi(draftsaveapi_dto, jsonObj)

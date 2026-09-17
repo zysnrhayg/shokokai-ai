@@ -1,6 +1,7 @@
 #BasicService.vm
 #make Service templete
 import json
+import os
 import utils.config
 import threading
 import utils.json_constant
@@ -13,6 +14,7 @@ import resources.messages
 from app.dto.documentsaveapi.documentsaveapi_dto import DocumentsaveapiDto
 from utils.save_data_check_utils import SaveDataCheckUtil
 import utils.string_util
+import utils.file_util
 from sqlalchemy import text
 from utils.mysqldb_utils import Session
 
@@ -37,6 +39,15 @@ class DocumentsaveapiService :
 		STATUS = documentsaveapi_dto.status
 		# ログインユーザーIDをFlaskセッションから取得する
 		UPLOADED_BY = session.get('user_id', 'system') if hasattr(session, 'get') else 'system'
+
+		# アップロードされた文書ファイルをUPLOAD_DIR（uploads/knowledge/）配下へ実保存する
+		# 保存成功時は実ファイルパス・実サイズをDB登録値へ採用する
+		DOCFILE = getattr(documentsaveapi_dto, "docfile", None)
+		saved_rel_path = utils.file_util.save_upload_file(DOCFILE, "knowledge")
+		if saved_rel_path :
+			FILE_PATH = saved_rel_path
+			abs_path = utils.file_util.get_upload_abs_path(saved_rel_path)
+			FILE_SIZE_KB = str(max(1, int(os.path.getsize(abs_path) / 1024)))
 
 		#UltimateGeniuBean 115
 		utils.config.global_log.debug(str(threading.current_thread().native_id)+ ": start")

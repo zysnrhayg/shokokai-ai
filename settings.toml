@@ -29,3 +29,7 @@ SQL_LOG_MAX_LEN = 3000
 # 月次・年次帳票の配布ディレクトリ（顧客アップロード先）。絶対パス推奨。
 # 相対パスの場合はプロジェクトルートからの相対。
 MONTHLY_REPORT_EXPORT_DIR = "data/monthly_report_exports"
+
+# アップロードファイルの保存先（報告書添付ファイル・ナレッジ文書等）。
+# 相対パスの場合はプロジェクトルートからの相対（既定: <プロジェクトルート>/uploads）。
+UPLOAD_DIR = "uploads"

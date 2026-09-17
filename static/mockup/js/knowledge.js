@@ -319,17 +319,44 @@
   }
 
   // 原本文書を新規登録するAPI（DocumentSaveAPI）
-  async function saveDocument(fields) {
+  // fileが指定された場合はmultipartで実ファイルをアップロードする（保存先: uploads/knowledge/）
+  async function saveDocument(fields, file) {
     try {
-      const data = await callApi('/documentsaveapi.do', {
-        title: fields.title,
-        category: fields.category,
-        format: fields.format,
-        prefecturecode: fields.prefecture_code || '',
-        filepath: fields.file_path || '',
-        filesizekb: fields.file_size_kb || 0,
-        status: fields.status || '審査中'
-      });
+      let data;
+      if (file) {
+        const fd = new FormData();
+        fd.append('title', fields.title || '');
+        fd.append('category', fields.category || '');
+        fd.append('format', fields.format || 'PDF');
+        fd.append('prefecturecode', fields.prefecture_code || '');
+        fd.append('status', fields.status || '審査中');
+        fd.append('file', file);
+        const res = await fetch('/documentsaveapi.do', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'X-CSRFToken': getCsrfToken() },
+          body: fd
+        });
+        if (!res.ok) {
+          console.error('API error:', '/documentsaveapi.do', res.status, await res.text());
+          throw new Error('API /documentsaveapi.do returned ' + res.status);
+        }
+        data = await res.json();
+      } else {
+        data = await callApi('/documentsaveapi.do', {
+          title: fields.title,
+          category: fields.category,
+          format: fields.format,
+          prefecturecode: fields.prefecture_code || '',
+          filepath: fields.file_path || '',
+          filesizekb: fields.file_size_kb || 0,
+          status: fields.status || '審査中'
+        });
+      }
+      if (data.e) {
+        toastError(data.e);
+        return false;
+      }
       if (data.msg) toastSuccess(data.msg);
       else toastSuccess('文書を登録しました');
       return true;
@@ -942,6 +969,8 @@
       const badge = status === '公開中' ? 'badge-status-ok' : status === '審査中' ? 'badge-status-pending' : 'badge-status-new';
       if (inlineMode === 'new') {
         // 新規登録：後端APIで文書を登録する（DocumentSaveAPI）
+        // ファイル選択時は実ファイルをmultipartでアップロードする（保存先: uploads/knowledge/）
+        const selectedFile = (fileInput && fileInput.files && fileInput.files.length > 0) ? fileInput.files[0] : null;
         saveDocument({
           title: title,
           prefecture_code: scope === '北海道' ? '01' : '',
@@ -950,7 +979,7 @@
           status: status,
           file_path: filePath,
           file_size_kb: fileSizeKb
-        }).then(function (ok) {
+        }, selectedFile).then(function (ok) {
           if (ok) {
             inlineMode = null;
             inlineIndex = null;
