@@ -46,6 +46,8 @@
       title: title,
       content: content,
       theme_badges: badges,
+      document_title: String(row.document_title || '').trim(),
+      prefecture_name: String(row.prefecture_name || '').trim(),
       ref_info: firstSentence(content),
       updated_date: formatDateTime(row.updated_date)
     };
@@ -153,34 +155,21 @@
       runSearch();
     });
     root.querySelector('#ks-clear-btn').addEventListener('click', () => {
-      searchSeq += 1;
       keywordEl.value = '';
       lastKeyword = '';
-      searchResults = null;
-      setBusy(false);
-      renderResults();
       keywordEl.focus();
+      loadEntries('');
     });
-    setBusy(false);
-    renderResults();
-    keywordEl.focus();
     if (typeof window.__applyRoleAccentColor === 'function') window.__applyRoleAccentColor();
-    alignResults();
+    loadEntries(lastKeyword || '');
   }
 
-  function runSearch() {
-    const keywordEl = root.querySelector('#ks-keyword');
-    const rawKeyword = keywordEl ? keywordEl.value.trim() : '';
-    lastKeyword = rawKeyword;
-    if (!rawKeyword) {
-      toastError('キーワードを入力してください');
-      keywordEl && keywordEl.focus();
-      return;
-    }
+  function loadEntries(keyword) {
     const seq = ++searchSeq;
+    lastKeyword = String(keyword || '');
     setBusy(true);
     renderResults();
-    postSearch(rawKeyword).then(function (result) {
+    postSearch(lastKeyword).then(function (result) {
       if (seq !== searchSeq) return;
       setBusy(false);
       const data = (result && result.data) || {};
@@ -200,6 +189,17 @@
       toastError('ナレッジ検索に失敗しました');
       renderResults();
     });
+  }
+
+  function runSearch() {
+    const keywordEl = root.querySelector('#ks-keyword');
+    const rawKeyword = keywordEl ? keywordEl.value.trim() : '';
+    if (!rawKeyword) {
+      toastError('キーワードを入力してください');
+      keywordEl && keywordEl.focus();
+      return;
+    }
+    loadEntries(rawKeyword);
   }
 
   function renderThemeBadges(entry) {
@@ -222,13 +222,13 @@
     }
     if (!searchResults) {
       countEl.textContent = '';
-      resultsEl.innerHTML = `<div class="text-muted text-sm" style="grid-column:1/-1">上の欄にキーワードを入力し「ナレッジを検索」を押してください。</div>`;
+      resultsEl.innerHTML = `<div class="text-muted text-sm" style="grid-column:1/-1">公開ナレッジを読み込んでいます…</div>`;
       alignResults();
       return;
     }
     if (!searchResults.length) {
       countEl.textContent = '';
-      resultsEl.innerHTML = `<div class="text-muted text-sm" style="grid-column:1/-1">該当するナレッジが見つかりませんでした。別のキーワードをお試しください。</div>`;
+      resultsEl.innerHTML = `<div class="text-muted text-sm" style="grid-column:1/-1">${lastKeyword ? '該当するナレッジが見つかりませんでした。別のキーワードをお試しください。' : '公開中のナレッジはありません。'}</div>`;
       alignResults();
       return;
     }
@@ -237,7 +237,12 @@
     countEl.textContent = searchResults.length > shown.length
       ? `（上位${shown.length}件を表示）`
       : `（${shown.length}件）`;
-    resultsEl.innerHTML = shown.map(e => `
+    resultsEl.innerHTML = shown.map(e => {
+      const docPref = [
+        e.document_title ? `文書：${esc(e.document_title)}` : '',
+        e.prefecture_name ? `県：${esc(e.prefecture_name)}` : '',
+      ].filter(Boolean).join(' ／ ');
+      return `
       <div class="proposal-card proposal-card--mid">
         <div class="proposal-card__header">
           <div class="proposal-card__title">${highlightText(e.title, lastKeyword)}</div>
@@ -245,9 +250,11 @@
         <div class="proposal-card__body">${formatKnowledgeBody(e.content, lastKeyword)}</div>
         <div class="proposal-card__meta">${renderThemeBadges(e)}</div>
         <div class="proposal-card__meta" style="margin-top:var(--space-2)"><strong>📚 参照したナレッジ：</strong>${esc(e.code)}${e.title ? '「' + esc(e.title) + '」' : ''}${e.ref_info ? '<br><strong>🔍 参照した情報：</strong>' + esc(e.ref_info) : ''}</div>
+        ${docPref ? `<div class="proposal-card__meta">${docPref}</div>` : ''}
         <div class="proposal-card__meta"><strong>更新日時：</strong>${esc(e.updated_date)}</div>
       </div>
-    `).join('');
+    `;
+    }).join('');
     alignResults();
   }
 
