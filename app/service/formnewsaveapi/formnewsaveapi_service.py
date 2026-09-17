@@ -20,6 +20,7 @@ from app.dto.api125_insertreporttheme.api125_insertreporttheme_dto import Api125
 from app.dto.formnewsaveapi.formnewsaveapi_dto import FormnewsaveapiDto
 from utils.save_data_check_utils import SaveDataCheckUtil
 import utils.string_util
+import utils.file_util
 
 
 class FormnewsaveapiService :
@@ -164,6 +165,19 @@ class FormnewsaveapiService :
 						t_row = t_result.fetchone()
 						if t_row :
 							sess.execute(text("INSERT INTO trn_report_theme (report_id, theme_id) VALUES (CAST(:report_id AS integer), CAST(:theme_id AS integer)) ON CONFLICT DO NOTHING"), {'report_id': REPORT_ID, 'theme_id': str(t_row[0])})
+
+			#添付ファイルをUPLOAD_DIR（uploads/report/）配下へ実保存し、trn_report_attachmentへ登録する
+			ATTACHMENTS = getattr(formnewsaveapi_dto, "attachments", None) or []
+			if REPORT_ID and ATTACHMENTS :
+				saved_file_paths = []
+				for attachment_file in ATTACHMENTS :
+					rel_path = utils.file_util.save_upload_file(attachment_file, "report")
+					if rel_path :
+						saved_file_paths.append(rel_path)
+				if saved_file_paths :
+					with session_scope() as sess :
+						for saved_file_path in saved_file_paths :
+							sess.execute(text("INSERT INTO trn_report_attachment (report_id, file_path) VALUES (CAST(:report_id AS integer), :file_path)"), {'report_id': REPORT_ID, 'file_path': saved_file_path})
 
 			#登録結果をフロントエンドへ返却する
 			jsonObj.setValue("dragReportId", REPORT_ID)

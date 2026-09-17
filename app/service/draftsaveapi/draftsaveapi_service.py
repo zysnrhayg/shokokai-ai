@@ -12,6 +12,7 @@ from utils.jsonwfc_object import JSONWFCObject
 from utils.mysqldb_utils import session_scope
 from app.dto.draftsaveapi.draftsaveapi_dto import DraftsaveapiDto
 import utils.string_util
+import utils.file_util
 from datetime import datetime, timezone, timedelta
 import utils.date_util
 
@@ -152,6 +153,19 @@ FROM mst_theme t
 WHERE t.theme_code = :theme_code AND t.deleted_at IS NULL
   AND NOT EXISTS (SELECT 1 FROM trn_report_theme x WHERE x.report_id = CAST(:report_id AS integer) AND x.theme_id = t.theme_id)"""),
 						{'report_id': report_id, 'theme_code': theme_code})
+
+			#添付ファイルをUPLOAD_DIR（uploads/report/）配下へ実保存し、trn_report_attachmentへ登録する。
+			attachments = getattr(draftsaveapi_dto, "attachments", None) or []
+			if report_id and attachments :
+				saved_file_paths = []
+				for attachment_file in attachments :
+					rel_path = utils.file_util.save_upload_file(attachment_file, "report")
+					if rel_path :
+						saved_file_paths.append(rel_path)
+				if saved_file_paths :
+					with session_scope() as sess :
+						for saved_file_path in saved_file_paths :
+							sess.execute(text("INSERT INTO trn_report_attachment (report_id, file_path) VALUES (CAST(:report_id AS integer), :file_path)"), {'report_id': report_id, 'file_path': saved_file_path})
 
 			#採番したreport_idをフロントエンドへ返却する。
 			jsonObj.setHtml("dragReportId", report_id)

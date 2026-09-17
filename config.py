@@ -102,6 +102,17 @@ DB_NAME = _get("DB_NAME")
 SQL_ECHO = _get("SQL_ECHO", "false")
 SQL_LOG_MAX_LEN = int(_get("SQL_LOG_MAX_LEN", "800") or "800")
 
+# アップロードファイルの保存先（プロジェクトルート配下の相対パス、または絶対パス）。
+# 報告書添付ファイル・ナレッジ文書等の実ファイルはこの配下へ保存する。
+UPLOAD_DIR = _get("UPLOAD_DIR", "uploads")
+
+
+def get_upload_dir():
+    """アップロードルートディレクトリの絶対パスを返す。"""
+    if os.path.isabs(UPLOAD_DIR):
+        return UPLOAD_DIR
+    return os.path.abspath(os.path.join(_root, UPLOAD_DIR))
+
 
 def _coerce_bool(value) -> bool:
     if isinstance(value, bool):

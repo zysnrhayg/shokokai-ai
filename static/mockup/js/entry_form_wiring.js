@@ -28,6 +28,30 @@
     return Promise.reject(new Error('ApiClient not found'));
   }
 
+  // 添付ファイル付きでmultipart送信する（formnewsaveapi.do／draftsaveapi.do用）
+  function callApiMultipart(url, formData) {
+    if (window.ApiClient && typeof window.ApiClient.postMultipart === 'function') {
+      return window.ApiClient.postMultipart(url, formData).then(function (res) {
+        return (res && res.data) || {};
+      });
+    }
+    return Promise.reject(new Error('ApiClient not found'));
+  }
+
+  // ファイル選択欄（mi-attachments）から選択中のファイル一覧を取得する
+  function getSelectedAttachments() {
+    var el = document.getElementById('mi-attachments');
+    return el ? Array.from(el.files || []) : [];
+  }
+
+  // 保存成功後にファイル選択欄をクリアする（再保存時の二重登録防止）
+  function clearSelectedAttachments() {
+    var el = document.getElementById('mi-attachments');
+    var listEl = document.getElementById('mi-attachments-list');
+    if (el) el.value = '';
+    if (listEl) listEl.textContent = '';
+  }
+
   function val(id) {
     var el = document.getElementById(id);
     return el ? el.value : '';
@@ -439,9 +463,21 @@
           reportid: state.lastDraftReportId,
         },
       };
-      callApi('./draftsaveapi.do', body).then((data) => {
+      // ファイル選択がある場合はmultipartで添付ファイルを一緒に送信する
+      const attachFiles = getSelectedAttachments();
+      let saveRequest;
+      if (attachFiles.length) {
+        const fd = new FormData();
+        fd.append('houkokushokoumokuisshiki', JSON.stringify(body.houkokushokoumokuisshiki));
+        attachFiles.forEach((f) => fd.append('attachments', f));
+        saveRequest = callApiMultipart('./draftsaveapi.do', fd);
+      } else {
+        saveRequest = callApi('./draftsaveapi.do', body);
+      }
+      saveRequest.then((data) => {
         if (data.e) { Toast.error(data.e); return; }
         if (data.dragReportId) state.lastDraftReportId = data.dragReportId;
+        clearSelectedAttachments();
         Toast.success(data.i || '下書きとして保存しました');
       }).catch(() => Toast.error('通信エラーが発生しました'));
     }
@@ -503,10 +539,22 @@
               status: '登録済み',
             };
             var submitSuccess = false;
-            callApi('./formnewsaveapi.do', payload).then((data) => {
+            // ファイル選択がある場合はmultipartで添付ファイルを一緒に送信する
+            const submitAttachFiles = getSelectedAttachments();
+            let saveRequest;
+            if (submitAttachFiles.length) {
+              const fd = new FormData();
+              Object.keys(payload).forEach((k) => fd.append(k, payload[k] == null ? '' : payload[k]));
+              submitAttachFiles.forEach((f) => fd.append('attachments', f));
+              saveRequest = callApiMultipart('./formnewsaveapi.do', fd);
+            } else {
+              saveRequest = callApi('./formnewsaveapi.do', payload);
+            }
+            saveRequest.then((data) => {
               if (data.e) { Toast.error(data.e); return; }
               submitSuccess = true;
               state.lastDraftReportId = data.dragReportId || '';
+              clearSelectedAttachments();
               Toast.success(data.i || '報告書を登録しました');
             }).catch(() => Toast.error('通信エラーが発生しました')).finally(() => {
               // 失敗時のみsubmitボタンを再び有効化する（成功時は二重登録防止のため無効維持）

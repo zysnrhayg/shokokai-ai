@@ -1156,6 +1156,39 @@ CREATE TABLE public.trn_report_theme (
 
 
 --
+-- Name: trn_report_attachment; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.trn_report_attachment (
+    report_attachment_id integer NOT NULL,
+    report_id integer NOT NULL,
+    file_path text NOT NULL,
+    CONSTRAINT trn_report_attachment_report_id_fkey FOREIGN KEY (report_id)
+        REFERENCES public.trn_report (report_id) ON DELETE CASCADE
+);
+
+
+--
+-- Name: trn_report_attachment_report_attachment_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.trn_report_attachment_report_attachment_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: trn_report_attachment_report_attachment_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.trn_report_attachment_report_attachment_id_seq OWNED BY public.trn_report_attachment.report_attachment_id;
+
+
+--
 -- Name: trn_trusted_device; Type: TABLE; Schema: public; Owner: -
 --
 

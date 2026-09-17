@@ -15,7 +15,7 @@
 
   function setFile(file) {
     selectedFile = file || null;
-    filenameEl.textContent = selectedFile ? selectedFile.name : '未選択（様式はファイル名から自動判定します）';
+    filenameEl.textContent = selectedFile ? selectedFile.name : '未選択';
   }
 
   fileInput.addEventListener('change', (e) => setFile(e.target.files[0]));
@@ -31,37 +31,38 @@
     setFile(e.dataTransfer.files[0]);
   });
 
-  function detectFormCode(fileName) {
-    const name = fileName.toLowerCase();
-    if (name.includes('g-4') || name.includes('g4')) return 'G-4';
-    if (name.includes('g-5') || name.includes('g5')) return 'G-5';
-    return null;
-  }
-
-  function todayStr() {
-    return formatDate(new Date());
-  }
-
   submitBtn.addEventListener('click', () => {
     if (!selectedFile) {
       Toast.error('Excelファイルを選択してください');
       return;
     }
 
-    const formCode = detectFormCode(selectedFile.name);
-    const themeCode = formCode === 'G-5' ? 'invoice' : 'labor';
-    const summary = `（${selectedFile.name} を取り込みました。内容をご確認のうえ入力してください）`;
+    // 帳票select（mi-form）の選択値から様式コードを取得する
+    const formSelect = document.getElementById('mi-form');
+    const formCode = formSelect ? formSelect.value : '';
+    if (formCode !== 'G-4' && formCode !== 'G-5') {
+      Toast.error('帳票で G-4 または G-5 を選択してください');
+      return;
+    }
 
-    const params = new URLSearchParams({
-      date: todayStr(),
-      time_start: '10:00',
-      time_end: '11:00',
-      theme: themeCode,
-      summary,
-    });
-    if (formCode) params.set('form', formCode);
-    else Toast.error('ファイル名から様式を自動判定できませんでした。帳票を選択してください');
+    if (!window.ApiClient || typeof window.ApiClient.post !== 'function') {
+      Toast.error('APIクライアントが利用できません');
+      return;
+    }
 
-    window.location.href = '/manual-input?' + params.toString();
+    // ExpertImportAPI を呼び出す
+    window.ApiClient.post('./expertimportapi.do', {
+      filename: selectedFile.name,
+      formcode: formCode,
+    }).then((res) => {
+      const data = (res && res.data) || {};
+      if (data.e) { Toast.error(data.e); return; }
+      close();
+      // 同一画面上でフォーム項目へ反映する
+      if (typeof window.applyExpertImport === 'function') {
+        window.applyExpertImport(data);
+      }
+      Toast.success(selectedFile.name + ' を取り込みました');
+    }).catch(() => Toast.error('専門家報告の取り込みに失敗しました'));
   });
 })();
