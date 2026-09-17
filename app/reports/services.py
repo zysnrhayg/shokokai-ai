@@ -46,8 +46,8 @@ def resolve_role_scope(rolecode=None):
 
 def get_visible_reports(rolecode=None, limit=None, offset=None):
     """
-    ① 一覧テーブル取得（顧客設計 SQL）。
-    絞込・並び替えはクライアント側 JS で実施。
+    ① 一覧テーブル取得（顧客設計 SQL・ロール範囲のみ）。
+    画面条件での絞込は reports_api.fetch_reports（サーバ側）で実施。
     """
     scope = resolve_role_scope(rolecode)
     params = {

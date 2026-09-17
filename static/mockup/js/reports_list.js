@@ -23,7 +23,6 @@
   var loading = false;
   var pendingSearch = null;
   var keywordTimer = null;
-  var allRows = [];
   var lastRows = [];
 
   function esc(s) {
@@ -272,94 +271,55 @@
     return true;
   }
 
-  function yearMonthOf(row) {
-    var d = String(row.report_date || '');
-    return d.length >= 7 ? d.slice(0, 7) : '';
-  }
-
-  function fyRangeForCode(code) {
-    for (var i = 0; i < FISCAL_YEARS.length; i++) {
-      var fy = FISCAL_YEARS[i];
-      if (fy.fiscal_year_code === code) {
-        return { start: fy.start_month || '', end: fy.end_month || '' };
-      }
-    }
-    return null;
-  }
-
-  // 顧客設計: 絞込・並び替えは get_visible_reports 結果に対してクライアント側で実施
-  function filterRowsLocally() {
-    var role = currentUiRole();
-    var pref = elPref && elPref.value ? elPref.value : '';
-    var sho = elShokokai && elShokokai.value ? elShokokai.value : '';
-    if (pref === '00') pref = '';
-    var yearVal = elYearMonth ? elYearMonth.value : '';
-    var formVal = elForm ? elForm.value : '';
-    if (formVal === '全様式') formVal = '';
-    var themeVal = elTheme ? elTheme.value : '';
-    var keyword = elKeyword ? elKeyword.value.trim().toLowerCase() : '';
-    var draftOnly = elIncludeDraft && elIncludeDraft.checked;
-    var unprintedOnly = elUnprintedOnly && elUnprintedOnly.checked;
-    var fyStart = '';
-    var fyEnd = '';
-    var exactYm = '';
-    if (yearVal && yearVal.indexOf('FY:') === 0) {
-      var range = fyRangeForCode(yearVal.slice(3));
-      if (range) { fyStart = range.start; fyEnd = range.end; }
-    } else if (yearVal) {
-      exactYm = yearVal;
-    }
-    return (allRows || []).filter(function (r) {
-      if (role === 'national') {
-        if (pref && r.prefecture_code !== pref) return false;
-        if (sho && r.shokokai_cd !== sho) return false;
-      } else if (role === 'pref') {
-        if (sho && r.shokokai_cd !== sho) return false;
-      }
-      var ym = yearMonthOf(r);
-      if (exactYm && ym !== exactYm) return false;
-      if (!exactYm && fyStart && fyEnd && ym && (ym < fyStart || ym > fyEnd)) return false;
-      var fc = r.form_code || '';
-      if (formVal === '様式F' && fc !== 'F') return false;
-      if (formVal === '全様式G' && (!fc || fc === 'F' || fc.indexOf('H') === 0 || fc.indexOf('I') === 0)) return false;
-      if (formVal && formVal !== '様式F' && formVal !== '全様式G' && fc !== formVal) return false;
-      if (themeVal && r.theme_label !== themeVal && r.theme_code !== themeVal) return false;
-      if (keyword) {
-        var blob = [
-          r.summary, r.content, r.staff_main_name, r.staff_sub_name, r.staff_label, r.report_code
-        ].join(' ').toLowerCase();
-        if (blob.indexOf(keyword) < 0) return false;
-      }
-      if (draftOnly && r.status !== '下書き') return false;
-      if (unprintedOnly && r.printed) return false;
-      return true;
-    });
-  }
-
   function loadSearch(withToast) {
-    var rows = filterRowsLocally();
-    renderRows(rows);
-    if (withToast) toastOk('絞り込みを更新しました（全' + rows.length + '件）');
+    if (loading) {
+      pendingSearch = { withToast: !!withToast };
+      return;
+    }
+    loading = true;
+    tbody.innerHTML = '<tr><td colspan="6" class="text-muted">読み込み中...</td></tr>';
+    postReportsApi('./reportssearchapi.do', buildFilterPayload())
+      .then(function (result) {
+        if (!handleResult(result, '報告書一覧の検索に失敗しました')) {
+          flushPendingSearch();
+          return;
+        }
+        renderRows(parseDragB(result.data));
+        if (withToast) toastOk('絞り込みを更新しました（全' + lastRows.length + '件）');
+        flushPendingSearch();
+      })
+      .catch(function () {
+        loading = false;
+        toastError('報告書一覧の検索に失敗しました');
+        renderRows([]);
+        flushPendingSearch();
+      });
   }
 
   function flushPendingSearch() {
     if (!pendingSearch) return;
     var next = pendingSearch;
     pendingSearch = null;
-    loadSearch(next.withToast);
+    if (next.init) loadInit();
+    else loadSearch(next.withToast);
   }
 
   function loadInit() {
-    if (loading) return;
+    if (loading) {
+      pendingSearch = { withToast: false, init: true };
+      return;
+    }
     loading = true;
     tbody.innerHTML = '<tr><td colspan="6" class="text-muted">読み込み中...</td></tr>';
+    // Init はオプション＋デフォルト年度の一覧（サーバ側絞込）
     var payload = buildFilterPayload();
-    payload.yearmonth = '';
     payload.form = '';
     payload.theme = '';
     payload.keyword = '';
     payload.includedraft = '';
     payload.unprintedonly = '';
+    // yearmonth 未設定時はサーバが defaultyearmonth を適用
+    if (!payload.yearmonth) payload.yearmonth = '';
     postReportsApi('./reportsinitapi.do', payload)
       .then(function (result) {
         if (!handleResult(result, '報告書一覧の初期表示に失敗しました')) {
@@ -367,14 +327,12 @@
           return;
         }
         applyInitOptions(result.data);
-        allRows = parseDragB(result.data);
-        loadSearch(false);
+        renderRows(parseDragB(result.data));
         flushPendingSearch();
       })
       .catch(function () {
         loading = false;
         toastError('報告書一覧の初期表示に失敗しました');
-        allRows = [];
         renderRows([]);
         flushPendingSearch();
       });
@@ -457,16 +415,7 @@
           return;
         }
         downloadCsvFromRows(parseDragB(data), data.csvcolumns);
-        // CSV出力後は printed_at 更新済み → ローカル一覧も印刷済みにして再絞込
-        var exported = parseDragB(data) || [];
-        var idSet = {};
-        exported.forEach(function (r) { if (r.report_id != null) idSet[String(r.report_id)] = true; });
-        allRows.forEach(function (r) {
-          if (idSet[String(r.report_id)]) {
-            r.printed = true;
-            r.printed_at = r.printed_at || (new Date()).toISOString().slice(0, 10);
-          }
-        });
+        // CSV出力後は printed_at 更新済み → サーバ再検索で一覧を同期
         loadSearch(false);
       })
       .catch(function () {

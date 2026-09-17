@@ -17,7 +17,7 @@ class api154_getpublishedentriesMapper:
 FROM trn_knowledge_entry
 WHERE status = '公開中'
   AND deleted_at IS NULL
-<ifkeyword> AND (title ILIKE '%' || :keyword || '%' OR content ILIKE '%' || :keyword || '%') </ifkeyword>
+<ifkeyword> AND (title ILIKE '%' || :keyword || '%' ESCAPE '!' OR content ILIKE '%' || :keyword || '%' ESCAPE '!' OR knowledge_code ILIKE '%' || :keyword || '%' ESCAPE '!' OR EXISTS ( SELECT 1 FROM trn_knowledge_entry_theme et JOIN mst_theme t ON t.theme_id = et.theme_id WHERE et.knowledge_entry_id = trn_knowledge_entry.knowledge_entry_id AND t.label ILIKE '%' || :keyword || '%' ESCAPE '!' )) </ifkeyword>
 <ifprefecture_code> AND (prefecture_code IS NULL OR prefecture_code = :prefecture_code) </ifprefecture_code>
 ORDER BY knowledge_entry_id DESC
 LIMIT 50""",

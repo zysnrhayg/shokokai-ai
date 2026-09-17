@@ -302,65 +302,118 @@ def report_row_to_selmap(rec):
 
 
 def list_visible_reports(dto):
-    """顧客設計 get_visible_reports（ロール範囲のみ。絞込はFE）。"""
+    """顧客設計 get_visible_reports（ロール範囲のみ）。"""
     from app.reports.services import get_visible_reports
     role = _g(dto, "rolecode", "role_code")
     return [report_row_to_selmap(rec) for rec in get_visible_reports(role)]
 
 
 def fetch_reports(dto, years=None):
-    """一覧ベースは顧客 get_visible_reports。画面条件は追加WHERE相当で絞る。"""
-    from app.reports.services import get_visible_reports
+    """
+    一覧取得（サーバ側絞込）。
+    ベースは顧客 get_visible_reports と同じ JOIN/ロールWHERE。
+    画面条件（年月・様式・テーマ・キーワード・下書き・未印刷・県/商工会）は SQL で追加。
+    """
+    from app.reports.services import resolve_role_scope
+
     role = _g(dto, "rolecode", "role_code")
-    rows = [report_row_to_selmap(rec) for rec in get_visible_reports(role)]
+    role_scope = resolve_role_scope(role)
+    ui_scope = resolve_scope(dto)
+    # ロール範囲を優先。全国連のみ UI の県・商工会でさらに絞る
+    pref = role_scope["prefecture_code"] or ui_scope["prefecture_code"]
+    sho = role_scope["shokokai_cd"] or ui_scope["shokokai_cd"]
+
     year_month, fy_start, fy_end = _resolve_year_month(dto, years)
     form = _normalize_form(_g(dto, "form", "formcode", "form_code"))
     theme = _g(dto, "theme")
     keyword = _g(dto, "keyword")
     include_draft = _flag(_g(dto, "includedraft", "include_draft"))
     unprinted_only = _flag(_g(dto, "unprintedonly", "unprinted_only"))
-    # 全国連UIの県・商工会フィルタ（ロールWHERE以外の画面条件）
-    scope = resolve_scope(dto)
-    pref = scope["prefecture_code"]
-    sho = scope["shokokai_cd"]
-    out = []
-    for r in rows:
-        rd = _blank(r.get("report_date"))
-        ym = rd[:7] if len(rd) >= 7 else ""
-        if year_month and ym != year_month:
-            continue
-        if (not year_month) and fy_start and fy_end and ym:
-            if ym < fy_start or ym > fy_end:
-                continue
-        if pref and r.get("prefecture_code") != pref:
-            continue
-        if sho and r.get("shokokai_cd") != sho:
-            continue
-        fc = _blank(r.get("form_code"))
-        if form == "様式F" and fc != "F":
-            continue
-        if form == "全様式G" and (not fc or fc == "F" or fc.startswith("H") or fc.startswith("I")):
-            continue
-        if form and form not in ("様式F", "全様式G") and fc != form:
-            continue
-        if theme and theme not in (_blank(r.get("theme_label")), _blank(r.get("theme_code"))):
-            continue
-        if keyword:
-            blob = " ".join([
-                _blank(r.get("summary")),
-                _blank(r.get("content")),
-                _blank(r.get("staff_main_name")),
-                _blank(r.get("staff_sub_name")),
-                _blank(r.get("report_code")),
-            ]).lower()
-            if keyword.lower() not in blob:
-                continue
-        if include_draft and _blank(r.get("status")) != "下書き":
-            continue
-        if unprinted_only and r.get("printed"):
-            continue
-        out.append(r)
-    return out
+
+    params = {
+        "prefecture_code": pref or None,
+        "shokokai_cd": sho or None,
+        "year_month": year_month or None,
+        "fy_start": fy_start or None,
+        "fy_end": fy_end or None,
+        "form": form or None,
+        "theme": theme or None,
+        "keyword": keyword or None,
+    }
+    sql = """
+SELECT trn_report.report_id
+     , trn_report.report_code
+     , mst_industry.label AS industry
+     , trn_report.report_date
+     , trn_report.summary
+     , trn_report.staff_main_name
+     , trn_report.staff_sub_name
+     , trn_report.registered_at
+     , trn_report.status
+     , trn_report.printed_at
+     , trn_report.prefecture_code
+     , trn_report.shokokai_cd
+     , mst_prefecture.name AS prefecture_name
+     , mst_shokokai.name AS shokokai_name
+     , mst_theme.theme_code
+     , mst_theme.label AS theme_label
+     , mst_theme.badge_class AS theme_badge_class
+     , trn_report.form_code
+     , mst_form.short_label AS form_short_label
+     , mst_form.badge_class AS form_badge_class
+FROM trn_report
+JOIN mst_prefecture
+  ON mst_prefecture.prefecture_code = trn_report.prefecture_code
+JOIN mst_shokokai
+  ON mst_shokokai.prefecture_code = trn_report.prefecture_code
+ AND mst_shokokai.shokokai_cd = trn_report.shokokai_cd
+LEFT JOIN mst_theme
+  ON mst_theme.theme_id = trn_report.theme_id
+LEFT JOIN mst_form
+  ON mst_form.form_code = trn_report.form_code
+ AND mst_form.fiscal_year_id = trn_report.fiscal_year_id
+LEFT JOIN mst_industry
+  ON mst_industry.industry_code = trn_report.industry_code
+ AND mst_industry.fiscal_year_id = trn_report.fiscal_year_id
+WHERE COALESCE(trn_report.status, '') <> '削除'
+  AND trn_report.deleted_at IS NULL
+"""
+    if pref:
+        sql += "  AND trn_report.prefecture_code = :prefecture_code\n"
+    if sho:
+        sql += "  AND trn_report.shokokai_cd = :shokokai_cd\n"
+    if year_month:
+        sql += "  AND to_char(trn_report.report_date, 'YYYY-MM') = :year_month\n"
+    elif fy_start and fy_end:
+        sql += "  AND to_char(trn_report.report_date, 'YYYY-MM') BETWEEN :fy_start AND :fy_end\n"
+    if form == "様式F":
+        sql += "  AND trn_report.form_code = 'F'\n"
+    elif form == "全様式G":
+        sql += (
+            "  AND trn_report.form_code IS NOT NULL"
+            "  AND trn_report.form_code <> 'F'"
+            "  AND trn_report.form_code NOT LIKE 'H%'"
+            "  AND trn_report.form_code NOT LIKE 'I%'\n"
+        )
+    elif form:
+        sql += "  AND trn_report.form_code = :form\n"
+    if theme:
+        sql += "  AND (mst_theme.label = :theme OR mst_theme.theme_code = :theme)\n"
+    if keyword:
+        sql += """  AND (
+       COALESCE(trn_report.summary, '') ILIKE '%' || :keyword || '%'
+    OR COALESCE(trn_report.content, '') ILIKE '%' || :keyword || '%'
+    OR COALESCE(trn_report.staff_main_name, '') ILIKE '%' || :keyword || '%'
+    OR COALESCE(trn_report.staff_sub_name, '') ILIKE '%' || :keyword || '%'
+    OR COALESCE(trn_report.report_code, '') ILIKE '%' || :keyword || '%'
+  )
+"""
+    if include_draft:
+        sql += "  AND trn_report.status = '下書き'\n"
+    if unprinted_only:
+        sql += "  AND trn_report.printed_at IS NULL\n"
+    sql += "ORDER BY trn_report.report_date DESC, trn_report.registered_at DESC"
+    return [report_row_to_selmap(rec) for rec in _q(sql, params)]
 
 
 

@@ -18,6 +18,7 @@
   let loading = false;
   let initDone = false;
   let initReqSeq = 0;
+  let listReqSeq = 0;
 
   const detailByKey = new Map();
   const totalByMonth = new Map();
@@ -106,75 +107,15 @@
       detail_rows: data.detail_rows || [],
       total_rows: data.total_rows || [],
       export_forms: data.export_forms || [],
-      export_forms_by_year: data.export_forms_by_year || {},
-      report_form_months: data.report_form_months || [],
     };
     if (!opts.keepSelection) {
       selectedYear = DATA.current_fiscal_year_code;
       selectedMonth = null;
-    } else if (data.current_fiscal_year_code && !selectedYear) {
+    } else if (data.current_fiscal_year_code) {
       selectedYear = data.current_fiscal_year_code;
     }
     rebuildMaps();
     return true;
-  }
-
-  function currentFyObj() {
-    var years = DATA.fiscal_years || [];
-    return years.find(function (f) { return f.fiscal_year_code === selectedYear; }) || years[0] || null;
-  }
-
-  function fyMonthList(fy) {
-    if (!fy) return [];
-    return monthRange(fy.start_month, fy.end_month);
-  }
-
-  function hasKpiInMonth(ym) {
-    if (!ym) return false;
-    return (DATA.detail_rows || []).some(function (r) {
-      return r.year_month === ym && (Number(r.support_count) || 0) > 0;
-    });
-  }
-
-  function hasKpiInYear(fy) {
-    var months = fyMonthList(fy);
-    if (!months.length) {
-      return (DATA.detail_rows || []).some(function (r) {
-        return (Number(r.support_count) || 0) > 0;
-      });
-    }
-    var set = {};
-    months.forEach(function (m) { set[m] = true; });
-    return (DATA.detail_rows || []).some(function (r) {
-      return set[r.year_month] && (Number(r.support_count) || 0) > 0;
-    });
-  }
-
-  function hasReportForm(formCode, ym) {
-    return (DATA.report_form_months || []).some(function (r) {
-      if (r.form_code !== formCode) return false;
-      if (!ym) return true;
-      return r.year_month === ym;
-    });
-  }
-
-  function formsForCurrentSelection() {
-    var byYear = DATA.export_forms_by_year || {};
-    var formsSrc = byYear[selectedYear] || DATA.export_forms || [];
-    var wantGroup = periodType === 'annual' ? 'annual' : 'monthly';
-    var fy = currentFyObj();
-    var kpiOk = periodType === 'annual'
-      ? hasKpiInYear(fy)
-      : hasKpiInMonth(selectedMonth);
-    if (!kpiOk) return [];
-    return formsSrc.filter(function (f) {
-      if ((f.period_group || 'monthly') !== wantGroup) return false;
-      var code = f.form_code || '';
-      if (code === 'F' || code.indexOf('G-') === 0) {
-        return hasReportForm(code, periodType === 'monthly' ? selectedMonth : '');
-      }
-      return true;
-    });
   }
 
   function reiwaLabel(yearMonth) {
@@ -231,11 +172,10 @@
       periodType = nextType;
       var headerEl = root.querySelector('#monthly-filter-header');
       if (headerEl) headerEl.classList.toggle('is-annual', periodType === 'annual');
-      // 顧客設計: 一覧は全期間埋め込みのため API 再取得しない
-      // 実施年月の既定選択後に帳票ボタンを描画する
       renderYearMonthField();
       renderExportGroup();
-      renderTable();
+      // 月次↔年次：サーバでテーマ／帳票ボタンを再絞込
+      refreshListFromDb();
     }));
     renderYearMonthField();
     renderExportGroup();
@@ -281,10 +221,7 @@
   }
 
   function exportFormMeta(formCode) {
-    var forms = formsForCurrentSelection();
-    return forms.find(function (f) {
-      return f.form_code === formCode;
-    }) || ((DATA.export_forms_by_year || {})[selectedYear] || []).find(function (f) {
+    return (DATA.export_forms || []).find(function (f) {
       return f.form_code === formCode;
     });
   }
@@ -332,22 +269,97 @@
       });
   }
 
-  function switchFiscalYear(yearCode) {
-    // 顧客設計: 選択年度の切替はクライアント側 JS（API 再取得しない）
-    if (!yearCode) return;
-    selectedYear = yearCode;
-    if (periodType === 'monthly') {
-      selectedMonth = null;
+  function refreshListFromDb() {
+    var extra = {
+      fiscalyearcode: selectedYear || DATA.current_fiscal_year_code || '',
+    };
+    // 月次のみ yearmonth を送り、実施月 support_count=0 のテーマをサーバ側で除外
+    if (periodType === 'monthly' && selectedMonth) {
+      extra.yearmonth = selectedMonth;
     }
-    renderYearMonthField();
-    renderExportGroup();
-    renderTable();
+    var seq = ++listReqSeq;
+    postMonthlyApi('./monthlyinitapi.do', buildPayload(extra))
+      .then(function (result) {
+        if (seq !== listReqSeq) return;
+        var data = (result && result.data) || {};
+        if (data.e) {
+          toastError(String(data.e).trim());
+          renderTable();
+          return;
+        }
+        if (!result.ok || !applyInitData(data, { keepSelection: true })) {
+          renderTable();
+          return;
+        }
+        renderExportGroup();
+        renderTable();
+      })
+      .catch(function () {
+        if (seq !== listReqSeq) return;
+        toastError('一覧の更新に失敗しました');
+        renderTable();
+      });
+  }
+
+  function switchFiscalYear(yearCode) {
+    if (!yearCode || yearCode === selectedYear) {
+      selectedYear = yearCode;
+      renderTable();
+      return;
+    }
+    var prevYear = selectedYear;
+    var extra = { fiscalyearcode: yearCode };
+    if (periodType === 'monthly' && selectedMonth) {
+      extra.yearmonth = selectedMonth;
+    }
+    var seq = ++listReqSeq;
+    postMonthlyApi('./monthlyfiscalyearapi.do', buildPayload(extra))
+      .then(function (result) {
+        if (seq !== listReqSeq) return;
+        var data = (result && result.data) || {};
+        if (data.e) {
+          toastError(String(data.e).trim());
+          selectedYear = prevYear;
+          renderYearMonthField();
+          renderTable();
+          return;
+        }
+        if (!result.ok || !applyInitData(data, { keepSelection: true })) {
+          selectedYear = prevYear;
+          renderYearMonthField();
+          renderTable();
+          return;
+        }
+        selectedYear = DATA.current_fiscal_year_code || yearCode;
+        render();
+        // 年次：対象年度切替後も DB 一覧を再取得（年度合計0のテーマ除外）
+        // 月次：実施年月条件で再取得
+        refreshListFromDb();
+      })
+      .catch(function () {
+        if (seq !== listReqSeq) return;
+        toastError('年度切替に失敗しました');
+        selectedYear = prevYear;
+        renderYearMonthField();
+        renderTable();
+      });
   }
 
   function renderExportGroup() {
     const groupsEl = root.querySelector('#monthly-export-groups');
     if (!groupsEl) return;
-    const forms = formsForCurrentSelection();
+    // 帳票ボタン本体の絞り込みはサーバ（filter_export_forms_by_data）済み
+    const formsSrc = DATA.export_forms || [];
+    if (!formsSrc.length) {
+      groupsEl.innerHTML = '<span class="text-muted text-sm">出力できる帳票がありません</span>';
+      return;
+    }
+    const checked = root.querySelector('input[name="f-period-type"]:checked');
+    const isAnnual = checked && checked.value === 'annual';
+    const wantGroup = isAnnual ? 'annual' : 'monthly';
+    const forms = formsSrc.filter(function (f) {
+      return (f.period_group || 'monthly') === wantGroup;
+    });
     groupsEl.innerHTML = forms.length
       ? forms.map(f => `<button type="button" class="btn btn-outline btn-sm" data-export-form="${esc(f.form_code)}" data-export-label="${esc(f.full_label)}">${esc(f.short_label)}</button>`).join('')
       : `<span class="text-muted text-sm">出力できる帳票がありません</span>`;
@@ -397,8 +409,7 @@
       if (monthEl) {
         monthEl.addEventListener('change', (e) => {
           selectedMonth = e.target.value;
-          // 顧客設計: 一覧データは埋め込み済み。実施年月は帳票ボタン判定のみ更新
-          renderExportGroup();
+          refreshListFromDb();
         });
       }
     }
@@ -532,6 +543,7 @@
   function loadInit() {
     // 役割切替・再入室で連続呼出されても、最新リクエストのみ反映する
     var seq = ++initReqSeq;
+    listReqSeq += 1; // 進行中の一覧再取得を無効化
     loading = true;
     render();
     postMonthlyApi('./monthlyinitapi.do', buildPayload())
@@ -550,8 +562,11 @@
           render();
           return;
         }
-        // 顧客設計: 全期間埋め込み。以降の年度／年月切替はクライアント側のみ
         render();
+        // 月次初期：実施年月確定後に DB で0件テーマ／帳票ボタンを絞込
+        if (periodType === 'monthly' && selectedMonth) {
+          refreshListFromDb();
+        }
       })
       .catch(function () {
         if (seq !== initReqSeq) return;

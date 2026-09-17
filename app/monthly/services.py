@@ -446,8 +446,11 @@ def themes_nonzero_for_year(themes, detail, months):
 
 def build_init_payload(session, dto, fiscal_year_code="", year_month="", filter_themes=True):
     """
-    顧客設計: 全期間分を埋め込み、選択年度の切替はクライアント側 JS。
-    filter_themes は互換のため残すが、一覧では常に全テーマを返す（0件除外しない）。
+    一覧・帳票ボタンの絞り込みはサーバ側で実施。
+    - 月次（yearmonth あり）: 当該月 support_count=0 のテーマ除外
+    - 年次（yearmonth なし）: 当該年度合計0のテーマ除外
+    - export_forms: periodtype／KPI／F・G 報告書有無で絞込
+    CSV は filter_themes=False で全テーマ。
     """
     role, pref, sho = resolve_org(session, dto)
     fy_list = _fy_list()
@@ -461,16 +464,38 @@ def build_init_payload(session, dto, fiscal_year_code="", year_month="", filter_
     detail = get_monthly_report_detail(pref, sho)
     themes = get_themes_by_fiscal_year(fy_list)
     ym = _ym(year_month) or _ym(_g(dto, "yearmonth", "year_month"))
-    forms_by_year = export_forms_by_years(fy_list)
+    fy_months = []
+    if current_fy:
+        fy_months = list(
+            iter_months(current_fy.get("start_month") or "", current_fy.get("end_month") or "")
+        )
+    if filter_themes and current_code:
+        themes = dict(themes)
+        if ym:
+            themes[current_code] = themes_nonzero_for_month(
+                themes.get(current_code) or [], detail, ym
+            )
+        else:
+            themes[current_code] = themes_nonzero_for_year(
+                themes.get(current_code) or [], detail, fy_months
+            )
+    forms = filter_export_forms_by_data(
+        export_forms(fy_id),
+        pref,
+        sho,
+        fy_id,
+        detail,
+        year_month=ym,
+        fy_months=fy_months,
+        period_type=_g(dto, "periodtype", "period_type"),
+    )
     return {
         "current_fiscal_year_code": current_code,
         "fiscal_years": fy_list,
         "themes_by_year": themes,
         "detail_rows": detail,
         "total_rows": get_monthly_report_total(pref, sho),
-        "export_forms": forms_by_year.get(current_code) or export_forms(fy_id),
-        "export_forms_by_year": forms_by_year,
-        "report_form_months": report_form_months(pref, sho),
+        "export_forms": forms,
         "prefecturecode": pref,
         "shokokaicd": sho,
         "rolecode": role,
@@ -479,11 +504,36 @@ def build_init_payload(session, dto, fiscal_year_code="", year_month="", filter_
 
 
 def build_fiscal_year_payload(session, dto):
-    """互換: 一覧はクライアント切替のため Init と同内容を返す。"""
+    """対象年度切替。yearmonth があれば月次絞り込みも適用。"""
     code = _g(dto, "fiscalyearcode", "fiscal_year_code")
     if not code:
         raise ValueError("fiscal_year_code is required")
-    return build_init_payload(session, dto, fiscal_year_code=code)
+    payload = build_init_payload(
+        session,
+        dto,
+        fiscal_year_code=code,
+        year_month=_g(dto, "yearmonth", "year_month"),
+    )
+    if payload["current_fiscal_year_code"] != code:
+        payload["current_fiscal_year_code"] = code
+        fy = _find_fy(_fy_list(), code=code)
+        fy_id = (fy or {}).get("fiscal_year_id")
+        fy_months = []
+        if fy:
+            fy_months = list(
+                iter_months(fy.get("start_month") or "", fy.get("end_month") or "")
+            )
+        payload["export_forms"] = filter_export_forms_by_data(
+            export_forms(fy_id) if fy_id not in (None, "") else [],
+            payload.get("prefecturecode") or "",
+            payload.get("shokokaicd") or "",
+            fy_id,
+            payload.get("detail_rows") or [],
+            year_month=payload.get("yearmonth") or "",
+            fy_months=fy_months,
+            period_type=_g(dto, "periodtype", "period_type"),
+        )
+    return payload
 
 
 def export_dir():

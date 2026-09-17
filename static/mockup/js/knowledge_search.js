@@ -3,12 +3,10 @@
   if (!root) return;
 
   const MAX_RESULTS = 4;
-  let allEntries = [];
   let searchResults = null;
   let lastKeyword = '';
   let loading = false;
-  let loadSeq = 0;
-  let pendingSearch = false;
+  let searchSeq = 0;
 
   function parseThemeBadges(raw) {
     if (!raw) return [];
@@ -62,15 +60,15 @@
     }
   }
 
-  function postInit() {
+  function postSearch(keyword) {
     const body = Object.assign({
       mode: '1',
       actflg: '1',
-      triggerid: 'aiproposalinitapi',
-      pagemode: 'search',
+      triggerid: 'knowledgesearchapi',
+      keyword: keyword,
     }, (window.ApiClient && window.ApiClient.orgContext) ? window.ApiClient.orgContext() : {});
     if (window.ApiClient && typeof window.ApiClient.post === 'function') {
-      return window.ApiClient.post('/aiproposalinitapi.do', body);
+      return window.ApiClient.post('/knowledgesearchapi.do', body);
     }
     return Promise.reject(new Error('ApiClient unavailable'));
   }
@@ -81,36 +79,6 @@
         alignCardBottomToManualInput(root.querySelector('#ks-results'), false);
       });
     }
-  }
-
-  function loadEntries() {
-    const seq = ++loadSeq;
-    loading = true;
-    renderResults();
-    postInit().then(function (result) {
-      if (seq !== loadSeq) return;
-      loading = false;
-      const data = (result && result.data) || {};
-      if (!result || !result.ok || data.e) {
-        allEntries = [];
-        toastError(data.e || 'ナレッジ一覧の取得に失敗しました');
-        renderResults();
-        return;
-      }
-      const rows = Array.isArray(data.entries) ? data.entries : [];
-      allEntries = rows.map(mapRow);
-      if (pendingSearch) {
-        runSearch();
-        return;
-      }
-      renderResults();
-    }).catch(function () {
-      if (seq !== loadSeq) return;
-      loading = false;
-      allEntries = [];
-      toastError('ナレッジ一覧の取得に失敗しました');
-      renderResults();
-    });
   }
 
   function highlightText(text, keyword) {
@@ -137,15 +105,12 @@
     return `<strong>${highlightText(lead, keyword)}</strong>${rest ? `<br><br>${highlightText(rest, keyword)}` : ''}`;
   }
 
-  function entryMatches(entry, keyword) {
-    if (!keyword) return true;
-    const kw = keyword.toLowerCase();
-    if ((entry.title || '').toLowerCase().includes(kw)) return true;
-    if ((entry.content || '').toLowerCase().includes(kw)) return true;
-    if ((entry.code || '').toLowerCase().includes(kw)) return true;
-    return (entry.theme_badges || []).some(function (t) {
-      return String(t.label || '').toLowerCase().includes(kw);
-    });
+  function setBusy(isBusy) {
+    loading = isBusy;
+    const searchBtn = root.querySelector('#ks-search-btn');
+    const clearBtn = root.querySelector('#ks-clear-btn');
+    if (searchBtn) searchBtn.disabled = isBusy;
+    if (clearBtn) clearBtn.disabled = isBusy;
   }
 
   function render() {
@@ -188,32 +153,53 @@
       runSearch();
     });
     root.querySelector('#ks-clear-btn').addEventListener('click', () => {
+      searchSeq += 1;
       keywordEl.value = '';
       lastKeyword = '';
-      pendingSearch = false;
       searchResults = null;
+      setBusy(false);
       renderResults();
       keywordEl.focus();
     });
-    loading = true;
+    setBusy(false);
     renderResults();
     keywordEl.focus();
     if (typeof window.__applyRoleAccentColor === 'function') window.__applyRoleAccentColor();
     alignResults();
-    loadEntries();
   }
 
   function runSearch() {
     const keywordEl = root.querySelector('#ks-keyword');
     const rawKeyword = keywordEl ? keywordEl.value.trim() : '';
     lastKeyword = rawKeyword;
-    if (loading) {
-      pendingSearch = true;
+    if (!rawKeyword) {
+      toastError('キーワードを入力してください');
+      keywordEl && keywordEl.focus();
       return;
     }
-    pendingSearch = false;
-    searchResults = allEntries.filter(function (e) { return entryMatches(e, rawKeyword); });
+    const seq = ++searchSeq;
+    setBusy(true);
     renderResults();
+    postSearch(rawKeyword).then(function (result) {
+      if (seq !== searchSeq) return;
+      setBusy(false);
+      const data = (result && result.data) || {};
+      if (!result || !result.ok || data.e) {
+        searchResults = [];
+        toastError(data.e || 'ナレッジ検索に失敗しました');
+        renderResults();
+        return;
+      }
+      const rows = Array.isArray(data.entries) ? data.entries : [];
+      searchResults = rows.map(mapRow);
+      renderResults();
+    }).catch(function () {
+      if (seq !== searchSeq) return;
+      setBusy(false);
+      searchResults = [];
+      toastError('ナレッジ検索に失敗しました');
+      renderResults();
+    });
   }
 
   function renderThemeBadges(entry) {
@@ -231,7 +217,7 @@
     if (!resultsEl || !countEl) return;
     if (loading) {
       countEl.textContent = '';
-      resultsEl.innerHTML = `<div class="text-muted text-sm" style="grid-column:1/-1">ナレッジを読み込んでいます…</div>`;
+      resultsEl.innerHTML = `<div class="text-muted text-sm" style="grid-column:1/-1">ナレッジを検索しています…</div>`;
       return;
     }
     if (!searchResults) {
@@ -268,9 +254,8 @@
   window.__renderKnowledgeSearch = () => {
     searchResults = null;
     lastKeyword = '';
-    pendingSearch = false;
     loading = false;
-    allEntries = [];
+    searchSeq += 1;
     render();
   };
 })();
