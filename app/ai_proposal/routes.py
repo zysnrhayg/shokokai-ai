@@ -1,10 +1,23 @@
 # 顧客設計: app/ai_proposal/routes.py show()
+from flask import session
+
+from app.accounts.services import resolve_account_role
 from app.common.api_json import jsonable_rows
 from app.dao.api120_getthemes.api120_getthemes_dao import Api120GetthemesDao
 from app.dto.api120_getthemes.api120_getthemes_dto import Api120GetthemesDto
 from app.knowledge.services import get_entries_with_themes
 import utils.mysqldb_utils
 import utils.string_util
+
+
+def _pref_filter_for_kenren(prefecture_code=""):
+    """顧客設計：県連ロールのみ WHERE prefecture_code を付与する。"""
+    if resolve_account_role() != "pref":
+        return ""
+    pref = utils.string_util.changeNullToBlank(prefecture_code)
+    if pref:
+        return pref
+    return utils.string_util.changeNullToBlank(session.get("PREFECTURE_CODE"))
 
 
 def _load_industries(fiscal_year_id=""):
@@ -32,8 +45,8 @@ ORDER BY sort_order , industry_code"""
 
 def show(mode="ai", prefecture_code="", fiscal_year_id=""):
     """AI相談 / ナレッジ検索の初期表示。mode=search と AI① は同一の get_entries_with_themes()。"""
-    prefecture_code = utils.string_util.changeNullToBlank(prefecture_code)
-    entries = get_entries_with_themes(keyword="", prefecture_code=prefecture_code)
+    pref = _pref_filter_for_kenren(prefecture_code)
+    entries = get_entries_with_themes(keyword="", prefecture_code=pref)
     result = {"entries": jsonable_rows(entries)}
     if str(mode).strip().lower() == "search":
         return result

@@ -179,6 +179,40 @@
   let dashNotices = [];
   let dashUseApi = false;
   let dashKpi = { thisMonth: null, priorMonth: null };
+  let dashDraftCount = 0;
+
+  function applyProfileAndMenus(data) {
+    if (!data) return;
+    if (typeof window.__applySessionProfile === 'function') {
+      window.__applySessionProfile({
+        userid: data.userid || '',
+        username: data.username || '',
+        orgname: data.orgname || '',
+      });
+    }
+    if (Array.isArray(data.menus) && typeof window.__applyMenuVisibility === 'function') {
+      window.__applyMenuVisibility(data.menus);
+    }
+  }
+
+  function noticeListHtml(notices, draftCount) {
+    const items = [];
+    (Array.isArray(notices) ? notices : []).forEach(function (n) {
+      const content = (n && n.content) || '';
+      if (content) items.push('<div class="notice-item">' + esc(content) + '</div>');
+    });
+    const dc = Number(draftCount) || 0;
+    if (dc > 0) {
+      items.push(
+        '<div class="notice-item"><a href="#reports" class="notice-item-link">'
+        + '下書きのまま保存されている報告書が' + dc + '件あります</a></div>'
+      );
+    }
+    if (!items.length) {
+      return '<div class="notice-item">お知らせはありません</div>';
+    }
+    return items.join('');
+  }
 
   function postDash(url, body) {
     if (window.ApiClient && typeof window.ApiClient.post === 'function') {
@@ -255,6 +289,10 @@
     if (Array.isArray(data.notices)) {
       dashNotices = data.notices;
     }
+    if (typeof data.draftcount !== 'undefined' && data.draftcount !== null && data.draftcount !== '') {
+      dashDraftCount = Number(data.draftcount) || 0;
+    }
+    applyProfileAndMenus(data);
     if (typeof data.thismonthsupport !== 'undefined' && data.thismonthsupport !== null && data.thismonthsupport !== '') {
       dashKpi.thisMonth = Number(data.thismonthsupport) || 0;
     }
@@ -314,17 +352,15 @@
     if (!data || data.e) return;
     const shokokaiEl = document.getElementById('home-shokokai-content');
     if (!shokokaiEl) return;
-    if (Array.isArray(data.notices)) {
-      const list = shokokaiEl.querySelector('.kpi-notice-list');
-      if (list) {
-        if (!data.notices.length) {
-          list.innerHTML = '<div class="notice-item">お知らせはありません</div>';
-        } else {
-          list.innerHTML = data.notices.map(function (n) {
-            return '<div class="notice-item">' + esc(n.content || '') + '</div>';
-          }).join('');
-        }
-      }
+    applyProfileAndMenus(data);
+    const draftCount = (typeof data.draftcount !== 'undefined' && data.draftcount !== null && data.draftcount !== '')
+      ? Number(data.draftcount) || 0
+      : 0;
+    const list = shokokaiEl.querySelector('.kpi-notice-list');
+    if (list && Array.isArray(data.notices)) {
+      list.innerHTML = noticeListHtml(data.notices, draftCount);
+    } else if (list && draftCount > 0) {
+      list.innerHTML = noticeListHtml([], draftCount);
     }
     const thisMonth = (typeof data.thismonthsupport !== 'undefined' && data.thismonthsupport !== null && data.thismonthsupport !== '')
       ? Number(data.thismonthsupport) || 0
@@ -581,6 +617,7 @@
     dashRole = role;
     dashUseApi = false;
     dashNotices = [];
+    dashDraftCount = 0;
     dashKpi = { thisMonth: null, priorMonth: null };
     fiscalYearId = '';
     if (role === 'national') {
@@ -608,9 +645,7 @@
   }
 
   function paintDashboard(role) {
-    const noticeItems = dashNotices.length
-      ? dashNotices.map(function (n) { return `<div class="notice-item">${esc(n.content || '')}</div>`; }).join('')
-      : `<div class="notice-item">お知らせはありません</div>`;
+    const noticeItems = noticeListHtml(dashNotices, dashDraftCount);
 
     const computedThis = CURRENT_MONTHLY_STATS.reduce((sum, r) => sum + ((r.counts && r.counts.length) ? Number(r.counts[r.counts.length - 1]) || 0 : 0), 0);
     const computedPrior = CURRENT_MONTHLY_STATS.reduce((sum, r) => sum + ((r.counts && r.counts.length > 1) ? Number(r.counts[r.counts.length - 2]) || 0 : 0), 0);

@@ -29,7 +29,9 @@ class Verify2faapiService:
             if _is_true(remember_device):
                 remember = True
             apply_staff_login_session(pending, remember)
-            jsonObj.setValue("username", pending.get("shokuin_kj") or pending.get("user_id") or "")
+            jsonObj.setValue("username", session.get("USER_NAME1") or pending.get("shokuin_kj") or pending.get("user_id") or "")
+            jsonObj.setValue("userid", pending.get("user_id") or "")
+            jsonObj.setValue("orgname", session.get("ORG_NAME") or "")
             jsonObj.setValue("useraccountid", pending.get("user_account_id") or "")
             jsonObj.setValue("user_account_id", pending.get("user_account_id") or "")
             jsonObj.setValue("prefecturecode", pending.get("prefecture_code") or "")

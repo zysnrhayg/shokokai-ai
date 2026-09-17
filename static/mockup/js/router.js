@@ -94,9 +94,11 @@
   function markLoggedIn(data, userid) {
     window.__IS_LOGGED_IN = true;
     var username = (data && data.username) || userid;
+    var orgname = (data && (data.orgname || data.org_name)) || '';
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem('userid', userid);
       if (username) localStorage.setItem('username', username);
+      if (orgname) localStorage.setItem('orgname', orgname);
       var pref = (data && (data.prefecturecode || data.prefecture_code)) || '';
       var shokokai = (data && (data.shokokaicd || data.shokokai_cd)) || '';
       var accountId = (data && (data.useraccountid || data.user_account_id)) || '';
@@ -104,9 +106,19 @@
       if (shokokai) localStorage.setItem('shokokai_cd', shokokai);
       if (accountId) localStorage.setItem('user_account_id', String(accountId));
     }
-    var userInfo = document.querySelector('.user-info');
-    if (userInfo && userid) {
-      userInfo.textContent = userid + (username ? '：' + username : '');
+    if (typeof window.__applySessionProfile === 'function') {
+      window.__applySessionProfile({
+        userid: userid,
+        username: username,
+        orgname: orgname,
+      });
+    } else {
+      var userInfo = document.querySelector('.user-info');
+      if (userInfo && userid) {
+        userInfo.textContent = userid + (username ? '：' + username : '');
+      }
+      var orgEl = document.getElementById('org-name-display');
+      if (orgEl && orgname) orgEl.textContent = orgname;
     }
     var roleEl = document.getElementById('org-role-select');
     if (roleEl) {
@@ -133,7 +145,10 @@
       location.hash = '#login';
       return;
     }
-    var key = location.hash.slice(1) || 'login';
+    var rawHash = location.hash.slice(1) || 'login';
+    var hashQIdx = rawHash.indexOf('?');
+    var key = hashQIdx >= 0 ? rawHash.slice(0, hashQIdx) : rawHash;
+    var hashQuery = hashQIdx >= 0 ? rawHash.slice(hashQIdx + 1) : '';
     var authPages = { login: true, 'verify-2fa': true };
     if (!window.__IS_LOGGED_IN && !authPages[key]) {
       location.hash = '#login';
@@ -184,7 +199,7 @@
     if (backBtn) backBtn.style.display = (key === 'home') ? 'none' : '';
 
     if (viewId === 'view-entry' && typeof applyEntryScreen === 'function') {
-      applyEntryScreen(key);
+      applyEntryScreen(key, hashQuery);
     } else if (key === 'reports') {
       document.getElementById('app-title').textContent = '報告書を見る';
       document.getElementById('app-subtitle').textContent = '受付票と各種報告書を見れます';

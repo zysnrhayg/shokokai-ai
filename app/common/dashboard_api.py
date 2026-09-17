@@ -393,35 +393,12 @@ WHERE prefecture_code = :prefecture_code
 
 
 def fetch_notices(fe_role):
+    """互換ラッパ：顧客設計 get_active_notices を呼ぶ。"""
+    from app.dashboard.services import ensure_notice_dates, get_active_notices
+
+    ensure_notice_dates()
     rc = FE_ROLE_TO_NOTICE.get(fe_role, "ken")
-    params = {"role_code": rc}
-    # Prefer currently active notices; if seed dates have expired, fall back to latest by role.
-    rows = _q(
-        """
-SELECT content
-FROM trn_notice
-WHERE deleted_at IS NULL
-  AND (role_code = :role_code OR role_code = 'login')
-  AND (start_date IS NULL OR start_date <= CURRENT_DATE)
-  AND (end_date IS NULL OR end_date >= CURRENT_DATE)
-ORDER BY sort_order, notice_id
-LIMIT 10
-""",
-        params,
-    )
-    if not rows:
-        rows = _q(
-            """
-SELECT content
-FROM trn_notice
-WHERE deleted_at IS NULL
-  AND (role_code = :role_code OR role_code = 'login')
-ORDER BY sort_order, notice_id DESC
-LIMIT 10
-""",
-            params,
-        )
-    return [{"content": str(r.get("content") or "")} for r in rows if r.get("content")]
+    return get_active_notices(rc)
 
 
 def parse_excluded_keys(raw):
@@ -469,124 +446,86 @@ def paginate_cells(cells, page, page_size):
 
 
 def fetch_recent_reports(prefecture_code, shokokai_cd, limit=4):
-    rows = _q(
-        """
-SELECT r.report_id
-     , r.report_date
-     , r.form_code
-     , r.business_name
-     , COALESCE(
-         NULLIF(r.summary, ''),
-         LEFT(COALESCE(r.content, ''), 80),
-         LEFT(COALESCE(r.support_content, ''), 80),
-         ''
-       ) AS content_text
-     , r.staff_main_name
-     , r.staff_sub_name
-     , r.time_start
-     , r.time_end
-     , r.status
-     , t.label AS theme_label
-     , COALESCE(f.short_label, r.form_code, '未設定') AS form_label
-     , COALESCE(f.badge_class, '#1a6fa8') AS badge_class
-FROM trn_report r
-LEFT JOIN mst_theme t ON t.theme_id = r.theme_id
-LEFT JOIN mst_form f ON f.form_code = r.form_code AND f.fiscal_year_id = r.fiscal_year_id
-WHERE r.prefecture_code = :prefecture_code
-  AND r.shokokai_cd = :shokokai_cd
-  AND r.deleted_at IS NULL
-  AND r.status != '削除'
-  AND r.form_code IS NOT NULL
-ORDER BY r.report_date DESC NULLS LAST, r.report_id DESC
-LIMIT :lim
-""",
-        {
-            "prefecture_code": prefecture_code,
-            "shokokai_cd": shokokai_cd,
-            "lim": int(limit or 4),
-        },
-    )
-    out = []
-    for rec in rows:
-        main = str(rec.get("staff_main_name") or "").strip()
-        sub = str(rec.get("staff_sub_name") or "").strip()
-        staff = main
-        if sub:
-            staff = (main + "／" + sub) if main else sub
-        report_date = rec.get("report_date")
-        if hasattr(report_date, "isoformat"):
-            report_date = report_date.isoformat()
-        out.append(
-            {
-                "report_id": rec.get("report_id"),
-                "report_date": report_date or "",
-                "form_code": str(rec.get("form_code") or ""),
-                "form_label": str(rec.get("form_label") or ""),
-                "badge_class": str(rec.get("badge_class") or "#1a6fa8"),
-                "theme_label": str(rec.get("theme_label") or ""),
-                "content": str(rec.get("content_text") or ""),
-                "staff": staff,
-                "business_name": str(rec.get("business_name") or ""),
-                "time_start": str(rec.get("time_start") or ""),
-                "time_end": str(rec.get("time_end") or ""),
-                "status": str(rec.get("status") or ""),
-            }
-        )
-    return out
+    """互換ラッパ：顧客設計 get_recent_reports を呼ぶ。"""
+    from app.dashboard.services import get_recent_reports
+
+    return get_recent_reports(prefecture_code, shokokai_cd, limit)
 
 
 def build_init_payload(fe_role, prefecture_code, shokokai_cd):
+    from datetime import date
+
+    from app.common.menu import get_visible_menu
+    from app.common.session import get_current_organization, get_current_user, refresh_session_profile
+    from app.dashboard.services import (
+        get_current_month_support_count,
+        get_kpi_summaries_by_years,
+    )
+    from app.manual_input.services import count_draft_reports
+
     fiscal_year_id = latest_fiscal_year_id(prefecture_code, shokokai_cd)
     if not fiscal_year_id:
         fiscal_year_id = "3"
+
+    profile = refresh_session_profile()
+    org = profile.get("organization") or get_current_organization()
+    user = profile.get("user") or get_current_user()
+
     notices = fetch_notices(fe_role)
     recent_reports = fetch_recent_reports(prefecture_code, shokokai_cd, 4)
+    draft_count = count_draft_reports(prefecture_code, shokokai_cd, fiscal_year_id)
+    menus = get_visible_menu(fe_role)
+
+    today = date.today()
+    this_ym = today.strftime("%Y-%m")
+    if today.month == 1:
+        prior_ym = f"{today.year - 1}-12"
+    else:
+        prior_ym = f"{today.year}-{today.month - 1:02d}"
+    # 商工会：ログイン組織のライブ COUNT。県連／全国連は後で monthly_stats 合算に差し替え。
+    this_month = get_current_month_support_count(prefecture_code, shokokai_cd, this_ym)
+    prior_month = get_current_month_support_count(prefecture_code, shokokai_cd, prior_ym)
+
+    kpi_ai = get_kpi_summaries_by_years(
+        prefecture_code, shokokai_cd, [fiscal_year_id]
+    )
+    ai_count = int(kpi_ai[0]["ai_proposal_count"]) if kpi_ai else 0
+    # 年度累計の支援件数は従来 KPI も併用
+    support_count, _legacy_ai = fetch_kpi(prefecture_code, shokokai_cd, fiscal_year_id)
+    if not ai_count:
+        ai_count = int(_legacy_ai or 0)
+
+    common = {
+        "rolecode": fe_role,
+        "prefecturecode": prefecture_code,
+        "shokokaicd": shokokai_cd,
+        "fiscalyearid": fiscal_year_id,
+        "notices": notices,
+        "recent_reports": recent_reports,
+        "draftcount": draft_count,
+        "menus": menus,
+        "orgname": profile.get("orgname") or utils.string_util.changeNullToBlank(org.get("name")),
+        "userid": profile.get("userid") or utils.string_util.changeNullToBlank(user.get("user_id")),
+        "username": profile.get("username")
+        or utils.string_util.changeNullToBlank(user.get("name") or user.get("shokuin_kj")),
+        "permissionlevel": profile.get("permissionlevel")
+        or utils.string_util.changeNullToBlank(user.get("permission_level")),
+        "supportcount": support_count,
+        "aiactivitycount": ai_count,
+        "thismonthsupport": this_month,
+        "priormonthsupport": prior_month,
+    }
 
     # 商工会ホームは直近報告が主。ヒートマップ系は県連／全国連のみ組み立てる。
     if fe_role == "shokokai":
-        support_count, ai_count = fetch_kpi(prefecture_code, shokokai_cd, fiscal_year_id)
-        year_months, _month_labels = month_labels(prefecture_code, shokokai_cd, fiscal_year_id)
-        this_month = 0
-        prior_month = 0
-        if year_months:
-            # reuse monthly aggregate for self org only
-            cells = [
-                {
-                    "cd": shokokai_cd,
-                    "name": "",
-                    "cell_key": shokokai_cd,
-                    "group_code": None,
-                }
-            ]
-            stats = fetch_monthly_stats(
-                "pref", prefecture_code, shokokai_cd, fiscal_year_id, cells, year_months
-            )
-            if stats:
-                counts = stats[0].get("counts") or []
-                if counts:
-                    this_month = int(counts[-1] or 0)
-                if len(counts) > 1:
-                    prior_month = int(counts[-2] or 0)
-        if not this_month and support_count:
-            this_month = int(support_count or 0)
         return {
-            "rolecode": fe_role,
-            "prefecturecode": prefecture_code,
-            "shokokaicd": shokokai_cd,
-            "fiscalyearid": fiscal_year_id,
-            "notices": notices,
-            "recent_reports": recent_reports,
+            **common,
             "themes": [],
             "heatmap": [],
             "monthly_stats": [],
             "month_labels": [],
-            "supportcount": support_count,
-            "aiactivitycount": ai_count,
-            "thismonthsupport": this_month,
-            "priormonthsupport": prior_month,
         }
 
-    support_count, ai_count = fetch_kpi(prefecture_code, shokokai_cd, fiscal_year_id)
     themes = fetch_themes(prefecture_code, shokokai_cd, fiscal_year_id)
     cells = fetch_heatmap_cells(fe_role, prefecture_code, shokokai_cd, fiscal_year_id)
     year_months, month_label_list = month_labels(prefecture_code, shokokai_cd, fiscal_year_id)
@@ -594,15 +533,23 @@ def build_init_payload(fe_role, prefecture_code, shokokai_cd):
         fe_role, prefecture_code, shokokai_cd, fiscal_year_id, cells, year_months
     )
 
-    total_monthly = sum(r.get("counts", [0])[-1] for r in monthly_stats) if monthly_stats else 0
-    total_prior = (
-        sum(
-            (r.get("counts") or [0])[max(0, len(r.get("counts") or []) - 2)]
-            for r in monthly_stats
-        )
-        if monthly_stats
-        else 0
-    )
+    # 県連／全国連：お知らせ横の「今月の支援件数」はヒートマップと同口径（月次表の当月／前月合算）
+    this_month = 0
+    prior_month = 0
+    for row in monthly_stats or []:
+        counts = row.get("counts") or []
+        if counts:
+            try:
+                this_month += int(counts[-1] or 0)
+            except (TypeError, ValueError):
+                pass
+        if len(counts) > 1:
+            try:
+                prior_month += int(counts[-2] or 0)
+            except (TypeError, ValueError):
+                pass
+    common["thismonthsupport"] = this_month
+    common["priormonthsupport"] = prior_month
 
     if fe_role == "national":
         meta = {
@@ -631,21 +578,12 @@ def build_init_payload(fe_role, prefecture_code, shokokai_cd):
         }
 
     return {
-        "rolecode": fe_role,
-        "prefecturecode": prefecture_code,
-        "shokokaicd": shokokai_cd,
-        "fiscalyearid": fiscal_year_id,
-        "supportcount": support_count,
-        "aiactivitycount": ai_count,
+        **common,
         "themes": themes,
         "heatmap": cells,
         "monthly_stats": monthly_stats,
         "month_labels": month_label_list,
         "year_months": year_months,
-        "notices": notices,
-        "recent_reports": recent_reports,
-        "thismonthsupport": total_monthly,
-        "priormonthsupport": total_prior,
         **meta,
     }
 
