@@ -14,6 +14,8 @@ class AccountsfilterapiDto(BaseEntity):
         corelinked,
         keyword,
         rolecode="",
+        limit="",
+        offset="",
     ):
         super().__init__(mode, actflg, triggerid, row)
         self.prefecturecode = prefecturecode
@@ -23,6 +25,8 @@ class AccountsfilterapiDto(BaseEntity):
         self.corelinked = corelinked
         self.keyword = keyword
         self.rolecode = rolecode
+        self.limit = limit
+        self.offset = offset
 
     @staticmethod
     def dict_to_json(d):
@@ -40,4 +44,6 @@ class AccountsfilterapiDto(BaseEntity):
             d.get("corelinked", d.get("core_linked", "")),
             d.get("keyword", ""),
             d.get("rolecode", d.get("role_code", "")),
+            d.get("limit", ""),
+            d.get("offset", ""),
         )

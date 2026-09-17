@@ -15,6 +15,7 @@
     (typeof localStorage !== 'undefined' && localStorage.getItem('user_account_id')) || 0
   ) || null;
 
+  // ACCOUNTS: サーバ（ロール可視範囲 + UI絞込）から取得した一覧
   let ACCOUNTS = [];
   let nextAccountId = 1;
   let loadingAccounts = false;
@@ -118,8 +119,7 @@
     var searchEl = root.querySelector('#f-search');
     var prefEl = root.querySelector('#accounts-f-pref');
     var shokokaiEl = root.querySelector('#accounts-f-shokokai');
-    var role = currentUiRole();
-    var org = orgFromClient();
+    var uiRole = currentUiRole();
 
     var permissionlevel = '';
     if (roleEl && roleEl.value && roleEl.value !== '全ロール') {
@@ -131,13 +131,18 @@
       else if (statusEl.value === '0' || statusEl.value === '利用停止') status = '0';
     }
 
-    var pref = prefEl && prefEl.value ? prefEl.value : '';
-    var sho = shokokaiEl && shokokaiEl.value ? shokokaiEl.value : '';
-    if (!pref) pref = org.prefecturecode || '';
-    if (role === 'shokokai' && !sho) sho = org.shokokaicd || '';
+    // 県/商工会は UI 絞込として送る（ロール可視範囲の内側で DB が適用）
+    var pref = '';
+    var sho = '';
+    if (uiRole === 'national') {
+      pref = prefEl && prefEl.value ? prefEl.value : '';
+      sho = shokokaiEl && shokokaiEl.value ? shokokaiEl.value : '';
+    } else if (uiRole === 'pref') {
+      sho = shokokaiEl && shokokaiEl.value ? shokokaiEl.value : '';
+    }
 
     return {
-      rolecode: role,
+      rolecode: uiRole,
       prefecturecode: pref,
       shokokaicd: sho,
       permissionlevel: permissionlevel,
@@ -148,14 +153,7 @@
   }
 
   function buildInitPayload() {
-    var payload = buildFilterPayload();
-    return {
-      rolecode: payload.rolecode,
-      prefecturecode: payload.prefecturecode,
-      shokokaicd: payload.rolecode === 'shokokai' ? payload.shokokaicd : '',
-      onlyfederation: '',
-      excludefederation: '',
-    };
+    return { rolecode: currentUiRole() };
   }
 
   function applyInitOptions(data) {
@@ -196,9 +194,8 @@
   function fillPrefSelect(keepValue) {
     var el = root.querySelector('#accounts-f-pref');
     if (!el) return;
+    // 全国連の「全都道府県」は空のまま（DB 側で絞らない）
     var cur = keepValue ? el.value : '';
-    var org = orgFromClient();
-    if (!cur && currentUiRole() !== 'national') cur = org.prefecturecode || '';
     el.innerHTML = '<option value="">全都道府県</option>' + PREFECTURE_OPTIONS.map(function (p) {
       return '<option value="' + esc(p.code) + '">' + esc(p.name) + '</option>';
     }).join('');
@@ -300,7 +297,7 @@
         fillRoleSelect(true);
         fillPrefSelect(true);
         fillShokokaiSelect(true);
-        // 選択肢反映後、現在の絞込条件（ステータス等）で一覧を再取得
+        // 選択肢反映後、現在の UI 絞込条件で DB 再取得
         loadAccountsFromApi(done);
       })
       .catch(function () {
@@ -399,7 +396,7 @@
   }
 
   function renderRows() {
-    // 絞込はサーバ側（accountsfilterapi / accountsinitapi）済み
+    // 絞込はサーバ側（accountsfilterapi / DB）済み
     const filtered = ACCOUNTS.map(joinRow);
 
     const inlinePanelRow = `<tr class="am-inline-row"><td colspan="8">${buildDetailPanelHtml()}</td></tr>`;
@@ -439,7 +436,7 @@
     if (prefEl) {
       prefEl.addEventListener('change', function () {
         fillShokokaiSelect(false);
-        loadAccountsInit(function () { renderRows(); });
+        loadAccountsFromApi(function () { renderRows(); });
       });
     }
     const shoEl = root.querySelector('#accounts-f-shokokai');
