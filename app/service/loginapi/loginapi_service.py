@@ -130,6 +130,8 @@ class LoginapiService:
             apply_staff_login_session(account, remember)
             jsonObj.setValue("need_mfa", False)
             jsonObj.setValue("username", account["shokuin_kj"] or account["user_id"])
+            jsonObj.setValue("useraccountid", account["user_account_id"])
+            jsonObj.setValue("user_account_id", account["user_account_id"])
             jsonObj.setValue("prefecturecode", account["prefecture_code"])
             jsonObj.setValue("shokokaicd", account["shokokai_cd"])
             jsonObj.setScript("OK", "./#home")

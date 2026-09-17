@@ -11,9 +11,11 @@
   let SHOKOKAI_OPTIONS = [];
   let ORG_NAME = '—';
 
-  const CURRENT_USER_ACCOUNT_ID = Number(
-    (typeof localStorage !== 'undefined' && localStorage.getItem('user_account_id')) || 0
-  ) || null;
+  function currentUserAccountId() {
+    var raw = (typeof localStorage !== 'undefined' && localStorage.getItem('user_account_id')) || '';
+    var n = Number(raw);
+    return n > 0 ? n : null;
+  }
 
   // ACCOUNTS: サーバ（ロール可視範囲 + UI絞込）から取得した一覧
   let ACCOUNTS = [];
@@ -637,7 +639,7 @@
       ? `<div class="flex items-center gap-sm" style="justify-content:flex-end;margin-top:var(--space-6)">
           <button type="button" class="btn btn-primary btn-sm" id="am-edit">編集する</button>
           <button type="button" class="btn btn-outline btn-sm" id="am-close">閉じる</button>
-          ${account && account.user_account_id !== CURRENT_USER_ACCOUNT_ID ? `<button type="button" class="btn btn-danger btn-sm" id="am-delete" style="margin-left:var(--space-8);">削除</button>` : ''}
+          ${account && currentUserAccountId() && Number(account.user_account_id) !== currentUserAccountId() ? `<button type="button" class="btn btn-danger btn-sm" id="am-delete" style="margin-left:var(--space-8);">削除</button>` : ''}
         </div>`
       : `<div class="flex items-center gap-sm" style="justify-content:flex-end;margin-top:var(--space-6)">
           <button type="button" class="btn btn-outline btn-sm" id="am-cancel">キャンセル</button>
@@ -660,6 +662,10 @@
     if (deleteBtn) deleteBtn.addEventListener('click', () => {
       const account = currentAccount();
       if (!account) return;
+      if (currentUserAccountId() && Number(account.user_account_id) === currentUserAccountId()) {
+        toastError('自分自身のアカウントは削除できません');
+        return;
+      }
       if (!confirm(`${account.shokuin_kj}（${account.user_id}）を削除しますか？`)) return;
       postAccountsApi('./accountdeleteapi.do', { useraccountid: String(account.user_account_id) })
         .then(function (result) {
@@ -711,6 +717,13 @@
     const status = statusEl ? String(statusEl.value) : String(account ? account.status : 1);
     const password = passwordEl ? passwordEl.value : '';
     const org = defaultOrgContext();
+    var quals = [];
+    var qualEls = root.querySelectorAll('.am-qualification');
+    if (qualEls.length) {
+      qualEls.forEach(function (cb) { if (cb.checked) quals.push(cb.value); });
+    } else if (account && account.qualification_codes) {
+      quals = account.qualification_codes.slice();
+    }
 
     if (inlineMode === 'new') {
       const payload = {
@@ -722,6 +735,7 @@
         password: password,
         permissionlevel: permission_level,
         status: status,
+        qualificationcodes: JSON.stringify(quals),
       };
       if (!payload.prefecturecode) {
         toastError('県コードが取得できません。ログイン時の県を確認してください');
@@ -757,6 +771,7 @@
       password: password,
       permissionlevel: permission_level,
       status: status,
+      qualificationcodes: JSON.stringify(quals),
     };
     postAccountsApi('./accountupdateapi.do', payload)
       .then(function (result) {

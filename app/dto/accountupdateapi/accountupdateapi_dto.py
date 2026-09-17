@@ -1,7 +1,7 @@
 from utils.base_entity import BaseEntity
 
 class AccountupdateapiDto(BaseEntity):
-    def __init__(self, mode, actflg, triggerid, row, useraccountid, prefecturecode, shokokaicd, userid, shokuinkj, email, password, permissionlevel, status):
+    def __init__(self, mode, actflg, triggerid, row, useraccountid, prefecturecode, shokokaicd, userid, shokuinkj, email, password, permissionlevel, status, qualificationcodes=""):
         super().__init__(mode, actflg, triggerid, row)
         self.useraccountid = useraccountid
         self.prefecturecode = prefecturecode
@@ -12,6 +12,7 @@ class AccountupdateapiDto(BaseEntity):
         self.password = password
         self.permissionlevel = permissionlevel
         self.status = status
+        self.qualificationcodes = qualificationcodes
 
     @staticmethod
     def dict_to_json(d):
@@ -30,4 +31,5 @@ class AccountupdateapiDto(BaseEntity):
             d.get("email", ""),
             d.get("password", ""),
             d.get("permissionlevel", d.get("permission_level", "")),
-            d.get("status", ""))
+            d.get("status", ""),
+            d.get("qualificationcodes", d.get("qualification_codes", "")))

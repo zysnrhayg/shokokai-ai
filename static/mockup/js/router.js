@@ -99,8 +99,10 @@
       if (username) localStorage.setItem('username', username);
       var pref = (data && (data.prefecturecode || data.prefecture_code)) || '';
       var shokokai = (data && (data.shokokaicd || data.shokokai_cd)) || '';
+      var accountId = (data && (data.useraccountid || data.user_account_id)) || '';
       if (pref) localStorage.setItem('prefecture_code', pref);
       if (shokokai) localStorage.setItem('shokokai_cd', shokokai);
+      if (accountId) localStorage.setItem('user_account_id', String(accountId));
     }
     var userInfo = document.querySelector('.user-info');
     if (userInfo && userid) {
