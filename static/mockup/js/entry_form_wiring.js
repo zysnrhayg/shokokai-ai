@@ -175,7 +175,7 @@
       if (indSelect) {
         var indPlaceholder = document.createElement('option');
         indPlaceholder.value = '';
-        indPlaceholder.textContent = '業種を選択してください';
+        indPlaceholder.textContent = '業種を選択';
         indSelect.innerHTML = '';
         indSelect.appendChild(indPlaceholder);
         industries.forEach(function (i) {
