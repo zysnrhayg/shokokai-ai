@@ -368,6 +368,9 @@
           formCode: d.form_code || '',
           timeStart: d.time_start || '',
           timeEnd: d.time_end || '',
+          attachments: Array.isArray(d.attachments) ? d.attachments : [],
+          reportId: d.report_id || '',
+          status: d.status || '',
           readOnly: isFederationRole(),
         };
         location.hash = '#' + destScreenForForm(d.form_code);

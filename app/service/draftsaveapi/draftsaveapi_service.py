@@ -44,6 +44,11 @@ class DraftsaveapiService :
 			report_date = utils.string_util.changeNullToBlank(fields.get("reportdate", ""))
 			time_start = utils.string_util.changeNullToBlank(fields.get("timestart", ""))
 			time_end = utils.string_util.changeNullToBlank(fields.get("timeend", ""))
+			# 開始時刻は終了時刻より前であること（例: 11:00〜09:00 は不可）
+			if time_start and time_end and time_start[:5] >= time_end[:5] :
+				jsonObj.setValue(utils.json_constant.JSONID_ERR, "終了時刻は開始時刻より後の時刻を指定してください")
+				jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_FAIL)
+				return
 			business_name = utils.string_util.changeNullToBlank(fields.get("businessname", ""))
 			industry_code = utils.string_util.changeNullToBlank(fields.get("industrycode", ""))
 			staff_main_name = utils.string_util.changeNullToBlank(fields.get("staffmainname", ""))
@@ -91,7 +96,7 @@ SET form_code = :form_code
 WHERE report_id = CAST(:report_id AS integer)
   AND status = '下書き'
   AND deleted_at IS NULL""")
-					sess.execute(update_sql, {
+					upd = sess.execute(update_sql, {
 						'form_code': form_code,
 						'report_date': report_date,
 						'time_start': time_start,
@@ -106,6 +111,11 @@ WHERE report_id = CAST(:report_id AS integer)
 						'updated_by': int(user_account_id) if user_account_id else None,
 						'report_id': report_id,
 					})
+					# 登録済み等で更新0件のとき、テーマ削除だけ走るとデータ破壊になるため中断する
+					if not upd.rowcount :
+						jsonObj.setValue(utils.json_constant.JSONID_ERR, "下書き以外の報告書は下書き保存で更新できません。新規に下書き保存してください")
+						jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_FAIL)
+						return
 					#既存の支援テーマ紐付けを一度削除してから登録し直す。
 					sess.execute(text("DELETE FROM trn_report_theme WHERE report_id = CAST(:report_id AS integer)"), {'report_id': report_id})
 				else :
@@ -169,6 +179,9 @@ WHERE t.theme_code = :theme_code AND t.deleted_at IS NULL
 
 			#採番したreport_idをフロントエンドへ返却する。
 			jsonObj.setHtml("dragReportId", report_id)
+			# 登録済み添付一覧を返却し、画面上で継続表示できるようにする
+			from app.common import reports_api
+			jsonObj.setValue("attachments", reports_api.fetch_report_attachments(report_id))
 			jsonObj.setValue(utils.json_constant.JSONID_MSG, "下書きを保存しました（報告書ID: " + report_id + "）")
 			jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_SUCCESS)
 			#処理終了。
@@ -177,5 +190,5 @@ WHERE t.theme_code = :theme_code AND t.deleted_at IS NULL
 			utils.config.global_log.error(e)
 			jsonObj.setValue(utils.json_constant.JSONID_ERR, "下書きの保存に失敗しました")
 			jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_FAIL)
-			raise
+			return
 		utils.config.global_log.debug(str(threading.current_thread().native_id)+ ": end")

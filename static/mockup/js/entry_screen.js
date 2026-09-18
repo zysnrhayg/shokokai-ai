@@ -33,6 +33,14 @@ function applyEntryScreen(screenId, hashQuery) {
     entryForm.reset();
     entryForm.querySelectorAll('.is-invalid').forEach((el) => el.classList.remove('is-invalid'));
     entryForm.querySelectorAll('.detail-row--invalid').forEach((el) => el.classList.remove('detail-row--invalid'));
+    if (typeof window.__miSetSavedAttachments === 'function') {
+      window.__miSetSavedAttachments([]);
+    }
+    if (typeof window.__miSetLastDraftReportId === 'function') {
+      window.__miSetLastDraftReportId('');
+    }
+    const attachListReset = document.getElementById('mi-attachments-list');
+    if (attachListReset) attachListReset.textContent = '';
 
     const consentCheckboxEl = document.getElementById('mi-voice-consent');
     if (consentCheckboxEl) consentCheckboxEl.dispatchEvent(new Event('change'));
@@ -87,6 +95,20 @@ function applyEntryScreen(screenId, hashQuery) {
     if (prefill.timeEnd) {
       const timeEndEl = document.getElementById('mi-time-end');
       if (timeEndEl) timeEndEl.value = prefill.timeEnd;
+    }
+    if (typeof window.__miSetSavedAttachments === 'function') {
+      window.__miSetSavedAttachments(prefill.attachments || []);
+    } else if (Array.isArray(prefill.attachments) && prefill.attachments.length) {
+      const listEl = document.getElementById('mi-attachments-list');
+      if (listEl) {
+        listEl.textContent = '登録済み：' + prefill.attachments.map(function (a) {
+          return a.file_name || a.file_path || '';
+        }).filter(Boolean).join('、');
+      }
+    }
+    if (prefill.reportId && prefill.status === '下書き' && typeof window.__miSetLastDraftReportId === 'function') {
+      // 下書きのみ既存IDで更新する（登録済みIDだと下書きUPDATEが0件のままテーマ削除等が走る）
+      window.__miSetLastDraftReportId(prefill.reportId);
     }
 
     const selectByOptionText = (selectEl, text) => {

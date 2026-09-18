@@ -2137,6 +2137,54 @@ def draftsaveapi() :
 
 
 #
+# reportattachmentdownloadapi - 報告書添付ファイルダウンロード - サーバー関数
+#
+
+@commonfunction_route.route("/reportattachmentdownloadapi.do", methods=['GET', 'POST'])
+
+def reportattachmentdownloadapi() :
+	"""reportattachmentdownloadapi - 報告書添付ファイルダウンロード"""
+	import utils.file_util
+	from utils.mysqldb_utils import session_scope
+	from sqlalchemy import text
+
+	attachment_id = ""
+	if request.method == 'GET' :
+		attachment_id = request.args.get('id') or request.args.get('reportattachmentid') or ""
+	else :
+		data = request.get_json(silent=True) or {}
+		attachment_id = data.get('id') or data.get('reportattachmentid') or request.form.get('id') or ""
+	attachment_id = str(attachment_id or "").strip()
+	if not attachment_id :
+		return jsonify({"e": "添付ファイルが指定されていません"}), 400
+
+	file_path = ""
+	with session_scope() as sess :
+		row = sess.execute(
+			text("SELECT file_path FROM trn_report_attachment WHERE report_attachment_id = CAST(:id AS integer)"),
+			{"id": attachment_id},
+		).fetchone()
+		if row :
+			file_path = str(row[0] or "")
+
+	if not file_path :
+		return jsonify({"e": "添付ファイルが見つかりません"}), 404
+
+	abs_path = utils.file_util.get_upload_abs_path(file_path)
+	if not abs_path or not os.path.isfile(abs_path) :
+		return jsonify({"e": "添付ファイルが見つかりません"}), 404
+
+	# uploads 配下以外へのパストラバーサルを防ぐ
+	upload_root = os.path.abspath(utils.file_util.get_upload_root())
+	abs_norm = os.path.abspath(abs_path)
+	if not (abs_norm == upload_root or abs_norm.startswith(upload_root + os.sep)) :
+		return jsonify({"e": "添付ファイルが見つかりません"}), 404
+
+	download_name = utils.file_util.display_name_from_upload_path(file_path) or os.path.basename(abs_path)
+	return send_file(abs_norm, as_attachment=True, download_name=download_name)
+
+
+#
 # jigyoshomeinokohokakonosodanrirekihistoryapi - 事業所過去相談履歴 - サーバー関数
 # @param jigyoshomeinokohokakonosodanrirekihistoryapi_dto
 # @param result

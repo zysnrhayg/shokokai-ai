@@ -1,5 +1,6 @@
 """報告書を見る: Init / Search / Detail / CSV helpers."""
 import json
+import re
 from datetime import date
 
 from flask import session
@@ -604,6 +605,55 @@ def default_year_month(years):
     return months[-1] if months else current
 
 
+def _fmt_time(v):
+    """time / 文字列を input[type=time] 用の HH:MM に揃える。"""
+    if v is None or v == "":
+        return ""
+    if hasattr(v, "strftime"):
+        try:
+            return v.strftime("%H:%M")
+        except Exception:
+            pass
+    s = _blank(v)
+    m = re.match(r"^(\d{1,2}):(\d{2})", s)
+    if m:
+        return "%02d:%s" % (int(m.group(1)), m.group(2))
+    return s[:5] if len(s) >= 5 else s
+
+
+def fetch_report_attachments(report_id):
+    """報告書に紐づく添付ファイル一覧を返す。"""
+    import utils.file_util
+    report_id = _blank(report_id)
+    if not report_id:
+        return []
+    try:
+        rows = _q(
+            """
+SELECT report_attachment_id
+     , file_path
+FROM trn_report_attachment
+WHERE report_id = CAST(:report_id AS integer)
+ORDER BY report_attachment_id
+""",
+            {"report_id": report_id},
+        )
+    except Exception:
+        return []
+    out = []
+    for row in rows or []:
+        rec = jsonable_row(row)
+        file_path = _blank(rec.get("file_path"))
+        if not file_path:
+            continue
+        out.append({
+            "id": rec.get("report_attachment_id"),
+            "file_path": file_path,
+            "file_name": utils.file_util.display_name_from_upload_path(file_path),
+        })
+    return out
+
+
 def fetch_report_detail(report_id):
     report_id = _blank(report_id)
     if not report_id:
@@ -673,8 +723,8 @@ ORDER BY t.group_order, t.theme_id
         "report_date": _fmt_date(rec.get("report_date")),
         "summary": _blank(rec.get("summary")),
         "content": _blank(rec.get("content")) or _blank(rec.get("summary")),
-        "time_start": _blank(rec.get("time_start")),
-        "time_end": _blank(rec.get("time_end")),
+        "time_start": _fmt_time(rec.get("time_start")),
+        "time_end": _fmt_time(rec.get("time_end")),
         "business_person": _blank(rec.get("business_person")),
         "business_name": _blank(rec.get("business_name")),
         "staff_main_name": _blank(rec.get("staff_main_name")),
@@ -686,6 +736,7 @@ ORDER BY t.group_order, t.theme_id
         "primary_theme_code": primary,
         "theme_codes": theme_codes,
         "theme_label": _blank(rec.get("theme_label")),
+        "attachments": fetch_report_attachments(rec.get("report_id")),
     }
 
 

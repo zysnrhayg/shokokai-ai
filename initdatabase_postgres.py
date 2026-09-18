@@ -142,11 +142,75 @@ def ensure_database(uri: str | None = None, ddl_path: str | None = None) -> str:
     if not _database_exists(cfg):
         _create_database(cfg)
         _apply_ddl(cfg, ddl_path)
+        _apply_schema_patches(cfg)
         return "created"
     if not _schema_applied(cfg):
         _apply_ddl(cfg, ddl_path)
+        _apply_schema_patches(cfg)
         return "schema_applied"
+    _apply_schema_patches(cfg)
     return "exists"
+
+
+def _apply_schema_patches(cfg: dict) -> None:
+    """既存DB向けの不足スキーマを補完する（添付テーブル・文書ステータスCHECK）。"""
+    with psycopg.connect(
+        host=cfg["host"],
+        port=cfg["port"],
+        user=cfg["user"],
+        password=cfg["password"],
+        dbname=cfg["dbname"],
+        autocommit=True,
+        connect_timeout=10,
+    ) as conn:
+        # C-8/C-9/R-4: 添付保存用テーブルが無い既存DBへ作成する
+        conn.execute(
+            """
+            CREATE SEQUENCE IF NOT EXISTS public.trn_report_attachment_report_attachment_id_seq
+                AS integer START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS public.trn_report_attachment (
+                report_attachment_id integer NOT NULL
+                    DEFAULT nextval('public.trn_report_attachment_report_attachment_id_seq'::regclass),
+                report_id integer NOT NULL,
+                file_path text NOT NULL,
+                CONSTRAINT trn_report_attachment_pkey PRIMARY KEY (report_attachment_id),
+                CONSTRAINT trn_report_attachment_report_id_fkey
+                    FOREIGN KEY (report_id) REFERENCES public.trn_report(report_id) ON DELETE CASCADE
+            )
+            """
+        )
+        conn.execute(
+            """
+            ALTER SEQUENCE public.trn_report_attachment_report_attachment_id_seq
+                OWNED BY public.trn_report_attachment.report_attachment_id
+            """
+        )
+        # K-3: UIステータス（公開中/審査中/非公開）をCHECKへ追加する
+        # 既に同一制約がある場合は作り直す（起動毎でも安全）
+        try:
+            conn.execute(
+                """
+                ALTER TABLE public.trn_knowledge_document_version
+                    DROP CONSTRAINT IF EXISTS mst_knowledge_document_version_status_check
+                """
+            )
+            conn.execute(
+                """
+                ALTER TABLE public.trn_knowledge_document_version
+                    ADD CONSTRAINT mst_knowledge_document_version_status_check
+                    CHECK (status = ANY (ARRAY[
+                        '登録済み'::text, '旧版'::text, '処理中'::text, 'エラー'::text,
+                        '公開中'::text, '審査中'::text, '非公開'::text
+                    ]))
+                """
+            )
+        except Exception:
+            # 文書テーブルが無い環境でもアプリ起動を止めない
+            pass
 
 
 if __name__ == "__main__":

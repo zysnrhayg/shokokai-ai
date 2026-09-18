@@ -64,3 +64,13 @@ def get_upload_abs_path(rel_path):
     if rel == upload_dir_name or rel.startswith(upload_dir_name + "/"):
         rel = rel[len(upload_dir_name) + 1:]
     return os.path.join(upload_root, rel)
+
+
+def display_name_from_upload_path(rel_path):
+    """保存パスから画面表示用ファイル名を返す（タイムスタンプ・UUID接尾辞を除去）。"""
+    name = os.path.basename(str(rel_path or "").replace("\\", "/"))
+    if not name:
+        return ""
+    # safe_base_YYYYMMDD_HHMMSS_hex8.ext → safe_base.ext
+    stripped = re.sub(r"_\d{8}_\d{6}_[0-9a-fA-F]{8}(?=\.[^.]+$)", "", name)
+    return stripped or name

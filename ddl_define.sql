@@ -873,7 +873,7 @@ CREATE TABLE public.trn_knowledge_document_version (
     updated_by integer,
     deleted_at text,
     deleted_by integer,
-    CONSTRAINT mst_knowledge_document_version_status_check CHECK ((status = ANY (ARRAY['登録済み'::text, '旧版'::text, '処理中'::text, 'エラー'::text])))
+    CONSTRAINT mst_knowledge_document_version_status_check CHECK ((status = ANY (ARRAY['登録済み'::text, '旧版'::text, '処理中'::text, 'エラー'::text, '公開中'::text, '審査中'::text, '非公開'::text])))
 );
 
 
@@ -1162,9 +1162,7 @@ CREATE TABLE public.trn_report_theme (
 CREATE TABLE public.trn_report_attachment (
     report_attachment_id integer NOT NULL,
     report_id integer NOT NULL,
-    file_path text NOT NULL,
-    CONSTRAINT trn_report_attachment_report_id_fkey FOREIGN KEY (report_id)
-        REFERENCES public.trn_report (report_id) ON DELETE CASCADE
+    file_path text NOT NULL
 );
 
 
@@ -1978,6 +1976,13 @@ ALTER TABLE ONLY public.trn_notice ALTER COLUMN notice_id SET DEFAULT nextval('p
 --
 
 ALTER TABLE ONLY public.trn_report ALTER COLUMN report_id SET DEFAULT nextval('public.trn_report_report_id_seq'::regclass);
+
+
+--
+-- Name: trn_report_attachment report_attachment_id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.trn_report_attachment ALTER COLUMN report_attachment_id SET DEFAULT nextval('public.trn_report_attachment_report_attachment_id_seq'::regclass);
 
 
 --
@@ -4745,6 +4750,14 @@ ALTER TABLE ONLY public.trn_report
 
 
 --
+-- Name: trn_report_attachment trn_report_attachment_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.trn_report_attachment
+    ADD CONSTRAINT trn_report_attachment_pkey PRIMARY KEY (report_attachment_id);
+
+
+--
 -- Name: trn_report trn_report_new_report_code_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5717,6 +5730,14 @@ ALTER TABLE ONLY public.trn_report
 
 ALTER TABLE ONLY public.trn_report_theme
     ADD CONSTRAINT trn_report_theme_report_id_fkey FOREIGN KEY (report_id) REFERENCES public.trn_report(report_id);
+
+
+--
+-- Name: trn_report_attachment trn_report_attachment_report_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.trn_report_attachment
+    ADD CONSTRAINT trn_report_attachment_report_id_fkey FOREIGN KEY (report_id) REFERENCES public.trn_report(report_id) ON DELETE CASCADE;
 
 
 --

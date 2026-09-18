@@ -51,7 +51,7 @@
         } catch (e) {
           data = { e: text };
         }
-        if (data && data.r) {
+        if (data && data.r && !data.dragReportId && !data.dragReportCode && !data.msg && !data.i && !data.WF_RUNRESULT) {
           data.e = data.e || 'セッションが切れました。再ログインしてください';
         }
         if (response.status === 403) {

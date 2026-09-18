@@ -6,7 +6,7 @@
   // ==========================================================================
 
   // 下書き保存で採番されたreport_id（帳票出力・既存下書きの更新に使用する）
-  var state = { lastDraftReportId: '' };
+  var state = { lastDraftReportId: '', savedAttachments: [] };
 
   // JSON文字列／配列を安全にパースする共通関数
   function parseJson(raw, fallback) {
@@ -44,13 +44,52 @@
     return el ? Array.from(el.files || []) : [];
   }
 
-  // 保存成功後にファイル選択欄をクリアする（再保存時の二重登録防止）
+  // 登録済み添付の表示名を安全にエスケープする
+  function escAttach(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  // 登録済み添付＋選択中ファイルを一覧表示する（保存後も登録済みを残す）
+  function renderAttachmentsList() {
+    var listEl = document.getElementById('mi-attachments-list');
+    if (!listEl) return;
+    var parts = [];
+    if (state.savedAttachments && state.savedAttachments.length) {
+      var links = state.savedAttachments.map(function (a) {
+        var name = escAttach(a.file_name || a.file_path || ('添付' + a.id));
+        var id = encodeURIComponent(a.id);
+        return '<a href="./reportattachmentdownloadapi.do?id=' + id + '" class="mi-attach-link" download>' + name + '</a>';
+      }).join('、');
+      parts.push('登録済み：' + links);
+    }
+    var selected = getSelectedAttachments();
+    if (selected.length) {
+      parts.push('選択中：' + selected.map(function (f) { return escAttach(f.name); }).join('、'));
+    }
+    listEl.innerHTML = parts.join(' ／ ');
+  }
+
+  // 保存成功後にファイル選択欄をクリアする（登録済み一覧は維持する）
   function clearSelectedAttachments() {
     var el = document.getElementById('mi-attachments');
-    var listEl = document.getElementById('mi-attachments-list');
     if (el) el.value = '';
-    if (listEl) listEl.textContent = '';
+    renderAttachmentsList();
   }
+
+  function setSavedAttachments(list) {
+    state.savedAttachments = Array.isArray(list) ? list.slice() : [];
+    renderAttachmentsList();
+  }
+
+  // 報告書を見る等から開いたときに登録済み添付を反映する
+  window.__miSetSavedAttachments = setSavedAttachments;
+  window.__miSetLastDraftReportId = function (id) {
+    state.lastDraftReportId = id ? String(id) : '';
+  };
 
   function val(id) {
     var el = document.getElementById(id);
@@ -60,6 +99,37 @@
   function setVal(id, value) {
     var el = document.getElementById(id);
     if (el) el.value = value == null ? '' : value;
+  }
+
+  // HH:MM 比較用に正規化する
+  function normalizeTimeValue(v) {
+    var s = String(v || '').trim();
+    if (!s) return '';
+    var m = s.match(/^(\d{1,2}):(\d{2})/);
+    if (m) {
+      return String(m[1]).padStart(2, '0') + ':' + m[2];
+    }
+    return s.length >= 5 ? s.slice(0, 5) : s;
+  }
+
+  // 開始時刻 < 終了時刻 でない場合はエラー表示して false を返す
+  function validateTimeOrder(showToast) {
+    var startEl = document.getElementById('mi-time-start');
+    var endEl = document.getElementById('mi-time-end');
+    var start = normalizeTimeValue(startEl && startEl.value);
+    var end = normalizeTimeValue(endEl && endEl.value);
+    if (!start || !end) return true;
+    var invalid = start >= end;
+    [startEl, endEl].forEach(function (el) {
+      if (!el) return;
+      el.classList.toggle('is-invalid', invalid);
+      var row = el.closest('.detail-row');
+      if (row) row.classList.toggle('detail-row--invalid', invalid);
+    });
+    if (invalid && showToast !== false) {
+      Toast.error('終了時刻は開始時刻より後の時刻を指定してください');
+    }
+    return !invalid;
   }
 
   // 担当selectから選択中の職員名（shokuin_kj）を取得する
@@ -211,22 +281,23 @@
       const attachmentsListEl = document.getElementById('mi-attachments-list');
       if (attachmentsEl && attachmentsListEl) {
         attachmentsEl.addEventListener('change', () => {
-          const files = Array.from(attachmentsEl.files || []);
-          attachmentsListEl.textContent = files.length
-            ? `選択中：${files.map(f => f.name).join('、')}`
-            : '';
+          renderAttachmentsList();
         });
       }
     }
 
     {
       const timeStartEl = document.getElementById('mi-time-start');
+      const timeEndEl = document.getElementById('mi-time-end');
       if (timeStartEl && !timeStartEl.value) {
         const now = new Date();
         const hh = String(now.getHours()).padStart(2, '0');
         const mm = String(now.getMinutes()).padStart(2, '0');
         timeStartEl.value = `${hh}:${mm}`;
       }
+      const onTimeChange = () => { validateTimeOrder(false); };
+      if (timeStartEl) timeStartEl.addEventListener('change', onTimeChange);
+      if (timeEndEl) timeEndEl.addEventListener('change', onTimeChange);
     }
 
     {
@@ -488,6 +559,7 @@
         Toast.error('内容が未入力のため下書き保存できません');
         return;
       }
+      if (!validateTimeOrder(true)) return;
       const themeCodes = [...document.querySelectorAll('.mi-theme-checkbox')]
         .filter((c) => c.checked).map((c) => c.value);
       const body = {
@@ -521,6 +593,7 @@
       saveRequest.then((data) => {
         if (data.e) { Toast.error(data.e); return; }
         if (data.dragReportId) state.lastDraftReportId = data.dragReportId;
+        if (Array.isArray(data.attachments)) setSavedAttachments(data.attachments);
         clearSelectedAttachments();
         Toast.success(data.i || '下書きとして保存しました');
       }).catch(() => Toast.error('通信エラーが発生しました'));
@@ -540,6 +613,7 @@
           }
           if (!isDraft) {
             e.preventDefault();
+            if (!validateTimeOrder(true)) return;
             if (overviewEl && contentEl && !overviewEl.value.trim() && contentEl.value.trim()) {
               overviewEl.value = aiSummarize(contentEl.value);
             }
@@ -597,7 +671,9 @@
             saveRequest.then((data) => {
               if (data.e) { Toast.error(data.e); return; }
               submitSuccess = true;
-              state.lastDraftReportId = data.dragReportId || '';
+              // 登録済みになったIDで下書き更新しない（テーマ削除等の副作用を防ぐ）
+              state.lastDraftReportId = '';
+              if (Array.isArray(data.attachments)) setSavedAttachments(data.attachments);
               clearSelectedAttachments();
               Toast.success(data.i || '報告書を登録しました');
             }).catch(() => Toast.error('通信エラーが発生しました')).finally(() => {

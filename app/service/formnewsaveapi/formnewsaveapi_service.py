@@ -102,6 +102,13 @@ class FormnewsaveapiService :
 				jsonObj.setValue(utils.json_constant.JSONID_ERR, "内容が未入力です")
 				jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_FAIL)
 				return
+			# 開始時刻は終了時刻より前であること（例: 11:00〜09:00 は不可）
+			ts = utils.string_util.changeNullToBlank(TIME_START)
+			te = utils.string_util.changeNullToBlank(TIME_END)
+			if ts and te and ts[:5] >= te[:5] :
+				jsonObj.setValue(utils.json_constant.JSONID_ERR, "終了時刻は開始時刻より後の時刻を指定してください")
+				jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_FAIL)
+				return
 			#概要は内容と同一とする（概要フィールドは廃止）
 			SUMMARY = CONTENT
 
@@ -182,6 +189,8 @@ class FormnewsaveapiService :
 			#登録結果をフロントエンドへ返却する
 			jsonObj.setValue("dragReportId", REPORT_ID)
 			jsonObj.setValue("dragReportCode", REPORT_CODE)
+			from app.common import reports_api
+			jsonObj.setValue("attachments", reports_api.fetch_report_attachments(REPORT_ID))
 			jsonObj.setValue(utils.json_constant.JSONID_MSG, "報告書を登録しました（報告書番号: " + REPORT_CODE + "）")
 			jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_SUCCESS)
 			#処理終了。
@@ -190,5 +199,5 @@ class FormnewsaveapiService :
 			utils.config.global_log.error(e)
 			jsonObj.setValue(utils.json_constant.JSONID_ERR, "報告書の登録に失敗しました")
 			jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_FAIL)
-			raise
+			return
 		utils.config.global_log.debug(str(threading.current_thread().native_id)+ ": end")

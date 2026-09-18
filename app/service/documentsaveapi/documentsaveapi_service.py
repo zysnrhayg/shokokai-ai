@@ -100,10 +100,13 @@ class DocumentsaveapiService :
 
 			# 登録完了メッセージをフロントエンドに返却する
 			jsonObj.setHtml("msg", "文書を登録しました")
+			jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_SUCCESS)
 
 			#処理終了。
 
 		except Exception as e:
 			utils.config.global_log.error(e)
-			raise
+			jsonObj.setValue(utils.json_constant.JSONID_ERR, "文書の登録に失敗しました")
+			jsonObj.setValue(utils.json_constant.JSONID_FOR_RUNRESULT, utils.json_constant.RUNRESULT_FAIL)
+			return
 		utils.config.global_log.debug(str(threading.current_thread().native_id)+ ": end")
