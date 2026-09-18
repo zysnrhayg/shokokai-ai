@@ -29,7 +29,7 @@ class LogininitapiService:
         utils.config.global_log.debug(str(threading.current_thread().native_id) + ": start")
         try:
             prefecture_rows = Api100GetprefecturenamesDao().api100_getprefecturenames(api100_getprefecturenames)
-            # ホーム／ダッシュボードと同じ get_active_notices（日付補完＋有効期間）
+            # ホーム／ダッシュボードと同じ get_active_notices（読取のみ・有効期間）
             from app.common.dashboard_api import fetch_notices
 
             notices = fetch_notices("login")

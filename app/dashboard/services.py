@@ -16,11 +16,11 @@ def _q(sql, params=None):
 
 
 def get_active_notices(role_code=""):
-    """基本のお知らせ一覧（有効期間内のみ。権限 role_code で絞る）。"""
+    """基本のお知らせ一覧（有効期間内のみ。権限 role_code で絞る。trn_notice は更新しない）。"""
     rc = _blank(role_code)
     if not rc:
         return []
-    # 顧客 mapper api_kihonnonshiraseichiran と同条件。日付未設定は ensure_notice_dates で補完後も NULL 可
+    # 顧客 mapper api_kihonnonshiraseichiran と同条件（読取のみ）
     rows = _q(
         """
 SELECT content
@@ -47,33 +47,6 @@ ORDER BY sort_order, notice_id
                 continue
         out.append({"content": content})
     return out
-
-
-def ensure_notice_dates():
-    """日付未設定のお知らせに start/end を付与する（運用補完）。"""
-    try:
-        db.updateSQL(
-            """
-UPDATE trn_notice
-SET start_date = COALESCE(start_date, CURRENT_DATE)
-  , end_date = COALESCE(
-        end_date,
-        MAKE_DATE(
-          EXTRACT(YEAR FROM CURRENT_DATE)::integer
-            + CASE WHEN EXTRACT(MONTH FROM CURRENT_DATE) >= 4 THEN 1 ELSE 0 END,
-          3,
-          31
-        )
-      )
-  , updated_at = TO_CHAR(NOW(), 'YYYYMMDDHH24MISS')
-WHERE deleted_at IS NULL
-  AND (start_date IS NULL OR end_date IS NULL)
-""",
-            {},
-        )
-    except Exception:
-        # 起動時補完失敗は握りつぶし（表示側は NULL を有効扱い）
-        pass
 
 
 def get_current_month_support_count(prefecture_code="", shokokai_cd="", year_month=""):
@@ -228,7 +201,6 @@ LIMIT :lim
 # re-export for callers that import draft helper via dashboard package
 __all__ = [
     "get_active_notices",
-    "ensure_notice_dates",
     "get_current_month_support_count",
     "get_kpi_summaries_by_years",
     "get_recent_reports",

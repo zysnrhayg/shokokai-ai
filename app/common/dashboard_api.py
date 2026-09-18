@@ -394,10 +394,9 @@ WHERE prefecture_code = :prefecture_code
 
 
 def fetch_notices(fe_role):
-    """互換ラッパ：顧客設計 get_active_notices を呼ぶ。"""
-    from app.dashboard.services import ensure_notice_dates, get_active_notices
+    """互換ラッパ：顧客設計 get_active_notices を呼ぶ（trn_notice は読取のみ）。"""
+    from app.dashboard.services import get_active_notices
 
-    ensure_notice_dates()
     rc = FE_ROLE_TO_NOTICE.get(fe_role, "ken")
     return get_active_notices(rc)
 
